@@ -9,33 +9,17 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod"
 import { spawn } from "child_process"
-import { existsSync, mkdirSync } from "fs"
 import { join } from "path"
-import { homedir } from "os"
-import { execSync } from "child_process"
 
-const VENV_DIR = join(homedir(), ".config", "opencode", "mcp-servers", "computer-use", ".venv")
-const HELPER_SCRIPT = join(homedir(), ".config", "opencode", "mcp-servers", "computer-use", "helper.py")
+const HELPER_SCRIPT = join(__dirname, "helper.py")
 
 function getPythonPath(): string {
-  if (process.platform === "win32") {
-    return join(VENV_DIR, "Scripts", "python.exe")
-  }
-  return join(VENV_DIR, "bin", "python3")
+  return "python"
 }
 
 function ensureVenv(): void {
-  if (existsSync(getPythonPath())) return
-
-  const python = process.platform === "win32" ? "python" : "python3"
-  execSync(`${python} -m venv "${VENV_DIR}"`, { stdio: "pipe" })
-
-  const pip = process.platform === "win32"
-    ? join(VENV_DIR, "Scripts", "pip.exe")
-    : join(VENV_DIR, "bin", "pip")
-
-  const reqFile = join(homedir(), ".config", "opencode", "mcp-servers", "computer-use", "requirements.txt")
-  execSync(`"${pip}" install -r "${reqFile}"`, { stdio: "pipe" })
+  // Dependencies are globally installed, no venv needed
+  return
 }
 
 async function callPython(command: string, payload: Record<string, unknown> = {}): Promise<any> {

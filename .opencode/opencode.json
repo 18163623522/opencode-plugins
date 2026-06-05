@@ -3,31 +3,28 @@
   "skills": {
     "paths": ["./skills", "./plugins/superpowers/skills"]
   },
-  "plugin": [
-    "./plugins/memory-plugin.ts",
-    "./plugins/computer-use-plugin.ts",
-    ["./plugins/im-bridge-plugin.ts", {
-      "telegram": { "bot_token": "", "chat_id": "" },
-      "feishu": { "app_id": "", "app_secret": "", "chat_id": "" },
-      "dingtalk": { "webhook": "" }
-    }],
-    "./plugins/conversation-viewer-plugin.ts",
-    "./plugins/conversation-viewer-tui-plugin.tsx",
-    "./plugins/superpowers/.opencode/plugins/superpowers.js",
-    "@angdrew/opencode-hashline-plugin",
-    "@tarquinen/opencode-dcp",
-    "@rahadiana/opencode-ultrapress",
-    "opencode-enhance-plan",
-    "opencode-vibeguard",
-    "opencode-stability-guard",
-    "opencode-supermemory-max",
-    "opencode-ultra",
-    "@nano-step/ai-sandbox-wrapper"
-  ],
+    "plugin": [
+        "./.opencode/plugins/memory-plugin.ts",
+        "./.opencode/plugins/computer-use-plugin.ts",
+        "./.opencode/plugins/im-bridge-plugin.ts",
+        "./.opencode/plugins/conversation-viewer-plugin.ts",
+        "./.opencode/plugins/conversation-viewer-tui-plugin.tsx",
+        "./.opencode/plugins/settings-plugin.tsx",
+        "./.opencode/plugins/superpowers/.opencode/plugins/superpowers.js",
+        "@angdrew/opencode-hashline-plugin",
+        "@tarquinen/opencode-dcp",
+        "@rahadiana/opencode-ultrapress",
+        "opencode-enhance-plan",
+        "opencode-vibeguard",
+        "opencode-stability-guard",
+        "opencode-supermemory-max",
+        "opencode-ultra",
+        "@nano-step/ai-sandbox-wrapper"
+    ],
   "mcp": {
     "computer-use": {
       "type": "local",
-      "command": ["bun", "run", "./mcp-servers/computer-use/server.ts"],
+      "command": ["npx", "tsx", "./mcp-servers/computer-use/server.ts"],
       "enabled": true,
       "timeout": 30000,
       "environment": {
@@ -61,10 +58,40 @@
       }
     }
   },
-  "command": {
-    "memory": {
-      "description": "View and manage persistent memories",
-      "template": "List all stored memories using the list_memories tool. If the user provides arguments, search for matching memories. Show a summary with memory types (user/feedback/project/reference) and their descriptions. User input: $ARGUMENTS"
+    "command": {
+        "memory": {
+            "description": "管理记忆系统",
+            "subcommands": {
+                "list": { "description": "列出所有记忆" },
+                "search": { "description": "搜索记忆", "args": ["<query>"] },
+                "save": { "description": "保存记忆", "args": ["<content>"] },
+                "delete": { "description": "删除记忆", "args": ["<name>"] }
+            }
+        },
+        "remember": { "description": "保存记忆", "args": ["<content>"] },
+        "forget": { "description": "删除记忆", "args": ["<name>"] },
+        "screenshot": { "description": "截取屏幕截图" },
+        "desktop": {
+            "description": "桌面控制",
+            "subcommands": {
+                "enable": { "description": "启用桌面控制" },
+                "disable": { "description": "禁用桌面控制" },
+                "click": { "description": "点击屏幕位置", "args": ["<x>", "<y>"] },
+                "type": { "description": "输入文本", "args": ["<text>"] },
+                "key": { "description": "按键", "args": ["<keys>"] },
+                "apps": { "description": "列出运行中的应用" }
+            }
+        },
+        "im": {
+            "description": "IM桥接消息",
+            "subcommands": {
+                "send": { "description": "发送消息", "args": ["<platform>", "<message>"] },
+                "status": { "description": "查看连接状态" }
+            }
+        },
+        "coordinate": { "description": "启动多Agent协调", "args": ["<task>"] },
+        "review": { "description": "启动代码审查", "args": ["<file_or_task>"] },
+        "settings": { "description": "打开设置面板" }
     },
     "remember": {
       "description": "Save something to persistent memory",

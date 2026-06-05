@@ -1,12 +1,9 @@
 import type { Plugin } from "@opencode-ai/plugin"
-import { execSync, spawn } from "child_process"
-import { existsSync, mkdirSync } from "fs"
+import { spawn } from "child_process"
 import { join } from "path"
-import { homedir } from "os"
 import { tmpdir } from "os"
 
-const VENV_DIR = join(homedir(), ".config", "opencode", "mcp-servers", "computer-use", ".venv")
-const HELPER_SCRIPT = join(homedir(), ".config", "opencode", "mcp-servers", "computer-use", "helper.py")
+const HELPER_SCRIPT = join(process.cwd(), ".opencode", "mcp-servers", "computer-use", "helper.py")
 const LOCK_FILE = join(tmpdir(), "opencode-computer-use.lock")
 
 interface ComputerUseState {
@@ -24,25 +21,12 @@ const state: ComputerUseState = {
 }
 
 function getPythonPath(): string {
-  if (process.platform === "win32") {
-    return join(VENV_DIR, "Scripts", "python.exe")
-  }
-  return join(VENV_DIR, "bin", "python3")
+  return "python"
 }
 
 function ensureVenv() {
-  if (existsSync(getPythonPath())) return
-
-  console.log("[ComputerUse] Creating Python virtual environment...")
-  const python = process.platform === "win32" ? "python" : "python3"
-  execSync(`${python} -m venv "${VENV_DIR}"`, { stdio: "pipe" })
-
-  const pip = process.platform === "win32"
-    ? join(VENV_DIR, "Scripts", "pip.exe")
-    : join(VENV_DIR, "bin", "pip")
-
-  console.log("[ComputerUse] Installing dependencies...")
-  execSync(`"${pip}" install pyautogui mss Pillow pyobjc-core`, { stdio: "pipe" })
+  // Dependencies are globally installed, no venv needed
+  return
 }
 
 async function callPythonHelper(command: string, payload: Record<string, unknown> = {}): Promise<any> {
