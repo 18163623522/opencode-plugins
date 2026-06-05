@@ -108,6 +108,18 @@
     }
   },
   "command": {
+    "plugins": {
+      "description": "查看所有插件及状态",
+      "template": "使用 plugin_list 工具列出所有插件及其启用/禁用状态。如果用户要求详情，使用 format: detail。用户输入: $ARGUMENTS"
+    },
+    "plugin-enable": {
+      "description": "启用指定插件",
+      "template": "使用 plugin_enable 工具启用指定插件。需要提供插件 id（如 token-stats-plugin）。用户输入: $ARGUMENTS"
+    },
+    "plugin-disable": {
+      "description": "禁用指定插件",
+      "template": "使用 plugin_disable 工具禁用指定插件。需要提供插件 id（如 token-stats-plugin）。用户输入: $ARGUMENTS"
+    },
     "usage": {
       "description": "查看 Token 用量和费用统计",
       "template": "使用 token_usage 工具获取 Token 用量和成本统计。用户输入: $ARGUMENTS"

@@ -1,5 +1,0 @@
-{
-  "plugin": [
-    "./plugins/plugin-manager-tui.tsx"
-  ]
-}
