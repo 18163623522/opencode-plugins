@@ -23,7 +23,10 @@
     "opencode-stability-guard",
     "opencode-supermemory-max",
     "opencode-ultra",
-    "@nano-step/ai-sandbox-wrapper"
+    "@nano-step/ai-sandbox-wrapper",
+    "oh-my-opencode",
+    "opencode-eslint-formatter",
+    "@xeaser/opencode-obsidian-sync"
   ],
   "mcp": {
     "computer-use": {
@@ -35,6 +38,12 @@
         "COMPUTER_USE_ENABLED": "true",
         "COMPUTER_USE_PERMISSION_TIER": "full"
       }
+    },
+    "web-search": {
+      "type": "local",
+      "command": ["npx", "-y", "@zhafron/mcp-web-search"],
+      "enabled": true,
+      "timeout": 30000
     }
   },
   "agent": {
