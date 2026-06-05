@@ -37,6 +37,8 @@ async function sendToIM(platform: string, chatId: string, message: string): Prom
       return sendFeishu(chatId, message)
     case "dingtalk":
       return sendDingTalk(chatId, message)
+    case "wechat":
+      return sendWeChat(message)
     default:
       console.warn(`[IMBridge] Unsupported platform: ${platform}`)
       return false
@@ -117,6 +119,25 @@ async function sendDingTalk(chatId: string, message: string): Promise<boolean> {
   }
 }
 
+async function sendWeChat(message: string): Promise<boolean> {
+  const webhook = getImEnv("wechat", "webhook")
+  if (!webhook) return false
+
+  try {
+    const resp = await fetch(webhook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        msgtype: "markdown",
+        markdown: { content: message },
+      }),
+    })
+    return resp.ok
+  } catch {
+    return false
+  }
+}
+
 function formatApprovalRequest(req: ApprovalRequest): string {
   const riskEmoji = { low: "🟢", medium: "🟡", high: "🔴" }[req.risk]
   return [
@@ -140,8 +161,9 @@ export default (async ({ $ }) => {
       const hasTelegram = !!(getImEnv("telegram", "bot_token"))
       const hasFeishu = !!(getImEnv("feishu", "app_id") && getImEnv("feishu", "app_secret"))
       const hasDingTalk = !!(getImEnv("dingtalk", "webhook"))
+      const hasWeChat = !!(getImEnv("wechat", "webhook"))
 
-      webhookEnabled = hasTelegram || hasFeishu || hasDingTalk
+      webhookEnabled = hasTelegram || hasFeishu || hasDingTalk || hasWeChat
       if (webhookEnabled) {
         console.log("[IMBridge] IM integration active")
       }
@@ -170,9 +192,10 @@ export default (async ({ $ }) => {
 
       // Send to configured IM platforms
       const message = formatApprovalRequest(approval)
-      const chatId = getImEnv("telegram", "chat_id") || getImEnv("feishu", "chat_id") || ""
+      const chatId = getImEnv("telegram", "chat_id") || getImEnv("feishu", "chat_id") || getImEnv("wechat", "chat_id") || ""
       const platform = getImEnv("telegram", "bot_token") ? "telegram" :
-                       getImEnv("feishu", "app_id") ? "feishu" : "dingtalk"
+                       getImEnv("feishu", "app_id") ? "feishu" :
+                       getImEnv("wechat", "webhook") ? "wechat" : "dingtalk"
 
       if (chatId) {
         await sendToIM(platform, chatId, message)
@@ -220,7 +243,7 @@ export default (async ({ $ }) => {
         parameters: {
           type: "object",
           properties: {
-            platform: { type: "string", enum: ["telegram", "feishu", "dingtalk"] },
+            platform: { type: "string", enum: ["telegram", "feishu", "dingtalk", "wechat"] },
             message: { type: "string", description: "Message to send" },
           },
           required: ["platform", "message"],
@@ -240,6 +263,7 @@ export default (async ({ $ }) => {
             telegram: !!(getImEnv("telegram", "bot_token")),
             feishu: !!(getImEnv("feishu", "app_id") && getImEnv("feishu", "app_secret")),
             dingtalk: !!(getImEnv("dingtalk", "webhook")),
+            wechat: !!(getImEnv("wechat", "webhook")),
             pendingApprovals: pendingApprovals.size,
           }
           return JSON.stringify(status, null, 2)
