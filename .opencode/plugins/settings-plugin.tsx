@@ -5,7 +5,7 @@ import { join } from "path"
 
 // Read opencode.json
 function readConfig(): any {
-  const configPath = join(process.cwd(), "opencode.json")
+  const configPath = join(process.cwd(), ".opencode", "opencode.json")
   if (!existsSync(configPath)) return {}
   try {
     return JSON.parse(readFileSync(configPath, "utf-8"))
@@ -16,7 +16,7 @@ function readConfig(): any {
 
 // Write opencode.json
 function writeConfig(config: any): void {
-  const configPath = join(process.cwd(), "opencode.json")
+  const configPath = join(process.cwd(), ".opencode", "opencode.json")
   writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8")
 }
 
