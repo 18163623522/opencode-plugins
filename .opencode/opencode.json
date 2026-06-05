@@ -1,14 +1,24 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "skills": {
-    "paths": [".opencode/skills"]
+    "paths": [".opencode/skills", ".opencode/plugins/superpowers/skills"]
   },
   "plugin": [
     "./.opencode/plugins/memory-plugin.ts",
     "./.opencode/plugins/computer-use-plugin.ts",
     "./.opencode/plugins/im-bridge-plugin.ts",
     "./.opencode/plugins/conversation-viewer-plugin.ts",
-    "./.opencode/plugins/conversation-viewer-tui-plugin.tsx"
+    "./.opencode/plugins/conversation-viewer-tui-plugin.tsx",
+    "./.opencode/plugins/superpowers/.opencode/plugins/superpowers.js",
+    "@angdrew/opencode-hashline-plugin",
+    "@tarquinen/opencode-dcp",
+    "@rahadiana/opencode-ultrapress",
+    "opencode-enhance-plan",
+    "opencode-vibeguard",
+    "opencode-stability-guard",
+    "opencode-supermemory-max",
+    "opencode-ultra",
+    "@nano-step/ai-sandbox-wrapper"
   ],
   "mcp": {
     "computer-use": {
