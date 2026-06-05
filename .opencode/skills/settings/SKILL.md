@@ -20,19 +20,19 @@ The settings plugin provides a visual settings panel accessible via:
 - Click "⚙️ 设置" on the home screen
 
 ### CLI Mode
-When TUI is not available, the agent can directly edit `opencode.json`:
+When TUI is not available, the agent can directly edit `.opencode/opencode.json`:
 
 #### Read current config
 ```typescript
 import { readFileSync } from "fs"
-const config = JSON.parse(readFileSync("opencode.json", "utf-8"))
+const config = JSON.parse(readFileSync(".opencode/opencode.json", "utf-8"))
 ```
 
 #### Update config
 ```typescript
 import { writeFileSync } from "fs"
 config.im.telegram.bot_token = "new_token"
-writeFileSync("opencode.json", JSON.stringify(config, null, 2))
+writeFileSync(".opencode/opencode.json", JSON.stringify(config, null, 2))
 ```
 
 ## Configuration Categories

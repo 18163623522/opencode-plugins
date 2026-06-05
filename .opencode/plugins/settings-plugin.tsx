@@ -266,7 +266,7 @@ function SettingsPanel({ api }: { api: TuiPluginApi }) {
       {/* Footer */}
       <box flexDirection="row" justifyContent="space-between" padding={1} borderTop>
         <text dimColor>↑↓ 选择类别 | Enter 编辑 | Esc 返回</text>
-        <text dimColor>配置文件: opencode.json</text>
+        <text dimColor>配置文件: .opencode/opencode.json</text>
       </box>
     </box>
   )
