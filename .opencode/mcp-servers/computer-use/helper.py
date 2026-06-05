@@ -53,44 +53,44 @@ def error_output(message: str) -> None:
 
 def cmd_screenshot(payload: Dict) -> Dict:
     """Take a screenshot and return base64 encoded JPEG."""
-    sct = get_mss()
+    mss_lib = get_mss()
     Image = get_pil()
 
-    region = payload.get("region")
-    if region:
-        monitor = {
-            "left": region["x"],
-            "top": region["y"],
-            "width": region["width"],
-            "height": region["height"],
+    with mss_lib.mss() as sct:
+        region = payload.get("region")
+        if region:
+            monitor = {
+                "left": region["x"],
+                "top": region["y"],
+                "width": region["width"],
+                "height": region["height"],
+            }
+        else:
+            monitor = sct.monitors[0]  # Entire screen
+
+        screenshot = sct.grab(monitor)
+
+        # Convert to JPEG
+        img = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+
+        # Resize if too large (max 1568px on longest side)
+        max_dim = 1568
+        w, h = img.size
+        if max(w, h) > max_dim:
+            scale = max_dim / max(w, h)
+            img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=80)
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+
+        return {
+            "base64": b64,
+            "width": img.size[0],
+            "height": img.size[1],
+            "displayWidth": monitor.get("width", screenshot.size[0]),
+            "displayHeight": monitor.get("height", screenshot.size[1]),
         }
-    else:
-        monitor = sct.monitors[0]  # Entire screen
-
-    with sct as s:
-        screenshot = s.grab(monitor)
-
-    # Convert to JPEG
-    img = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
-    
-    # Resize if too large (max 1568px on longest side)
-    max_dim = 1568
-    w, h = img.size
-    if max(w, h) > max_dim:
-        scale = max_dim / max(w, h)
-        img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
-
-    buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=80)
-    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
-
-    return {
-        "base64": b64,
-        "width": img.size[0],
-        "height": img.size[1],
-        "displayWidth": monitor.get("width", screenshot.size[0]),
-        "displayHeight": monitor.get("height", screenshot.size[1]),
-    }
 
 
 def cmd_click(payload: Dict) -> bool:
