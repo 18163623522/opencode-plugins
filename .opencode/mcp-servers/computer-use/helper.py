@@ -56,7 +56,7 @@ def cmd_screenshot(payload: Dict) -> Dict:
     mss_lib = get_mss()
     Image = get_pil()
 
-    with mss_lib.mss() as sct:
+    with mss_lib.MSS() as sct:
         region = payload.get("region")
         if region:
             monitor = {
