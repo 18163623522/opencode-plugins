@@ -38,6 +38,7 @@
     "paths": ["./skills", "./plugins/superpowers/skills"]
   },
   "plugin": [
+    "./plugins/plugin-manager.ts",
     "./plugins/token-stats-plugin.ts",
     "./plugins/scheduled-tasks-plugin.ts",
     "./plugins/tts-plugin.ts",

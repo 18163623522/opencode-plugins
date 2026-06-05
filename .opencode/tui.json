@@ -1,5 +1,5 @@
 {
   "plugin": [
-    "./plugins/home-status-tui.tsx"
+    "./plugins/plugin-manager-tui.tsx"
   ]
 }
