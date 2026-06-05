@@ -1,5 +1,5 @@
 {
   "plugin": [
-    "./plugins/dashboard-tui.tsx"
+    "./plugins/home-status-tui.tsx"
   ]
 }
