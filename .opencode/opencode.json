@@ -13,6 +13,7 @@
     }],
     "./plugins/conversation-viewer-plugin.ts",
     "./plugins/conversation-viewer-tui-plugin.tsx",
+    "./plugins/settings-plugin.tsx",
     "./plugins/superpowers/.opencode/plugins/superpowers.js",
     "@angdrew/opencode-hashline-plugin",
     "@tarquinen/opencode-dcp",
@@ -27,7 +28,7 @@
   "mcp": {
     "computer-use": {
       "type": "local",
-      "command": ["bun", "run", "./mcp-servers/computer-use/server.ts"],
+      "command": ["npx", "tsx", "./mcp-servers/computer-use/server.ts"],
       "enabled": true,
       "timeout": 30000,
       "environment": {
@@ -95,6 +96,10 @@
       "description": "Code review with the reviewer agent",
       "agent": "reviewer",
       "template": "Perform a thorough code review of the specified files or recent changes. Check for correctness, security, performance, readability, and conventions. Output issues in format: File:Line — Description (severity). Review target: $ARGUMENTS"
+    },
+    "settings": {
+      "description": "打开设置面板，配置插件和功能",
+      "template": "打开设置面板。使用 settings.show 命令导航到设置页面。用户输入: $ARGUMENTS"
     }
   },
   "experimental": {
