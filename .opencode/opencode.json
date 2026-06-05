@@ -1,0 +1,103 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+  "plugin": [
+    "./.opencode/plugins/memory-plugin.ts",
+    "./.opencode/plugins/computer-use-plugin.ts",
+    "./.opencode/plugins/im-bridge-plugin.ts",
+    "./.opencode/plugins/conversation-viewer-plugin.ts",
+    "./.opencode/plugins/conversation-viewer-tui-plugin.tsx"
+  ],
+  "mcp": {
+    "computer-use": {
+      "type": "local",
+      "command": ["bun", "run", "./.opencode/mcp-servers/computer-use/server.ts"],
+      "enabled": true,
+      "timeout": 30000,
+      "environment": {
+        "COMPUTER_USE_ENABLED": "true",
+        "COMPUTER_USE_PERMISSION_TIER": "full"
+      }
+    }
+  },
+  "agent": {
+    "memory-extractor": {
+      "description": "Extracts and consolidates memory from conversation history",
+      "mode": "subagent",
+      "hidden": true,
+      "steps": 5
+    },
+    "coordinator": {
+      "description": "Decomposes complex tasks and delegates to specialized sub-agents",
+      "mode": "subagent",
+      "steps": 20
+    },
+    "coder": {
+      "description": "Focused code implementation agent",
+      "mode": "subagent",
+      "steps": 30
+    },
+    "reviewer": {
+      "description": "Code review and quality analysis agent",
+      "mode": "subagent",
+      "permission": {
+        "edit": "deny"
+      }
+    }
+  },
+  "command": {
+    "memory": {
+      "description": "View and manage persistent memories",
+      "template": "List all stored memories using the list_memories tool. If the user provides arguments, search for matching memories. Show a summary with memory types (user/feedback/project/reference) and their descriptions. User input: $ARGUMENTS"
+    },
+    "remember": {
+      "description": "Save something to persistent memory",
+      "template": "Save the following information as a persistent memory using the save_memory tool. Determine the appropriate type (user/feedback/project/reference) based on content. Create a short kebab-case name and one-line description. Content to remember: $ARGUMENTS"
+    },
+    "forget": {
+      "description": "Delete a memory by name or topic",
+      "template": "Delete the memory matching the following pattern using the delete_memory tool. Pattern: $ARGUMENTS"
+    },
+    "screenshot": {
+      "description": "Take a desktop screenshot",
+      "template": "Take a screenshot of the desktop using the desktop_screenshot tool. If the user specifies a region, capture that region. Analyze the screenshot and describe what you see. User input: $ARGUMENTS"
+    },
+    "desktop": {
+      "description": "Control the desktop (click, type, key)",
+      "template": "You have Computer Use capabilities. The user wants to perform a desktop operation. Use the appropriate desktop tools (desktop_click, desktop_type, desktop_key, desktop_scroll, desktop_screenshot, desktop_list_apps) to fulfill the request. First take a screenshot to see the current state, then perform the requested action. User request: $ARGUMENTS"
+    },
+    "im": {
+      "description": "IM bridge status and messaging",
+      "template": "Check IM bridge status using the im_status tool. If the user wants to send a message, use the im_send tool with the specified platform (telegram/feishu/dingtalk). User input: $ARGUMENTS"
+    },
+    "coordinate": {
+      "description": "Coordinate complex multi-step tasks",
+      "agent": "coordinator",
+      "template": "Break down the following task into subtasks and execute them using the Task tool with appropriate sub-agents (coder, reviewer). Run independent tasks in parallel. Task: $ARGUMENTS"
+    },
+    "review": {
+      "description": "Code review with the reviewer agent",
+      "agent": "reviewer",
+      "template": "Perform a thorough code review of the specified files or recent changes. Check for correctness, security, performance, readability, and conventions. Output issues in format: File:Line — Description (severity). Review target: $ARGUMENTS"
+    }
+  },
+  "im": {
+    "telegram": {
+      "bot_token": "",
+      "chat_id": ""
+    },
+    "feishu": {
+      "app_id": "",
+      "app_secret": "",
+      "chat_id": ""
+    },
+    "dingtalk": {
+      "webhook": ""
+    }
+  },
+  "experimental": {
+    "mcp_timeout": 30000
+  }
+}
