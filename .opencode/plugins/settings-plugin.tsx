@@ -1,26 +1,117 @@
 import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
-import { createSignal, createMemo, Show, For, onMount } from "solid-js"
-import { readFileSync, writeFileSync, existsSync } from "fs"
+import { createSignal, createMemo, Show, For } from "solid-js"
+import { readFileSync, writeFileSync, existsSync, copyFileSync } from "fs"
 import { join } from "path"
 
-// Read opencode.json
-function readConfig(): any {
-  const configPath = join(process.cwd(), ".opencode", "opencode.json")
-  if (!existsSync(configPath)) return {}
+const CONFIG_PATH = join(process.cwd(), ".opencode", "opencode.json")
+const BACKUP_PATH = join(process.cwd(), ".opencode", "opencode.json.bak")
+
+// Minimum required fields for a valid config
+const REQUIRED_FIELDS = ["$schema", "plugin"]
+
+// Deep merge: only overwrites keys that exist in `target`
+function deepMerge(target: any, source: any): any {
+  if (typeof target !== "object" || typeof source !== "object" || !target || !source) {
+    return source ?? target
+  }
+  const result: any = Array.isArray(target) ? [...target] : { ...target }
+  for (const key of Object.keys(source)) {
+    if (key in result && typeof result[key] === "object" && typeof source[key] === "object" && !Array.isArray(result[key])) {
+      result[key] = deepMerge(result[key], source[key])
+    } else {
+      result[key] = source[key]
+    }
+  }
+  return result
+}
+
+// Read config with validation
+function readConfig(): { config: any; valid: boolean; error?: string } {
+  if (!existsSync(CONFIG_PATH)) {
+    return { config: null, valid: false, error: "配置文件不存在" }
+  }
   try {
-    return JSON.parse(readFileSync(configPath, "utf-8"))
-  } catch {
-    return {}
+    const raw = readFileSync(CONFIG_PATH, "utf-8")
+    const config = JSON.parse(raw)
+    // Validate required fields
+    for (const field of REQUIRED_FIELDS) {
+      if (!(field in config)) {
+        return { config, valid: false, error: `缺少必要字段: ${field}` }
+      }
+    }
+    return { config, valid: true }
+  } catch (e) {
+    return { config: null, valid: false, error: `JSON 解析失败: ${e}` }
   }
 }
 
-// Write opencode.json
-function writeConfig(config: any): void {
-  const configPath = join(process.cwd(), ".opencode", "opencode.json")
-  writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8")
+// Write config safely: backup first, validate after
+function writeConfigSafe(newConfig: any): { ok: boolean; error?: string } {
+  // 1. Ensure we have a valid existing config to merge with
+  const { config: existing, valid, error } = readConfig()
+  if (!valid) {
+    return { ok: false, error: `无法读取现有配置: ${error}` }
+  }
+
+  // 2. Deep merge new values into existing config (preserves all existing keys)
+  const merged = deepMerge(existing, newConfig)
+
+  // 3. Validate merged result has required fields
+  for (const field of REQUIRED_FIELDS) {
+    if (!(field in merged)) {
+      return { ok: false, error: `合并后缺少必要字段: ${field}` }
+    }
+  }
+
+  // 4. Backup before writing
+  try {
+    copyFileSync(CONFIG_PATH, BACKUP_PATH)
+  } catch {
+    // Backup failed, but we can still proceed
+  }
+
+  // 5. Write
+  try {
+    const content = JSON.stringify(merged, null, 2) + "\n"
+    writeFileSync(CONFIG_PATH, content, "utf-8")
+
+    // 6. Verify by re-reading
+    const verify = readConfig()
+    if (!verify.valid) {
+      // Restore backup
+      if (existsSync(BACKUP_PATH)) {
+        copyFileSync(BACKUP_PATH, CONFIG_PATH)
+      }
+      return { ok: false, error: `写入后验证失败，已恢复备份: ${verify.error}` }
+    }
+
+    return { ok: true }
+  } catch (e) {
+    // Restore backup on write error
+    if (existsSync(BACKUP_PATH)) {
+      try { copyFileSync(BACKUP_PATH, CONFIG_PATH) } catch {}
+    }
+    return { ok: false, error: `写入失败: ${e}` }
+  }
 }
 
-// Settings categories
+// Set a nested value by dot-path (e.g. "im.telegram.bot_token")
+function setNestedValue(obj: any, path: string, value: any): any {
+  const keys = path.split(".")
+  const result = JSON.parse(JSON.stringify(obj)) // deep clone
+  let current = result
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i]
+    if (current[key] == null || typeof current[key] !== "object") {
+      current[key] = {}
+    }
+    current = current[key]
+  }
+  current[keys[keys.length - 1]] = value
+  return result
+}
+
+// Settings types
 interface SettingField {
   key: string
   label: string
@@ -40,8 +131,16 @@ function SettingsPanel({ api }: { api: TuiPluginApi }) {
   const [selectedCategory, setSelectedCategory] = createSignal<number>(0)
   const [editingField, setEditingField] = createSignal<string | null>(null)
   const [editValue, setEditValue] = createSignal<string>("")
-  const [config, setConfig] = createSignal<any>(readConfig())
   const [saveStatus, setSaveStatus] = createSignal<string>("")
+  const [loadError, setLoadError] = createSignal<string>("")
+
+  // Load config on mount
+  const { config: initialConfig, valid, error } = readConfig()
+  const [config, setConfig] = createSignal<any>(valid ? initialConfig : {})
+
+  if (!valid) {
+    setLoadError(error || "配置加载失败")
+  }
 
   const categories = createMemo((): SettingCategory[] => {
     const cfg = config()
@@ -136,29 +235,21 @@ function SettingsPanel({ api }: { api: TuiPluginApi }) {
     ]
   })
 
-  function setNestedValue(obj: any, path: string, value: any): any {
-    const keys = path.split(".")
-    const result = { ...obj }
-    let current = result
-    for (let i = 0; i < keys.length - 1; i++) {
-      const key = keys[i]
-      if (!current[key] || typeof current[key] !== "object") {
-        current[key] = {}
-      } else {
-        current[key] = { ...current[key] }
-      }
-      current = current[key]
-    }
-    current[keys[keys.length - 1]] = value
-    return result
-  }
-
   function handleSave(key: string, value: any) {
-    const newConfig = setNestedValue(config(), key, value)
-    setConfig(newConfig)
-    writeConfig(newConfig)
-    setSaveStatus("✓ 已保存")
-    setTimeout(() => setSaveStatus(""), 2000)
+    // Build only the changed field as a partial config
+    const partial = setNestedValue({}, key, value)
+    // Deep merge partial into current config
+    const newConfig = deepMerge(config(), partial)
+
+    const result = writeConfigSafe(newConfig)
+    if (result.ok) {
+      setConfig(newConfig)
+      setSaveStatus("✓ 已保存")
+      setTimeout(() => setSaveStatus(""), 2000)
+    } else {
+      setSaveStatus(`✗ 保存失败: ${result.error}`)
+      setTimeout(() => setSaveStatus(""), 5000)
+    }
     setEditingField(null)
   }
 
@@ -172,6 +263,9 @@ function SettingsPanel({ api }: { api: TuiPluginApi }) {
       <box flexDirection="column" padding={1} borderBottom>
         <text bold>⚙️ 设置</text>
         <text dimColor>配置插件和功能</text>
+        <Show when={loadError()}>
+          <text color="red">⚠️ {loadError()}</text>
+        </Show>
       </box>
 
       <box flexDirection="row" flexGrow={1}>
@@ -256,7 +350,7 @@ function SettingsPanel({ api }: { api: TuiPluginApi }) {
 
           {/* Save status */}
           <Show when={saveStatus()}>
-            <text color="green" marginTop={1}>
+            <text color={saveStatus().startsWith("✓") ? "green" : "red"} marginTop={1}>
               {saveStatus()}
             </text>
           </Show>
@@ -274,7 +368,6 @@ function SettingsPanel({ api }: { api: TuiPluginApi }) {
 
 // TUI Plugin
 const tui: TuiPlugin = async (api) => {
-  // Register route
   api.route.register([
     {
       name: "settings",
@@ -282,7 +375,6 @@ const tui: TuiPlugin = async (api) => {
     },
   ])
 
-  // Register command
   api.keymap.registerLayer({
     commands: [
       {
@@ -303,7 +395,6 @@ const tui: TuiPlugin = async (api) => {
     ],
   })
 
-  // Add to home screen
   api.slots.register({
     slots: {
       home_bottom() {
