@@ -20,3 +20,4 @@ node_modules/
 !.gitignore
 !README.md
 !UE4_Source_Guide/
+UE4_Source_Guide/*
