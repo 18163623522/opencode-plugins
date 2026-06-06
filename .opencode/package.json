@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@opencode-ai/plugin": "latest",
-    "@opentui/core": "^0.3.2",
-    "@opentui/keymap": "^0.3.2",
-    "@opentui/solid": "^0.3.2"
-  }
-}
