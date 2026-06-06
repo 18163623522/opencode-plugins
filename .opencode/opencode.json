@@ -7,6 +7,7 @@
     "./plugins/token-usage-tui.tsx",
     "./plugins/im-bridge-tui.tsx",
     "./plugins/scheduled-tasks-tui.tsx",
-    "./plugins/memory-tui.tsx"
+    "./plugins/memory-tui.tsx",
+    "./plugins/browser-tui.tsx"
   ]
 }
