@@ -1,6 +1,6 @@
 import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
 import { createSignal, Show, For, onMount } from "solid-js"
-import { existsSync, readFileSync, writeFileSync, readdirSync } from "fs"
+import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from "fs"
 import { join, basename } from "path"
 import { homedir } from "os"
 
@@ -21,7 +21,7 @@ function loadUsage(): UsageData {
 }
 
 function saveUsage(data: UsageData) {
-  if (!existsSync(STATS_DIR)) { const { mkdirSync } = require("fs"); mkdirSync(STATS_DIR, { recursive: true }) }
+  if (!existsSync(STATS_DIR)) mkdirSync(STATS_DIR, { recursive: true })
   writeFileSync(USAGE_FILE, JSON.stringify(data, null, 2), "utf-8")
 }
 
