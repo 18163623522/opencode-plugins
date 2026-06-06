@@ -41,9 +41,4 @@ const tui: TuiPlugin = async (api) => {
   })
 }
 
-const plugin: TuiPluginModule & { id: string } = {
-  id: "zh-locale",
-  tui,
-}
-
-export default plugin
+export default tui
