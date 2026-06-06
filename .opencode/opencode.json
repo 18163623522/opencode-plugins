@@ -1,6 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "./plugins/conversation-viewer-tui.tsx"
+    "./plugins/conversation-viewer-tui.tsx",
+    "./plugins/plugin-manager-tui.tsx",
+    "./plugins/token-usage-tui.tsx",
+    "./plugins/im-bridge-tui.tsx",
+    "./plugins/scheduled-tasks-tui.tsx",
+    "./plugins/memory-tui.tsx"
   ]
 }
