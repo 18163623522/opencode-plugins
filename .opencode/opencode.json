@@ -1,13 +1,36 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "./plugins/zh-locale-tui.tsx",
-    "./plugins/conversation-viewer-tui.tsx",
-    "./plugins/plugin-manager-tui.tsx",
-    "./plugins/token-usage-tui.tsx",
-    "./plugins/im-bridge-tui.tsx",
-    "./plugins/scheduled-tasks-tui.tsx",
-    "./plugins/memory-tui.tsx",
-    "./plugins/browser-tui.tsx"
-  ]
+    "./plugins/hub-plugin.ts"
+  ],
+  "command": {
+    "plugins": {
+      "description": "查看插件列表",
+      "template": "使用 plugin_list 工具列出所有插件。用户输入: $ARGUMENTS"
+    },
+    "toggle": {
+      "description": "启用/禁用插件",
+      "template": "使用 plugin_toggle 工具切换插件状态。参数: $ARGUMENTS"
+    },
+    "usage": {
+      "description": "查看 Token 用量",
+      "template": "使用 token_usage 工具查看统计。用户输入: $ARGUMENTS"
+    },
+    "tasks": {
+      "description": "查看定时任务",
+      "template": "使用 task_list 工具列出任务。用户输入: $ARGUMENTS"
+    },
+    "memory": {
+      "description": "查看记忆",
+      "template": "使用 memory_list 工具列出记忆。用户输入: $ARGUMENTS"
+    },
+    "remember": {
+      "description": "保存记忆",
+      "template": "使用 memory_save 工具保存。key 和 content 从用户输入提取: $ARGUMENTS"
+    },
+    "im": {
+      "description": "配置 IM",
+      "template": "使用 im_config 工具查看/配置 IM。用户输入: $ARGUMENTS"
+    }
+  }
 }
