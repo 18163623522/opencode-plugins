@@ -1,0 +1,1907 @@
+<!-- ==========================================
+     第6章：纹理 (Texturing)
+     ========================================== -->
+<section id="ch6">
+<div class="chapter-header">
+  <div class="chapter-label">CHAPTER 6</div>
+  <h2>第6章 纹理 (Texturing)</h2>
+</div>
+
+<div class="book-quote">
+  <p>"实时渲染中最强大的工具之一，就是能够快速访问图像，并将其显示在表面上。这个过程叫做纹理化，有各种各样来实现它的方法。"</p>
+  <cite>-- RTR4, Chapter 6</cite>
+</div>
+
+<p>这段话告诉我们：<strong>纹理化（Texturing）</strong>是实时渲染赋予物体表面丰富视觉细节的核心手段。没有纹理，3D 场景中的物体就像是没有花纹的白色纸盒——虽然几何形状正确，但缺乏真实感。纹理让我们能够用一张 2D 图像来控制 3D 表面的颜色、粗糙度、法线方向等各种属性。</p>
+
+<div class="callout callout-analogy">
+  <strong>通俗比喻：纹理就像给 3D 模型"穿衣服"。</strong>
+  <br>想象一个白色的石膏雕塑（几何体），你可以给它贴上一层木纹的"皮肤"让它看起来像木头，贴上一层砖纹让它看起来像砖墙，甚至贴上一层"凹凸"的图案让光滑的表面看起来有纹理感。纹理就是控制"贴什么图案"以及"怎么贴"的技术。
+</div>
+
+<div class="section-header"><h3>6.1 纹理映射原理 (Texture Mapping Basics)</h3></div>
+
+<p>纹理映射的核心思想是：为网格（Mesh）的每个顶点指定一组 <strong>UV 坐标</strong>，然后在片元着色器中对 UV 坐标进行插值，最后用插值后的 UV 从纹理图像中采样颜色。</p>
+
+<div class="callout callout-info">
+  <strong>UV 坐标详解：</strong>UV 是一个二维坐标 (u, v)，通常范围在 [0, 1] 之间。可以把它理解为"纹理图片上的百分比位置"——u = 0.5 表示水平方向的中点，v = 0.25 表示垂直方向的 1/4 处。每个三角形的三个顶点各有自己的 UV 坐标，三角形内部的像素通过<strong>重心坐标插值</strong>获得自己的 UV 值。
+</div>
+
+<p>纹理映射的完整管线如下：</p>
+
+<ol>
+  <li><strong>UV 展开（UV Unwrapping）：</strong>在建模软件中，将 3D 模型表面"展开"到 2D 平面上，为每个顶点分配 UV 坐标</li>
+  <li><strong>纹理上传：</strong>将纹理图像数据传输到 GPU 的专用纹理内存中</li>
+  <li><strong>顶点着色阶段：</strong>将顶点的 UV 坐标传递给光栅化器</li>
+  <li><strong>光栅化插值：</strong>在三角形内部对 UV 坐标进行透视校正插值（perspective-correct interpolation）</li>
+  <li><strong>片元着色采样：</strong>用插值后的 UV 从纹理中读取颜色值</li>
+  <li><strong>纹理过滤：</strong>当 UV 采样的位置不完全对齐纹理像素（texel）时，决定如何计算最终颜色</li>
+</ol>
+
+<div class="key-point">
+  <div class="key-point-title">&#128161; 透视校正插值</div>
+  <div class="key-point-desc">在光栅化阶段，UV 坐标不能简单地线性插值——否则远处物体的纹理会看起来"游动"。GPU 使用<strong>透视校正插值</strong>，对 UV 除以 w（深度分量）后插值，再乘回来，确保纹理在 3D 透视中正确显示。</div>
+</div>
+
+<div class="section-header"><h3>6.2 纹理过滤 (Texture Filtering)</h3></div>
+
+<p>纹理过滤解决的核心问题是：当 UV 坐标对应的纹理位置不恰好落在纹理像素（texel）中心时，应该取哪个颜色？更关键的是，当屏幕上的一个像素覆盖了多个 texel（minification，缩小）或一个 texel 覆盖了多个屏幕像素（magnification，放大）时，如何计算正确的颜色。</p>
+
+<p>常见的纹理过滤方式有三种：</p>
+
+<table>
+  <thead><tr><th>过滤方式</th><th>英文名称</th><th>原理</th><th>视觉效果</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>最近邻</strong></td>
+      <td>Nearest / Point</td>
+      <td>直接取最近的 texel 值</td>
+      <td>像素化/马赛克感</td>
+    </tr>
+    <tr>
+      <td><strong>双线性</strong></td>
+      <td>Bilinear</td>
+      <td>取最近的 2x2=4 个 texel，按距离加权平均</td>
+      <td>较平滑，远处仍有闪烁</td>
+    </tr>
+    <tr>
+      <td><strong>三线性</strong></td>
+      <td>Trilinear</td>
+      <td>在两个 Mipmap 层级上各做双线性插值，再在层级间线性插值</td>
+      <td>最平滑，消除层级切换缝隙</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="formula-block">
+  双线性插值公式：
+  color = lerp(lerp(c00, c10, u_frac), lerp(c01, c11, u_frac), v_frac)
+  其中 c00, c10, c01, c11 是最近的 4 个 texel 颜色，u_frac 和 v_frac 是小数部分
+</div>
+
+<div class="callout callout-tip">
+  <strong>实践建议：</strong>在大多数游戏和应用中，<strong>三线性过滤</strong>是默认且推荐的选择。它只比双线性多一次插值计算，但显著改善了远处纹理的过渡质量。最近邻过滤主要用于像素艺术风格游戏，以保留清晰的像素边界。
+</div>
+
+<div class="section-header"><h3>6.3 Mipmapping</h3></div>
+
+<p><strong>Mipmap</strong>（"mip"来自拉丁语 <em>multum in parvo</em>，意为"小中见大"）是一组预先生成的、分辨率逐级减半的纹理图像序列。一张 256x256 的纹理，其 Mipmap 链为：256x256、128x128、64x64、32x32、16x16、8x8、4x4、2x2、1x1。</p>
+
+<div class="callout callout-analogy">
+  <strong>金字塔比喻：</strong>想象你有一张大尺寸海报和一整套从大到小的缩略图。当你在近处看时用大尺寸的，当走远了就换用小尺寸的缩略图。Mipmap 就是这个"缩略图集合"——GPU 自动选择最合适的层级来采样。
+</div>
+
+<p>为什么 Mipmap 如此重要？有三个核心原因：</p>
+
+<ol>
+  <li><strong>消除摩尔纹（Moire Pattern）和闪烁：</strong>远处的纹理缩小后，高频细节会导致采样不足，产生令人不适的波纹闪烁。Mipmap 预先过滤了这些高频信息。</li>
+  <li><strong>提高缓存命中率：</strong>采样较小尺寸的 Mipmap 层级时，纹理数据在缓存中更紧凑，减少了显存带宽消耗。</li>
+  <li><strong>三线性过滤的基础：</strong>没有 Mipmap，就无法在层级间做插值，也就没有三线性过滤。</li>
+</ol>
+
+<div class="callout callout-info">
+  <strong>内存开销：</strong>Mipmap 链的总大小约为原始纹理的 1/3（1 + 1/4 + 1/16 + ... = 4/3）。这个 33% 的额外开销换来的是巨大的视觉和性能提升，几乎是"免费的午餐"。
+</div>
+
+<div class="section-header"><h3>6.4 纹理环绕模式 (Wrapping Modes)</h3></div>
+
+<p>当 UV 坐标超出 [0, 1] 范围时，GPU 需要知道如何处理。这就是<strong>环绕模式（Wrap Mode）</strong>的作用：</p>
+
+<table>
+  <thead><tr><th>环绕模式</th><th>英文名称</th><th>行为描述</th><th>典型用途</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>重复</strong></td>
+      <td>Repeat / Tile</td>
+      <td>UV 的小数部分作为纹理坐标，产生平铺效果</td>
+      <td>地板、墙壁的重复贴图</td>
+    </tr>
+    <tr>
+      <td><strong>钳制</strong></td>
+      <td>Clamp to Edge</td>
+      <td>超出范围的 UV 被限制到 0 或 1，纹理边缘被拉伸</td>
+      <td>天空盒边缘、避免接缝</td>
+    </tr>
+    <tr>
+      <td><strong>镜像</strong></td>
+      <td>Mirrored Repeat</td>
+      <td>每隔一个周期翻转纹理，避免可见的重复痕迹</td>
+      <td>水面反射、对称纹理</td>
+    </tr>
+    <tr>
+      <td><strong>边框颜色</strong></td>
+      <td>Clamp to Border</td>
+      <td>超出范围时返回指定的边框颜色</td>
+      <td>光照贴图、特殊效果</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="section-header"><h3>6.5 多纹理和纹理混合 (Multitexturing)</h3></div>
+
+<p><strong>多纹理（Multitexturing）</strong>是指在同一个渲染过程中同时使用多张纹理来决定表面的最终颜色。这在现代渲染管线中极其常见：</p>
+
+<ul>
+  <li><strong>漫反射贴图（Albedo Map）：</strong>定义表面的基础颜色</li>
+  <li><strong>粗糙度贴图（Roughness Map）：</strong>控制表面的微观粗糙程度</li>
+  <li><strong>金属度贴图（Metalness Map）：</strong>区分金属和非金属区域</li>
+  <li><strong>法线贴图（Normal Map）：</strong>模拟表面的微观凹凸细节</li>
+  <li><strong>环境光遮蔽贴图（AO Map）：</strong>预计算的遮蔽信息</li>
+</ul>
+
+<p>这些纹理在着色器中通过<em>乘法</em>、<em>加法</em>、<em>混合</em>等操作组合在一起，共同决定每个像素的最终外观。</p>
+
+<div class="section-header"><h3>6.6 凹凸贴图 (Bump Mapping)</h3></div>
+
+<p><strong>凹凸贴图（Bump Mapping）</strong>是最早用于模拟表面凹凸细节的技术。其核心思想是：使用一张灰度纹理（高度图），通过计算相邻像素的高度差来推导出一个"扰动法线"，然后在光照计算中使用这个扰动法线替代原始几何法线。</p>
+
+<div class="callout callout-analogy">
+  <strong>贴纸比喻：</strong>想象你在光滑的塑料板上贴了一张带有凹凸图案的透明膜。板的形状没有改变（仍然是平的），但从侧面看过去时，图案的凸起部分会遮挡或反射光线，产生"有凹凸"的视觉错觉。凹凸贴图就是用这种"视觉欺骗"的方式在不增加几何复杂度的情况下表现细节。
+</div>
+
+<p>凹凸贴图的局限性：它只影响光照计算，不会改变表面的实际轮廓。在边缘处（轮廓线/silhouette），你无法看到凹凸效果。</p>
+
+<div class="section-header"><h3>6.7 法线贴图 (Normal Mapping)</h3></div>
+
+<p><strong>法线贴图（Normal Mapping）</strong>是凹凸贴图的升级版。它直接存储每个像素的扰动法线方向（以 RGB 编码），而不是存储高度值再推导。法线贴图通常使用<strong>切线空间（Tangent Space）</strong>编码：</p>
+
+<ul>
+  <li><strong>R 通道</strong>：切线方向的分量（X）</li>
+  <li><strong>G 通道</strong>：副切线方向的分量（Y）</li>
+  <li><strong>B 通道</strong>：法线方向的分量（Z），通常接近 1.0（蓝色为主）</li>
+</ul>
+
+<div class="knowledge-box">
+  <div class="knowledge-box-title">&#128218; 知识扩展：法线贴图 vs 凹凸贴图</div>
+  <p>法线贴图相比凹凸贴图有两大优势：</p>
+  <ol>
+    <li><strong>更精确的法线计算：</strong>直接存储法线方向，而非通过高度差的差分近似，避免了数值微分的不稳定性。</li>
+    <li><strong>可以表示任意方向的法线：</strong>凹凸贴图只能沿高度方向偏移，而法线贴图可以表示任意方向的扰动，能够表现更复杂的表面细节。</li>
+  </ol>
+  <p>现代游戏引擎中几乎已经不再使用传统的凹凸贴图，法线贴图是标准做法。在 Unity 中对应的纹理类型为 "Normal Map"，在 Unreal Engine 中需要启用 "sRGB" 关闭（因为法线数据不是颜色数据，不应进行 Gamma 校正）。</p>
+</div>
+
+<!-- ======== 交互式演示 6：纹理过滤对比 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示 6：纹理过滤模式对比</h4>
+  </div>
+  <div class="demo-description">
+    下方是一个带棋盘格纹理的 3D 平面。使用下拉菜单切换不同的纹理过滤模式，观察近距离和远距离时的视觉差异。拖拽旋转场景，从不同角度和距离对比效果。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper">
+      <canvas id="rtDemo6_canvas"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <div class="control-row">
+      <label>过滤模式：</label>
+      <select id="rtDemo6_filter">
+        <option value="nearest">最近邻 (Nearest)</option>
+        <option value="linear" selected>双线性 (Bilinear)</option>
+        <option value="trilinear">三线性 (Trilinear)</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label>环绕模式：</label>
+      <select id="rtDemo6_wrap">
+        <option value="repeat" selected>重复 (Repeat)</option>
+        <option value="clamp">钳制 (Clamp)</option>
+        <option value="mirror">镜像 (Mirror)</option>
+      </select>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
+      &#128161; 操作提示：鼠标左键拖拽旋转 | 右键平移 | 滚轮缩放 | 缩放至远处观察过滤差异
+    </p>
+  </div>
+</div>
+
+</section>
+
+<hr>
+
+<!-- ==========================================
+     第7章：阴影 (Shadows)
+     ========================================== -->
+<section id="ch7">
+<div class="chapter-header">
+  <div class="chapter-label">CHAPTER 7</div>
+  <h2>第7章 阴影 (Shadows)</h2>
+</div>
+
+<div class="book-quote">
+  <p>"在场景中添加阴影效果可以增强画面的真实感和表现力。我们会在这个章节中介绍几种目前比较流行的、能够快速计算阴影的方法。"</p>
+  <cite>-- RTR4, Chapter 7</cite>
+</div>
+
+<p>阴影是视觉真实感的关键组成部分。人类的大脑非常善于从阴影中推断物体的位置关系、光源方向和表面形状。一个没有阴影的场景，即使光照计算完美，也会让人觉得"假"和"漂浮"。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：阴影是"光的缺席证"。</strong>想象你在审问一束光线："你有没有被什么东西挡住？"阴影就是答案——它标记了哪些地方光线"到不了"。有了这个信息，我们就能知道物体之间的空间关系，判断谁在地面上、谁浮在空中。
+</div>
+
+<div class="section-header"><h3>7.1 阴影映射 (Shadow Mapping)</h3></div>
+
+<p><strong>阴影映射（Shadow Mapping）</strong>由 Lance Williams 于 1978 年提出，至今仍是实时渲染中最主流的阴影技术。它的核心思想简单而优雅：</p>
+
+<ol>
+  <li><strong>深度纹理生成：</strong>以光源为"相机"渲染一次场景，只记录每个像素的深度值，得到一张<strong>阴影贴图（Shadow Map）</strong></li>
+  <li><strong>阴影判定：</strong>在正常的相机渲染中，对于每个片元，将其坐标变换到光源空间，与阴影贴图中的深度值比较</li>
+  <li><strong>在阴影中：</strong>如果片元的深度大于阴影贴图中的深度值，说明有物体挡在了它和光源之间，该片元处于阴影中</li>
+</ol>
+
+<div class="formula-block">
+  阴影判定：if (fragDepth > shadowMapDepth) then inShadow = 1.0 else inShadow = 0.0
+  最终颜色 = (1 - inShadow) * litColor + inShadow * ambientColor
+</div>
+
+<div class="key-point">
+  <div class="key-point-title">&#9888;&#65039; Shadow Mapping 的两个 Pass</div>
+  <div class="key-point-desc">阴影映射需要渲染场景两次：<strong>Shadow Pass</strong>（从光源视角，只写深度）和 <strong>Lighting Pass</strong>（从相机视角，正常渲染 + 阴影测试）。这意味着场景的几何复杂度直接决定了阴影计算的开销。</div>
+</div>
+
+<div class="section-header"><h3>7.2 PCF 软阴影 (Percentage Closer Filtering)</h3></div>
+
+<p>基础的阴影映射产生的是<strong>硬阴影</strong>——每个像素要么完全在阴影中，要么完全不在。但现实世界中，阴影的边缘通常是<strong>柔和渐变</strong>的（半影，penumbra），这是因为真实光源具有有限的面积。</p>
+
+<p><strong>PCF（Percentage Closer Filtering）</strong>是最常用的软阴影技术。它的做法是：对阴影贴图中采样点周围的多个 texel 进行深度比较，然后统计"有多少比例的采样点认为该片元在阴影中"，这个比例就是阴影的强度。</p>
+
+<div class="formula-block">
+  PCF 软阴影计算：
+  shadow = 0
+  for each sample (x, y) in filterKernel:
+    shadow += (fragDepth > shadowMapDepth(x, y)) ? 1.0 : 0.0
+  shadow /= totalSamples
+  // shadow 值在 [0, 1] 之间，0 = 完全光照，1 = 完全阴影
+</div>
+
+<div class="callout callout-tip">
+  <strong>关键特性：</strong>PCF 必须在深度比较<strong>之后</strong>做平均，而不是先平均深度再比较。如果先平均深度，你会得到错误的软阴影形状。这就是"Percentage Closer"名称的由来。
+</div>
+
+<div class="knowledge-box">
+  <div class="knowledge-box-title">&#128218; 知识扩展：更高品质的软阴影方案</div>
+  <p>除了 PCF，现代引擎还使用：</p>
+  <ul>
+    <li><strong>VSM（Variance Shadow Map）：</strong>存储深度和深度的平方，允许在像素着色器中做高斯模糊，然后通过切比雪夫不等式估计阴影概率。优点是可以预过滤，缺点是在多光源重叠时可能产生漏光（light leaking）。</li>
+    <li><strong>CSM（Cascaded Shadow Map）：</strong>见 7.3 节，解决大场景阴影精度问题。</li>
+    <li><strong>PCSS（Percentage Closer Soft Shadows）：</strong>根据遮挡物的距离动态调整 PCF 的采样核大小，模拟物理正确的半影宽度。</li>
+  </ul>
+</div>
+
+<div class="section-header"><h3>7.3 级联阴影映射 (CSM)</h3></div>
+
+<p><strong>级联阴影映射（Cascaded Shadow Maps, CSM）</strong>用于解决一个关键问题：当相机的近裁剪面和远裁剪面距离差距很大时（比如从 1 米到 1000 米），一张阴影贴图的分辨率无法同时满足近处的精度和远处的覆盖范围。</p>
+
+<p>CSM 的解决方案是将相机的视锥体（Frustum）沿深度方向分割成多个<strong>级联（Cascade）</strong>：</p>
+
+<ol>
+  <li><strong>级联 0</strong>：覆盖最近区域（如 0-20 米），使用高分辨率阴影贴图</li>
+  <li><strong>级联 1</strong>：覆盖中距离（如 20-80 米），中等分辨率</li>
+  <li><strong>级联 2</strong>：覆盖远距离（如 80-500 米），较低分辨率</li>
+</ol>
+
+<p>渲染时，每个片元找到自己所属的级联，使用对应的阴影贴图进行深度比较。通常使用 3-5 个级联就能获得很好的效果。</p>
+
+<div class="section-header"><h3>7.4 阴影质量优化</h3></div>
+
+<p>在使用阴影映射时，会遇到几种常见的视觉瑕疵：</p>
+
+<div class="subsection-header"><h4>Shadow Acne（阴影痤疮）</h4>
+<p>由于浮点精度限制，表面本身的片元深度可能与阴影贴图中的深度非常接近，导致"自阴影"——表面出现条纹状的伪影。<strong>解决方案：</strong>在深度比较时添加一个小的偏移量（<strong>depth bias</strong>），让比较稍微"宽松"一些。</p>
+</div>
+
+<div class="subsection-header"><h4>Peter Panning（Peter 飘移）</h4>
+<p>如果 depth bias 设置得太大，物体底部的阴影会被切断，物体看起来像"飘浮"在地面上方。<strong>解决方案：</strong>使用<strong>法线偏移（Normal-based Bias）</strong>，沿表面法线方向偏移而非只沿深度方向，或者使用 <strong>Slope-Scale Bias</strong>——根据表面与光线的夹角动态调整偏移量。</p>
+</div>
+
+<div class="subsection-header"><h4>锯齿 (Aliasing)</h4>
+<p>阴影贴图分辨率不足时，阴影边缘出现锯齿。<strong>解决方案：</strong>使用 CSM 提高近处精度，使用 PCF 软化边缘，使用更高的阴影贴图分辨率。</p>
+</div>
+
+<div class="section-header"><h3>7.5 体积光 (Volumetric/Raymarched Shadows)</h3></div>
+
+<p><strong>体积光（Volumetric Lighting）</strong>让光看起来有"实体感"——你能看到光束穿过空气中的灰尘和雾气散射出来的光柱效果（也叫"上帝之光"或"丁达尔效应"）。</p>
+
+<p>在实时渲染中，体积光通常通过<strong>光线步进（Ray Marching）</strong>实现：从相机向每个屏幕像素发射一条射线，沿着射线等间距采样，在每个采样点处计算光照的累积散射量。</p>
+
+<div class="formula-block">
+  体积光散射积分（简化）：
+  L_volumetric = Integral[ T(s) * sigma_s * L_in(s) ds ]
+  其中 T(s) = exp(-Integral[ sigma_e(t) dt ]) 是透射率
+  sigma_s 是散射系数，sigma_e 是消光系数
+  实时近似：将积分离散化为 N 个采样步
+</div>
+
+<div class="callout callout-warning">
+  <strong>性能注意事项：</strong>体积光的光线步进计算量很大（每个像素需要多次采样）。常见优化策略包括：降低分辨率渲染（半分辨率或 1/4 分辨率），减少步进次数，使用 temporal reprojection 复用上一帧的结果，以及在 G-Buffer 中做空间插值。
+</div>
+
+<!-- ======== 交互式演示 7：可移动光源阴影 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示 7：阴影映射 — 可移动光源</h4>
+  </div>
+  <div class="demo-description">
+    一个带阴影的场景：一个立方体和一个球体放置在地面上。拖动滑块来移动光源的水平位置，观察阴影如何随光源位置变化。注意阴影的形状、长度和方向都与光源的位置和高度有关。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper">
+      <canvas id="rtDemo7_canvas"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <div class="control-row">
+      <label>光源 X 位置：</label>
+      <input type="range" id="rtDemo7_lightX" min="-5" max="5" step="0.1" value="3">
+      <span class="slider-value" id="rtDemo7_lightXVal">3.0</span>
+    </div>
+    <div class="control-row">
+      <label>光源 Y 高度：</label>
+      <input type="range" id="rtDemo7_lightY" min="1" max="10" step="0.1" value="5">
+      <span class="slider-value" id="rtDemo7_lightYVal">5.0</span>
+    </div>
+    <div class="control-row">
+      <label>光源 Z 位置：</label>
+      <input type="range" id="rtDemo7_lightZ" min="-5" max="5" step="0.1" value="3">
+      <span class="slider-value" id="rtDemo7_lightZVal">3.0</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
+      &#128161; 拖拽滑块移动光源 | 也可用鼠标左键旋转观察角度
+    </p>
+  </div>
+</div>
+
+</section>
+
+<hr>
+
+<!-- ==========================================
+     第8章：光与颜色 (Light and Color)
+     ========================================== -->
+<section id="ch8">
+<div class="chapter-header">
+  <div class="chapter-label">CHAPTER 8</div>
+  <h2>第8章 光与颜色 (Light and Color)</h2>
+</div>
+
+<div class="book-quote">
+  <p>"在我们实现基于物理的渲染之前，我们首先需要了解如何对光和颜色进行量化建模。并且在我们执行基于物理的渲染之后，我们还需要将最终结果转换为可以显示的数值，并考虑屏幕属性和观察环境对它的影响。"</p>
+  <cite>-- RTR4, Chapter 8</cite>
+</div>
+
+<p>本章建立了渲染中光与颜色的数学基础。如果说渲染管线是"硬件架构"，那么光与颜色的理论就是"编程语言"——没有它，我们无法正确地表达和计算光照。</p>
+
+<div class="section-header"><h3>8.1 光度学基础 (Radiometry)</h3></div>
+
+<p>在基于物理的渲染中，我们需要用严格的物理量来描述光的传播。核心的光度学量有：</p>
+
+<table>
+  <thead><tr><th>物理量</th><th>英文名称</th><th>符号</th><th>单位</th><th>直觉理解</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>辐射通量</strong></td>
+      <td>Radiant Flux / Power</td>
+      <td>&Phi;</td>
+      <td>瓦特 (W) / 流明 (lm)</td>
+      <td>光源总共发出多少能量</td>
+    </tr>
+    <tr>
+      <td><strong>辐射强度</strong></td>
+      <td>Radiant Intensity</td>
+      <td>I</td>
+      <td>W/sr (瓦特每球面度)</td>
+      <td>单位立体角内发射多少能量</td>
+    </tr>
+    <tr>
+      <td><strong>辐照度</strong></td>
+      <td>Irradiance</td>
+      <td>E</td>
+      <td>W/m&sup2;</td>
+      <td>单位面积上接收多少能量（入射）</td>
+    </tr>
+    <tr>
+      <td><strong>辐射亮度</strong></td>
+      <td>Radiance</td>
+      <td>L</td>
+      <td>W/(sr&middot;m&sup2;)</td>
+      <td>单位面积、单位立体角内的能量（最核心的量）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-info">
+  <strong>为什么 Radiance 是最重要的？</strong>因为在渲染方程中，所有入射和出射的光都用 Radiance 来表示。Radiance 描述了"从某个方向、某个点上，你能看到多少光"。相机传感器记录的就是 Radiance，BRDF 的输入输出也是 Radiance。
+</div>
+
+<div class="formula-block">
+  辐照度 E 与辐射亮度 L 的关系：
+  E = Integral[ L(i) * cos(theta_i) dw ]
+  即：辐照度等于所有方向入射辐射亮度的余弦加权积分
+  其中 theta_i 是入射方向与表面法线的夹角
+</div>
+
+<div class="section-header"><h3>8.2 色彩空间 (Color Spaces)</h3></div>
+
+<p>色彩空间定义了如何用数字来表示颜色。在实时渲染中，最常见的色彩空间有：</p>
+
+<div class="subsection-header"><h4>RGB 色彩空间</h4>
+<p>最直观的颜色表示法。使用红、绿、蓝三个通道的值来描述颜色。但 RGB 有多种"口味"——不同的 RGB 色彩空间使用不同的原色（primary）和传递函数（transfer function），导致同样的 RGB 值在不同空间中显示不同颜色。</p>
+</div>
+
+<div class="subsection-header"><h4>sRGB 色彩空间</h4>
+<p>是当今显示器和互联网内容的事实标准。sRGB 定义了标准的 RGB 原色、白点和<strong>Gamma 曲线</strong>（大约 gamma = 2.2）。几乎所有 JPEG/PNG 图片和网页颜色都使用 sRGB 编码。</p>
+</div>
+
+<div class="subsection-header"><h4>线性空间 vs Gamma 空间</h4>
+<p>这是渲染中最容易混淆但至关重要的概念。<strong>线性空间（Linear Space）</strong>中，光的物理能量与数值成正比（值翻倍 = 能量翻倍）。<strong>Gamma 空间（sRGB 等）</strong>中，数值经过了非线性编码，值翻倍并不等于能量翻倍。</p>
+</div>
+
+<div class="callout callout-warning">
+  <strong>常见错误：</strong>如果在 Gamma 空间中做光照计算（如两个颜色的乘法），结果在物理上是不正确的。比如 50% 灰色 x 50% 灰色，在 Gamma 空间中得到 25%（看起来太暗），在线性空间中应该得到 50%。所有光照计算<strong>必须在线性空间</strong>中进行。
+</div>
+
+<div class="section-header"><h3>8.3 Gamma 校正</h3></div>
+
+<p><strong>Gamma 校正</strong>是连接线性计算和 Gamma 显示的桥梁。完整的流程是：</p>
+
+<ol>
+  <li><strong>输入纹理</strong>（通常为 sRGB）通过 <strong>sRGB -> Linear</strong> 转换来解码</li>
+  <li>在 <strong>Linear 空间</strong>中执行所有光照计算（加法、乘法、插值）</li>
+  <li>最终结果通过 <strong>Linear -> sRGB</strong> 转换来编码，输出到显示器</li>
+</ol>
+
+<div class="formula-block">
+  sRGB -> Linear (Gamma 解码):
+  C_linear = C_srgb / 12.92          (当 C_srgb <= 0.04045)
+  C_linear = ((C_srgb + 0.055) / 1.055)^2.4  (当 C_srgb > 0.04045)
+
+  简化近似: C_linear = C_srgb^2.2
+
+  Linear -> sRGB (Gamma 编码):
+  C_srgb = 1.055 * C_linear^(1/2.4) - 0.055
+</div>
+
+<div class="key-point">
+  <div class="key-point-title">&#128161; GPU 硬件自动处理 sRGB</div>
+  <div class="key-point-desc">现代 GPU 支持在纹理采样时自动进行 sRGB -> Linear 转换（设置纹理为 SRGB 格式），在写入 render target 时自动进行 Linear -> sRGB 转换（设置 render target 为 SRGB 格式）。你应该利用这些硬件功能，而不是在着色器中手动做 pow 运算。</div>
+</div>
+
+<div class="section-header"><h3>8.4 HDR 与色调映射 (Tone Mapping)</h3></div>
+
+<p><strong>HDR（High Dynamic Range，高动态范围）</strong>意味着渲染结果中的亮度值可以远超 [0, 1] 范围——太阳的亮度可能是白色纸面的数万倍。但显示器的亮度范围是有限的（LDR, Low Dynamic Range），因此需要一个从 HDR 到 LDR 的转换过程：<strong>色调映射（Tone Mapping）</strong>。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：HDR -> LDR 就像"把交响乐录成 MP3"。</strong>交响乐现场的声音动态范围极大——从极弱的呢喃到极响的定音鼓。CD 和 MP3 的动态范围有限，录音师必须通过"压缩"来把巨大的音量差异塞进有限的范围。色调映射做的是类似的事——把巨大的亮度差异"压缩"到显示器能显示的范围内，同时尽量保留重要的视觉信息。
+</div>
+
+<p>常见的色调映射算子：</p>
+
+<ul>
+  <li><strong>Reinhard：</strong>C_out = C_in / (1 + C_in)，简单的除法映射，趋向于让所有亮度趋向 1.0</li>
+  <li><strong>Filmic (ACES)：</strong>电影行业标准的 S 形曲线，保留高光和暗部细节，视觉效果自然</li>
+  <li><strong>Uncharted 2 Filmic：</strong>John Hable 提出的色调映射，在游戏界非常流行</li>
+</ul>
+
+<div class="section-header"><h3>8.5 光源类型详解</h3></div>
+
+<table>
+  <thead><tr><th>光源类型</th><th>英文</th><th>特性描述</th><th>物理模型</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>点光源</strong></td>
+      <td>Point Light</td>
+      <td>从一个点向所有方向均匀发光，有位置、颜色、强度</td>
+      <td>I = Intensity / d&sup2;</td>
+    </tr>
+    <tr>
+      <td><strong>方向光</strong></td>
+      <td>Directional Light</td>
+      <td>平行光线（模拟太阳），只有方向没有位置</td>
+      <td>无衰减，E = L * cos(theta)</td>
+    </tr>
+    <tr>
+      <td><strong>聚光灯</strong></td>
+      <td>Spot Light</td>
+      <td>锥形光束，有位置、方向、内锥角、外锥角</td>
+      <td>I = Intensity / d&sup2; * spotlightFactor</td>
+    </tr>
+    <tr>
+      <td><strong>区域光</strong></td>
+      <td>Area Light</td>
+      <td>有面积的发光体（如荧光灯管），产生软阴影和柔和高光</td>
+      <td>需要积分计算，近似为多采样</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ======== 交互式演示 8：色彩空间对比 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示 8：线性 vs Gamma 校正对比</h4>
+  </div>
+  <div class="demo-description">
+    下方的两幅渐变条展示了同样的数据经过不同处理后的视觉效果。<strong>上方</strong>直接显示 sRGB 编码值（错误做法），<strong>下方</strong>经过 Gamma 校正后显示（正确做法）。注意中间的灰色过渡——正确做法的渐变更均匀自然。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper">
+      <canvas id="rtDemo8_canvas"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <div class="control-row">
+      <label>Gamma 值：</label>
+      <input type="range" id="rtDemo8_gamma" min="1.0" max="3.0" step="0.1" value="2.2">
+      <span class="slider-value" id="rtDemo8_gammaVal">2.2</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
+      &#128161; 调整 Gamma 值观察对比效果。标准 sRGB 的 Gamma 约为 2.2
+    </p>
+  </div>
+</div>
+
+</section>
+
+<hr>
+
+<!-- ==========================================
+     第9章：基于物理的着色 (PBR)
+     ========================================== -->
+<section id="ch9">
+<div class="chapter-header">
+  <div class="chapter-label">CHAPTER 9</div>
+  <h2>第9章 基于物理的着色 (Physically Based Rendering)</h2>
+</div>
+
+<div class="book-quote">
+  <p>"我们将从头开始建立起对基于物理的着色模型的理解。在本章节中，我们首先会从潜在的物理现象开始，介绍一系列包含各种渲染材质的着色模型，最后介绍这些材质的混合方法和过滤方法，从而避免材质出现瑕疵（aliasing）并保持表面外观。"</p>
+  <cite>-- RTR4, Chapter 9</cite>
+</div>
+
+<p>基于物理的渲染（PBR）是现代实时渲染的基石。与早期的"经验式"着色模型（如 Phong、Blinn-Phong）不同，PBR 从光的物理本质出发，确保渲染结果在物理上是合理的——无论光照条件如何变化，材质的外观都保持一致和可信。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：传统着色 vs PBR 的区别。</strong>传统着色就像"用颜料画效果"——画师凭感觉调颜色，在特定光线下看起来不错，但换了光线就不对了。PBR 就像"用物理公式计算效果"——你描述的是材质的物理属性（金属还是非金属、光滑还是粗糙），然后物理公式确保在任何光线下都正确。
+</div>
+
+<div class="section-header"><h3>9.1 PBR vs 传统着色</h3></div>
+
+<table>
+  <thead><tr><th>对比维度</th><th>传统着色（Phong/Blinn-Phong）</th><th>PBR（Cook-Torrance）</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>物理基础</td>
+      <td>经验公式，人为设计</td>
+      <td>基于光的物理行为</td>
+    </tr>
+    <tr>
+      <td>能量守恒</td>
+      <td>不保证（可能反射出比入射更多的光）</td>
+      <td>严格遵守（反射 + 漫反射 <= 入射）</td>
+    </tr>
+    <tr>
+      <td>菲涅尔效应</td>
+      <td>通常不包含</td>
+      <td>内置，掠射角反射增强</td>
+    </tr>
+    <tr>
+      <td>参数一致性</td>
+      <td>不同光照下需要调整</td>
+      <td>任何光照下都物理合理</td>
+    </tr>
+    <tr>
+      <td>材质工作流</td>
+      <td>漫反射色 + 高光色 + 光泽度</td>
+      <td>Albedo + 金属度 + 粗糙度</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="section-header"><h3>9.2 光与物质相互作用的五种现象</h3></div>
+
+<p>当光照射到物体表面时，会发生以下五种物理现象：</p>
+
+<ol>
+  <li><strong>反射（Reflection）：</strong>光从表面"弹开"，方向由表面法线决定。镜面反射（Specular）是光滑表面的反射，入射角等于反射角。</li>
+  <li><strong>折射（Refraction）：</strong>光进入透明/半透明材质时改变方向，由斯涅尔定律（Snell's Law）描述。这是透明物体（玻璃、水）的核心光学行为。</li>
+  <li><strong>散射（Scattering）：</strong>光在材质内部被微粒多次反射，最终从不同方向射出。漫反射（Diffuse）本质上是次表面散射在宏观尺度上的近似。</li>
+  <li><strong>吸收（Absorption）：</strong>材质将光能转化为热能或其他形式。被吸收的光不再参与后续的光传输，决定了材质的颜色（未被吸收的光的颜色就是我们看到的颜色）。</li>
+  <li><strong>透射（Transmission）：</strong>光穿过物体从另一侧射出。常见于玻璃、水、薄纸等材质。</li>
+</ol>
+
+<div class="callout callout-info">
+  <strong>核心洞察：</strong>物体的颜色来源于<strong>选择性吸收</strong>。白光包含所有波长，当照射到一个红色苹果上时，绿色和蓝色的光被吸收，只有红色光被散射回我们的眼睛。所以苹果"看起来是红的"并不意味着它发出红光，而是它"反射"了红光。
+</div>
+
+<div class="section-header"><h3>9.3 BRDF 定义与物理约束</h3></div>
+
+<p><strong>BRDF（Bidirectional Reflectance Distribution Function，双向反射分布函数）</strong>是 PBR 的数学核心。它描述了：给定入射方向和出射方向，表面将多少入射光反射到出射方向。</p>
+
+<div class="formula-block">
+  BRDF 定义：
+  f_r(l, v) = dL_o(v) / (dE_i(l))
+
+  其中 l = 入射方向 (light), v = 出射方向 (view)
+  L_o(v) = 出射辐射亮度, E_i(l) = 入射辐照度
+  BRDF 的单位是 1/sr (每球面度)
+
+  渲染方程（简化版）：
+  L_o(v) = Integral[ f_r(l, v) * L_i(l) * cos(theta_l) dw ]
+  即：出射光 = 所有方向入射光的 BRDF 加权余弦积分
+</div>
+
+<p>一个物理合理的 BRDF 必须满足两个约束：</p>
+
+<ol>
+  <li><strong>Helmholtz 互易性（Reciprocity）：</strong>f_r(l, v) = f_r(v, l)。交换入射和出射方向，BRDF 值不变。这意味着光路可逆——光从 A 到 B 和从 B 到 A 的反射行为相同。</li>
+  <li><strong>能量守恒（Energy Conservation）：</strong>反射的总能量不超过入射能量。对于完美镜面（全部反射），反射率 = 1；对于粗糙表面，漫反射分量和镜面反射分量之和不能超过入射能量。</li>
+</ol>
+
+<div class="section-header"><h3>9.4 Cook-Torrance 镜面反射 BRDF</h3></div>
+
+<p><strong>Cook-Torrance BRDF</strong>是实时渲染中最广泛使用的镜面反射模型，也是 PBR 材质的数学核心：</p>
+
+<div class="formula-block">
+  Cook-Torrance 镜面 BRDF：
+  f_specular(l, v) = D(h) * F(v, h) * G(l, v, h) / (4 * (n . l) * (n . v))
+
+  其中：
+  h = normalize(l + v)  -- 半程向量 (half vector)
+  D(h) = 法线分布函数 (Normal Distribution Function)
+  F(v, h) = 菲涅尔函数 (Fresnel Function)
+  G(l, v, h) = 几何遮蔽函数 (Geometry Function)
+  (n . l) = 法线与入射方向的点积（余弦值）
+  (n . v) = 法线与出射方向的点积（余弦值）
+</div>
+
+<p>完整的 PBR 着色公式结合了漫反射和镜面反射分量：</p>
+
+<div class="formula-block">
+  完整 PBR 反射方程：
+  f_r(l, v) = k_d * f_lambert + k_s * f_cook-torrance
+
+  f_lambert = albedo / PI
+
+  k_d + k_s = 1  (能量守恒)
+  k_s = F(v, h)  (菲涅尔决定了镜面反射的比例)
+  k_d = (1 - k_s) * (1 - metallic)  (金属没有漫反射)
+</div>
+
+<div class="section-header"><h3>9.5 法线分布函数 (NDF)：GGX/Trowbridge-Reitz</h3></div>
+
+<p><strong>法线分布函数 D(h)</strong>描述了表面微法线（microfacet normal）等于半程向量 h 的概率密度。它决定了高光的形状和集中程度。</p>
+
+<div class="formula-block">
+  GGX/Trowbridge-Reitz NDF：
+  D(h) = alpha&sup2; / (PI * ((n . h)&sup2; * (alpha&sup2; - 1) + 1)&sup2;)
+
+  其中 alpha = roughness&sup2;
+  roughness 越大 -> alpha 越大 -> 高光越分散越暗淡
+  roughness 越小 -> alpha 越小 -> 高光越集中越明亮
+</div>
+
+<div class="callout callout-tip">
+  <strong>直觉理解：</strong>GGX 有一个"长尾巴"特性——即使是高粗糙度值，在镜面反射方向的远处仍有微弱的高光。这与真实世界中光泽表面（如有光泽的塑料、有涂层的木材）的观察结果一致，也是 GGX 被广泛采用的原因之一。
+</div>
+
+<div class="section-header"><h3>9.6 菲涅尔效应 (Fresnel Effect)</h3></div>
+
+<p><strong>菲涅尔效应</strong>描述了反射率随观察角度变化的现象：当你从几乎平行于表面的方向（掠射角）看过去时，<strong>所有</strong>材质的反射率都会趋向于 100%。这就是为什么水面在远处看起来比近处更反射——你看到的水面更接近掠射角。</p>
+
+<div class="formula-block">
+  Schlick 近似（实时渲染中最常用的菲涅尔近似）：
+  F(v, h) = F0 + (1 - F0) * (1 - (v . h))^5
+
+  F0 = 正入射时的反射率
+  对于非金属（电介质）：F0 约为 0.02-0.05
+  对于金属（导体）：F0 约为 0.5-1.0（即 F0 = albedo 色值）
+  (v . h) = 出射方向与半程向量的点积
+</div>
+
+<div class="knowledge-box">
+  <div class="knowledge-box-title">&#128218; 知识扩展：电介质 vs 导体</div>
+  <p>材质按导电性分为两类，它们的菲涅尔行为截然不同：</p>
+  <ul>
+    <li><strong>电介质（Dielectrics / 绝缘体）</strong>：如塑料、木材、石材、皮肤、水。F0 值很低（约 0.02-0.05），且在可见光范围内几乎不随波长变化，所以高光几乎都是白色/灰色。</li>
+    <li><strong>导体（Conductors / 金属）</strong>：如金、银、铜、铁。F0 值很高（约 0.5-1.0），且随波长变化，所以金属的高光带有颜色（金的高光是黄色偏暖，铜的高光是红色偏暖）。</li>
+  </ul>
+  <p>这个区别是 PBR 金属度-粗糙度工作流的核心基础。</p>
+</div>
+
+<div class="section-header"><h3>9.7 几何遮蔽函数 (Geometry Function)：Smith G</h3></div>
+
+<p><strong>几何遮蔽函数 G(l, v, h)</strong>描述了微表面（microfacets）之间互相遮挡的概率。当表面粗糙时，一些微面的"碗"可能会挡住光线或视线，使得实际参与反射的能量减少。</p>
+
+<div class="formula-block">
+  Smith-GGX 几何函数：
+  G1(v) = (n . v) / ((n . v) * (1 - k) + k)
+
+  G_Smith(l, v) = G1(l) * G1(v)
+
+  其中 k = roughness&sup2; / 2  (对于 IBL/点光源的直接光照)
+  或者 k = (roughness + 1)&sup2; / 8  (对于 UE4 的 remapping)
+</div>
+
+<div class="section-header"><h3>9.8 金属度-粗糙度工作流 (Metalness-Roughness Workflow)</h3></p>
+
+<p>现代游戏引擎（Unity、Unreal Engine、Godot）统一使用<strong>金属度-粗糙度工作流</strong>来定义材质。这个工作流只需要三个核心纹理贴图：</p>
+
+<ul>
+  <li><strong>Albedo 贴图</strong>：表面的基础颜色。对于金属，albedo 就是其反射颜色（F0）；对于非金属，albedo 是漫反射颜色，不含任何光照/阴影/高光信息。</li>
+  <li><strong>金属度贴图（Metalness Map）</strong>：0 = 非金属（电介质），1 = 金属。通常灰度图，中间值用于表示混合材质（如生锈的金属：铁锈处 = 0，金属处 = 1）。</li>
+  <li><strong>粗糙度贴图（Roughness Map）</strong>：0 = 完美光滑（如镜面），1 = 完全粗糙（如粗布）。控制高光的扩散程度。</li>
+</ul>
+
+<div class="callout callout-tip">
+  <strong>制作 Albedo 贴图的原则：</strong>Albedo 中<strong>不能</strong>包含：阴影、高光、环境反射、AO 信息。这些都应该由引擎在运行时根据光照条件实时计算。如果 Albedo 中混入了光照信息，会导致 PBR 计算结果"双重光照"——看起来过曝或颜色不正确。
+</div>
+
+<div class="section-header"><h3>9.9 基于图像的光照 (IBL)</h3></div>
+
+<p><strong>IBL（Image-Based Lighting）</strong>使用环境贴图（如 HDR 环境全景图）来提供来自所有方向的环境光照。它分为两个部分：</p>
+
+<ol>
+  <li><strong>辐照度贴图（Irradiance Map）：</strong>用于漫反射分量的环境光照。通过对环境贴图做低频卷积/模糊得到，代表了每个方向上环境光的平均入射辐照度。</li>
+  <li><strong>预过滤环境贴图（Prefiltered Environment Map）：</strong>用于镜面反射分量。将环境贴图按粗糙度级别做不同程度的模糊——粗糙度越大，高光越分散，对应的环境贴图越模糊。</li>
+  <li><strong>BRDF 积分贴图（BRDF LUT）：</strong>一个 2D 查找纹理，预计算了 BRDF 的积分结果（菲涅尔和遮蔽项的乘积），避免在运行时做昂贵的积分运算。</li>
+</ol>
+
+<div class="formula-block">
+  IBL 镜面反射近似：
+  L_specular = PrefilteredColor(Roughness, R) * (F0 * BRDF_LUT.x + BRDF_LUT.y)
+
+  其中 R = reflect(-v, n) 是反射方向
+  BRDF_LUT.x 对应缩放的菲涅尔项
+  BRDF_LUT.y 对应缩放的几何遮蔽项
+</div>
+
+<!-- ======== 交互式演示 9：PBR 材质编辑器 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示 9：PBR 材质编辑器</h4>
+  </div>
+  <div class="demo-description">
+    一个带有 PBR 材质的 3D 球体。使用滑块调整<strong>金属度（Metalness）</strong>和<strong>粗糙度（Roughness）</strong>，实时观察材质外观的变化。注意：金属度高时球体呈现金属质感，粗糙度高时高光变得分散和暗淡。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper">
+      <canvas id="rtDemo9_canvas"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <div class="control-row">
+      <label>金属度 (Metalness)：</label>
+      <input type="range" id="rtDemo9_metalness" min="0" max="1" step="0.01" value="0.5">
+      <span class="slider-value" id="rtDemo9_metalnessVal">0.50</span>
+    </div>
+    <div class="control-row">
+      <label>粗糙度 (Roughness)：</label>
+      <input type="range" id="rtDemo9_roughness" min="0" max="1" step="0.01" value="0.3">
+      <span class="slider-value" id="rtDemo9_roughnessVal">0.30</span>
+    </div>
+    <div class="control-row">
+      <label>Albedo 颜色：</label>
+      <input type="color" id="rtDemo9_albedo" value="#cc8844" style="width:50px;height:30px;border:none;cursor:pointer;">
+      <span class="slider-value" id="rtDemo9_albedoVal">#cc8844</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
+      &#128161; 鼠标左键拖拽旋转观察角度 | 金属度 0 = 非金属，1 = 纯金属
+    </p>
+  </div>
+</div>
+
+</section>
+
+<hr>
+
+<!-- ==========================================
+     第10章：局部光照 (Local Illumination)
+     ========================================== -->
+<section id="ch10">
+<div class="chapter-header">
+  <div class="chapter-label">CHAPTER 10</div>
+  <h2>第10章 局部光照 (Local Illumination)</h2>
+</div>
+
+<div class="book-quote">
+  <p>"本章节研究了刻画（portray）复杂光源的算法。我们在进行表面着色的时候，需要考虑到这些光线是从某些物理对象中发射出来的，这些物体具有独特的形状。"</p>
+  <cite>-- RTR4, Chapter 10</cite>
+</div>
+
+<p>局部光照（Local Illumination）考虑的是<strong>光源直接照射到表面</strong>产生的光照效果，不考虑光线在场景中的多次弹射。虽然名字叫"局部"，但局部光照是实时渲染中最重要的光照组成部分——大多数场景的视觉质量主要取决于直接光照的质量。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：局部光照 vs 全局光照。</strong>局部光照就像你在房间里打开一盏台灯——你只关心台灯直接照到桌面的效果。全局光照则还要考虑光线从桌面反射到墙壁、再从墙壁反射到天花板......的多次弹射效果。局部光照计算简单快速，全局光照真实但昂贵。
+</div>
+
+<div class="section-header"><h3>10.1 环境光 (Ambient Light)</h3></div>
+
+<p><strong>环境光</strong>是最简单的光照模型——为场景中的所有表面添加一个均匀的、无方向性的光照。它模拟的是光线在场景中多次弹射后产生的"填充光"（fill light）。</p>
+
+<div class="formula-block">
+  环境光着色：
+  color = ambientColor * albedo
+
+  通常 ambientColor 是一个低强度的常量（如 (0.1, 0.1, 0.1)）
+  这是最低保底的光照——即使是阴影中也不会完全黑暗
+</div>
+
+<div class="callout callout-warning">
+  <strong>局限性：</strong>均匀的环境光是非常粗略的近似。真实场景中，不同位置的环境光强度是不同的（角落更暗，开阔处更亮）。更高级的方法如 SSAO、光探针（Light Probes）可以提供空间变化的环境光。
+</div>
+
+<div class="section-header"><h3>10.2 方向光 (Directional Light)</h3></div>
+
+<p><strong>方向光</strong>模拟远距离光源（如太阳），所有光线平行射入。它没有位置属性，只有方向。</p>
+
+<div class="formula-block">
+  方向光漫反射（Lambert）：
+  diffuse = max(dot(n, l), 0) * lightColor * albedo
+
+  其中 n = 表面法线，l = 光照方向（从表面指向光源）
+  dot(n, l) = cos(theta)，theta 是法线和光方向的夹角
+  max(..., 0) 确保背面不受光
+</div>
+
+<div class="section-header"><h3>10.3 点光源 (Point Light) 与衰减</h3></div>
+
+<p><strong>点光源</strong>从一个点向所有方向发射光线，强度随距离衰减。在物理上，点光源的照度遵循<strong>平方反比定律（Inverse Square Law）</strong>：</p>
+
+<div class="formula-block">
+  点光源衰减公式：
+  E = Intensity / (d&sup2; + 1)
+
+  其中 d = 表面到光源的距离
+  分母中的 +1 是为了防止 d=0 时除以零
+  物理精确版本：E = Intensity / d&sup2;
+  但在游戏中通常会添加线性项来避免远处衰减过快：
+  E = Intensity / (1 + k_c*d + k_l*d&sup2; + k_q*d&sup3;)  (衰减三参数模型)
+</div>
+
+<div class="callout callout-tip">
+  <strong>实践建议：</strong>物理精确的 1/d&sup2; 衰减在游戏场景中可能导致"光看起来不够远"的问题。游戏引擎通常使用额外的线性项来让衰减更柔和：E = Intensity / (d&sup2; + d + 1)。Three.js 的 PointLight 默认使用这种修正模型。
+</div>
+
+<div class="section-header"><h3>10.4 聚光灯 (Spot Light)</h3></div>
+
+<p><strong>聚光灯</strong>发射锥形光束，需要额外的参数来定义光锥的范围和边缘的柔和程度：</p>
+
+<ul>
+  <li><strong>内锥角（Inner Angle）：</strong>完全照亮的锥形区域</li>
+  <li><strong>外锥角（Outer Angle）：</strong>光照从完全亮度衰减到零的区域</li>
+  <li><strong>衰减（Falloff）：</strong>在内锥角和外锥角之间，光照强度平滑过渡</li>
+</ul>
+
+<div class="formula-block">
+  聚光灯因子：
+  spotEffect = smoothstep(outerCos, innerCos, dot(lightDir, spotDir))
+  finalIntensity = attenuation * spotEffect * lightColor * max(dot(n, l), 0)
+</div>
+
+<div class="section-header"><h3>10.5 区域光 (Area Light)</h3></div>
+
+<p><strong>区域光</strong>是有物理面积的发光体（如荧光灯管、发光面板、窗户透过的光）。区域光的特点是产生<strong>软阴影</strong>和<strong>柔和高光</strong>——因为光源上的每个点都在不同的方向发光。</p>
+
+<div class="callout callout-info">
+  <strong>实时渲染中的近似：</strong>精确的区域光计算需要对光源面积上的每个点做积分，计算量很大。常见的实时近似方法包括：
+  <br>1. <strong>LTC（Linearly Transformed Cosines）</strong>：将区域光的积分转化为可以实时计算的近似公式
+  <br>2. <strong>球面光源近似（Spherical Area Light）</strong>：将区域光近似为球面光源
+  <br>3. <strong>多采样</strong>：在光源表面上取若干采样点，每个点作为点光源来计算，然后平均
+</div>
+
+<div class="section-header"><h3>10.6 多光源累加</h3></div>
+
+<p>在实时场景中，通常会同时有多个光源。每个光源的贡献通过<strong>加法</strong>累加：</p>
+
+<div class="formula-block">
+  最终颜色 = ambient + sum(light_i_contribution for each light_i)
+
+  其中每个光源的贡献：
+  light_i_contribution = attenuation_i * (diffuse_i + specular_i)
+
+  注意：颜色值可以超过 1.0（HDR），需要后续的色调映射来处理
+</div>
+
+<div class="callout callout-warning">
+  <strong>性能警告：</strong>每增加一个光源，着色器就要多执行一次光照计算。场景中光源数量直接决定了片段着色器的执行时间。常见优化策略包括：使用 light culling（前向渲染中只计算影响当前像素的光源）、延迟着色（Deferred Shading）和 light clusters。
+</div>
+
+<!-- ======== 交互式演示 10：多光源场景 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示 10：多光源场景</h4>
+  </div>
+  <div class="demo-description">
+    一个包含多种光源类型的场景。你可以通过复选框来开关每种光源，观察不同光源对场景的贡献。包括环境光、方向光、点光源和聚光灯。注意：关闭所有光源后物体仅靠极弱环境光可见。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper">
+      <canvas id="rtDemo10_canvas"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <div class="control-row">
+      <label><input type="checkbox" id="rtDemo10_ambient" checked> 环境光</label>
+      <label><input type="checkbox" id="rtDemo10_directional" checked> 方向光</label>
+    </div>
+    <div class="control-row">
+      <label><input type="checkbox" id="rtDemo10_point" checked> 点光源</label>
+      <label><input type="checkbox" id="rtDemo10_spot" checked> 聚光灯</label>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
+      &#128161; 勾选/取消勾选来开关光源 | 鼠标左键拖拽旋转观察
+    </p>
+  </div>
+</div>
+
+</section>
+
+<hr>
+
+<!-- ==========================================
+     第11章：全局光照 (Global Illumination)
+     ========================================== -->
+<section id="ch11">
+<div class="chapter-header">
+  <div class="chapter-label">CHAPTER 11</div>
+  <h2>第11章 全局光照 (Global Illumination)</h2>
+</div>
+
+<div class="book-quote">
+  <p>"本章节研究了模拟光线和场景多次相交的算法，这可以大大增强图像的真实感。我们还会研究环境光遮蔽（ambient occlusion）和定向遮蔽（directional occlusion），介绍在漫反射表面和镜面表面上渲染全局光照效果的方法，以及一些很有前景的统一方法。"</p>
+  <cite>-- RTR4, Chapter 11</cite>
+</div>
+
+<p>全局光照（GI）考虑光线在场景中的<strong>多次弹射</strong>（bounce），模拟间接光照效果。它是区分"游戏画质"和"电影画质"的关键因素之一。没有 GI，阴影中是纯黑的、角落是死暗的——有了 GI，光会从地面反射到天花板、从红色墙壁反射到白色地板上产生"颜色渗透"。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：直接光照只看"第一印象"，全局光照追踪"连锁反应"。</strong>想象一个阳光房：太阳光直接照进来是直接光照。但阳光照到黄色窗帘后，一部分光被反射到白色墙壁上，墙壁因此带上了一层淡淡的黄色——这就是全局光照（间接光照）。没有全局光照，墙壁上永远看不到窗帘的颜色渗透。
+</div>
+
+<div class="section-header"><h3>11.1 环境光遮蔽 (AO / SSAO / HBAO)</h3></div>
+
+<p><strong>环境光遮蔽（Ambient Occlusion, AO）</strong>是一种近似全局光照的技术，专门处理"角落和缝隙处应该更暗"这一现象。它不需要做完整的光线弹射计算，只需要检测表面周围的几何遮挡程度。</p>
+
+<div class="subsection-header"><h4>SSAO（Screen Space Ambient Occlusion）</h4>
+<p>由 Crytek 在 2007 年的 Crysis 中首次引入。SSAO 在<strong>屏幕空间</strong>中工作：对于每个像素，在深度缓冲中采样周围多个点，判断哪些点比当前像素更接近相机（即被遮挡），遮挡比例越高，环境光越暗。</p>
+
+<div class="callout callout-info">
+  <strong>SSAO 的工作原理：</strong>
+  <ol>
+    <li>读取当前像素的深度值，重建其在 3D 空间中的位置</li>
+    <li>在该位置周围的半球体内随机采样若干点</li>
+    <li>将采样点投影到屏幕空间，比较其深度与深度缓冲中的值</li>
+    <li>如果深度缓冲中的值更小（更近），说明有遮挡物</li>
+    <li>统计遮挡比例，作为环境光的衰减因子</li>
+  </ol>
+</div>
+</div>
+
+<div class="subsection-header"><h4>HBAO（Horizon-Based Ambient Occlusion）</h4>
+<p>HBAO 是 SSAO 的改进版。它不是随机采样，而是沿多个方向<strong>追踪地平线角度</strong>。对于每个方向，找到第一个遮挡采样点的角度（"地平线"），然后用这个角度来计算遮蔽强度。HBAO 比 SSAO 质量更高，但计算量也更大。</p>
+</div>
+
+<div class="subsection-header"><h4>GTAO（Ground Truth Ambient Occlusion）</h4>
+<p>由 NVIDIA 提出的更现代的 AO 方法，在质量和性能之间取得了很好的平衡。它使用与 HBAO 类似的地平线角度追踪方法，但采样策略更优化。</p>
+</div>
+
+<div class="section-header"><h3>11.2 屏幕空间反射 (SSR)</h3></p>
+
+<p><strong>屏幕空间反射（Screen-Screen Reflection, SSR）</strong>在屏幕空间中计算反射效果——对于每个像素，沿反射方向在屏幕空间中"步进"（Ray Marching），找到反射到的位置并采样颜色。</p>
+
+<div class="callout callout-info">
+  <strong>SSR 的基本流程：</strong>
+  <ol>
+    <li>对于每个屏幕像素，计算其表面法线和反射方向 R = reflect(viewDir, normal)</li>
+    <li>沿 R 方向在屏幕空间中进行光线步进（Ray Marching）</li>
+    <li>在每一步，将当前位置投影到屏幕空间，检查深度缓冲</li>
+    <li>当步进深度与深度缓冲匹配时，采样该位置的颜色作为反射颜色</li>
+  </ol>
+</div>
+
+<div class="callout callout-warning">
+  <strong>SSR 的局限性：</strong>SSR 只能反射屏幕空间中可见的内容。如果反射方向指向屏幕外（如物体背面的反射），SSR 无法处理——这时候只能回退到环境贴图反射。此外，SSR 在反射边缘处容易出现瑕疵，需要做边缘淡化（fade）处理。
+</div>
+
+<div class="section-header"><h3>11.3 光线传播体积 (Light Propagation Volumes)</h3></div>
+
+<p><strong>光线传播体积（LPV）</strong>由 Crytek 提出（首次用于 Crysis 3），是一种在 3D 体积网格中传播间接光照的实时 GI 技术。其核心思想是：</p>
+
+<ol>
+  <li><strong>注入（Injection）：</strong>从直接光照中提取每个表面上方的间接光照方向和强度，注入到最近的体积网格单元中</li>
+  <li><strong>传播（Propagation）：</strong>在 3D 网格中，每个单元将其光照信息"扩散"到相邻的 6 个单元（上下左右前后），迭代多轮以模拟光的弹射</li>
+  <li><strong>采样（Sampling）：</strong>在渲染时，每个表面采样其所在位置的体积网格数据来获取间接光照</li>
+</ol>
+
+<div class="callout callout-tip">
+  <strong>LPV 的特点：</strong>LPV 的优势是能够实时计算单次弹射的间接光照，且不依赖于屏幕空间。缺点是分辨率受限于体积网格的密度（过低的分辨率会产生明显的"光晕"伪影），且多次弹射的计算开销较大。
+</div>
+
+<div class="section-header"><h3>11.4 屏幕空间全局光照 (SSGI)</h3></div>
+
+<p><strong>屏幕空间全局光照（SSGI）</strong>是近年来游戏引擎中非常流行的技术，它将 SSAO 扩展为不仅计算遮蔽，还计算<strong>间接光照的颜色和强度</strong>。</p>
+
+<p>SSGI 的工作原理与 SSAO 类似，但关键区别在于：不仅统计遮挡比例，还采样遮挡物的颜色，计算遮挡物反射过来的间接光照颜色。这样就能实现颜色渗透（color bleeding）等效果。</p>
+
+<div class="knowledge-box">
+  <div class="knowledge-box-title">&#128218; 知识扩展：现代 GI 技术对比</div>
+  <table>
+    <thead><tr><th>技术</th><th>空间</th><th>颜色渗透</th><th>多次弹射</th><th>性能</th><th>使用案例</th></tr></thead>
+    <tbody>
+      <tr><td>SSAO</td><td>屏幕</td><td>无</td><td>无</td><td>快</td><td>几乎所有现代游戏</td></tr>
+      <tr><td>HBAO/GTAO</td><td>屏幕</td><td>无</td><td>无</td><td>中等</td><td>高质量游戏中</td></tr>
+      <tr><td>LPV</td><td>3D 体积</td><td>有</td><td>1-2 次</td><td>较慢</td><td>Crysis 3, 一些 UE4 项目</td></tr>
+      <tr><td>SSGI</td><td>屏幕</td><td>有</td><td>近似 1 次</td><td>中等</td><td>UE5 Lumen 之前，现代 SSAO 替代</td></tr>
+      <tr><td>DDGI</td><td>3D 体积</td><td>有</td><td>多次</td><td>中等</td><td>NVIDIA RTXGI，可动态更新</td></tr>
+      <tr><td>Lumen</td><td>混合</td><td>有</td><td>多次</td><td>较慢</td><td>Unreal Engine 5</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-header"><h3>11.5 前向渲染 vs 延迟渲染</h3></div>
+
+<p>全局光照和复杂光照的计算效率与渲染架构密切相关。两大主流渲染架构是<strong>前向渲染（Forward Rendering）</strong>和<strong>延迟渲染（Deferred Shading）</strong>。</p>
+
+<div class="subsection-header"><h4>前向渲染 (Forward Rendering)</h4>
+<p>对每个物体，直接运行片段着色器计算所有光照。如果场景中有 N 个物体和 M 个光源，则需要 N * M 次光照计算。优势：支持透明物体、节省显存（不需要 G-Buffer）。劣势：多光源场景下性能瓶颈明显。</p>
+</div>
+
+<div class="subsection-header"><h4>延迟渲染 (Deferred Shading)</h4>
+<p>分两步进行：第一步（Geometry Pass）渲染所有不透明物体到 G-Buffer（Geometry Buffer），记录每个像素的位置、法线、Albedo、粗糙度等信息。第二步（Lighting Pass）对每个光源，使用 G-Buffer 数据计算该光源对全屏像素的贡献。优势：光照计算与场景复杂度无关。劣势：不支持 MSAA、需要大量显存带宽、不支持透明物体。</p>
+</div>
+
+<div class="callout callout-tip">
+  <strong>混合架构：</strong>现代引擎通常使用混合方案：<strong>延迟渲染</strong>处理不透明物体的复杂光照，<strong>前向渲染</strong>处理透明物体和粒子特效。这种架构兼具两者的优势。
+</div>
+
+<!-- ======== 交互式演示 11：前向 vs 延迟渲染对比 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示 11：前向渲染 vs 延迟渲染流程图</h4>
+  </div>
+  <div class="demo-description">
+    点击按钮在<strong>前向渲染</strong>和<strong>延迟渲染</strong>之间切换，观察两种渲染架构的数据流差异。每种架构中，高亮的阶段表示当前正在执行。注意延迟渲染将光照计算与几何处理分离到不同 Pass 中。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper">
+      <canvas id="rtDemo11_canvas"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <div class="control-row">
+      <button class="btn" id="rtDemo11_forward" style="padding:6px 16px;border:1px solid var(--accent-blue);background:var(--accent-blue);color:#fff;border-radius:6px;cursor:pointer;">前向渲染</button>
+      <button class="btn" id="rtDemo11_deferred" style="padding:6px 16px;border:1px solid var(--border-primary);background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;">延迟渲染</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
+      &#128161; 点击按钮切换渲染架构 | 动画会高亮当前执行阶段
+    </p>
+  </div>
+</div>
+
+</section>
+
+<!-- ==========================================
+     Part 2 演示脚本 (Ch6-Ch11)
+     ========================================== -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+// ============================================
+// 演示 6：纹理过滤模式对比
+// ============================================
+(function rtDemo6_init() {
+  var canvas = document.getElementById('rtDemo6_canvas');
+  if (!canvas) return;
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d1117);
+
+  var camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 3, 5);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+
+  var controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.target.set(0, 0, 0);
+
+  // 创建棋盘格纹理
+  var size = 512;
+  var texCanvas = document.createElement('canvas');
+  texCanvas.width = size;
+  texCanvas.height = size;
+  var ctx = texCanvas.getContext('2d');
+  var tileSize = 32;
+  for (var y = 0; y < size; y += tileSize) {
+    for (var x = 0; x < size; x += tileSize) {
+      var isWhite = ((x / tileSize + y / tileSize) % 2) === 0;
+      ctx.fillStyle = isWhite ? '#ffffff' : '#444444';
+      ctx.fillRect(x, y, tileSize, tileSize);
+    }
+  }
+  var texture = new THREE.CanvasTexture(texCanvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  texture.generateMipmaps = true;
+
+  // 地面平面
+  var planeGeo = new THREE.PlaneGeometry(8, 8);
+  var planeMat = new THREE.MeshBasicMaterial({ map: texture });
+  var plane = new THREE.Mesh(planeGeo, planeMat);
+  plane.rotation.x = -Math.PI / 2;
+  plane.position.y = 0;
+  scene.add(plane);
+
+  // 光源
+  var ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+  scene.add(ambientLight);
+
+  // 过滤模式控制
+  var filterSelect = document.getElementById('rtDemo6_filter');
+  var wrapSelect = document.getElementById('rtDemo6_wrap');
+
+  function updateFilter() {
+    var val = filterSelect.value;
+    if (val === 'nearest') {
+      texture.magFilter = THREE.NearestFilter;
+      texture.minFilter = THREE.NearestFilter;
+      texture.generateMipmaps = false;
+    } else if (val === 'linear') {
+      texture.magFilter = THREE.LinearFilter;
+      texture.minFilter = THREE.LinearMipMapLinearFilter;
+      texture.generateMipmaps = true;
+    } else if (val === 'trilinear') {
+      texture.magFilter = THREE.LinearFilter;
+      texture.minFilter = THREE.LinearMipMapLinearFilter;
+      texture.generateMipmaps = true;
+    }
+    texture.needsUpdate = true;
+  }
+
+  function updateWrap() {
+    var val = wrapSelect.value;
+    if (val === 'repeat') { texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping; }
+    else if (val === 'clamp') { texture.wrapS = THREE.ClampToEdgeWrapping; texture.wrapT = THREE.ClampToEdgeWrapping; }
+    else if (val === 'mirror') { texture.wrapS = THREE.MirroredRepeatWrapping; texture.wrapT = THREE.MirroredRepeatWrapping; }
+    texture.needsUpdate = true;
+  }
+
+  filterSelect.addEventListener('change', updateFilter);
+  wrapSelect.addEventListener('change', updateWrap);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    var w = canvas.parentElement.clientWidth;
+    var h = 400;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  });
+
+  // initial size
+  var w = canvas.parentElement.clientWidth;
+  renderer.setSize(w, 400, false);
+  camera.aspect = w / 400;
+  camera.updateProjectionMatrix();
+})();
+
+// ============================================
+// 演示 7：可移动光源阴影
+// ============================================
+(function rtDemo7_init() {
+  var canvas = document.getElementById('rtDemo7_canvas');
+  if (!canvas) return;
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d1117);
+
+  var camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(5, 6, 8);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  var controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.target.set(0, 0.5, 0);
+
+  // 光源
+  var light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(3, 5, 3);
+  light.castShadow = true;
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+  light.shadow.camera.near = 0.5;
+  light.shadow.camera.far = 50;
+  light.shadow.camera.left = -8;
+  light.shadow.camera.right = 8;
+  light.shadow.camera.top = 8;
+  light.shadow.camera.bottom = -8;
+  light.shadow.bias = -0.001;
+  scene.add(light);
+
+  // 光源辅助器
+  var lightHelper = new THREE.DirectionalLightHelper(light, 0.5);
+  scene.add(lightHelper);
+
+  var ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+  scene.add(ambientLight);
+
+  // 地面
+  var groundGeo = new THREE.PlaneGeometry(12, 12);
+  var groundMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.8 });
+  var ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // 立方体
+  var boxGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+  var boxMat = new THREE.MeshStandardMaterial({ color: 0xcc6644, roughness: 0.5, metalness: 0.2 });
+  var box = new THREE.Mesh(boxGeo, boxMat);
+  box.position.set(-1.5, 0.75, 0);
+  box.castShadow = true;
+  box.receiveShadow = true;
+  scene.add(box);
+
+  // 球体
+  var sphereGeo = new THREE.SphereGeometry(0.8, 32, 32);
+  var sphereMat = new THREE.MeshStandardMaterial({ color: 0x4488cc, roughness: 0.3, metalness: 0.5 });
+  var sphere = new THREE.Mesh(sphereGeo, sphereMat);
+  sphere.position.set(1.5, 0.8, 0);
+  sphere.castShadow = true;
+  sphere.receiveShadow = true;
+  scene.add(sphere);
+
+  // 小球体
+  var smallSphereGeo = new THREE.SphereGeometry(0.4, 32, 32);
+  var smallSphereMat = new THREE.MeshStandardMaterial({ color: 0x44cc88, roughness: 0.4, metalness: 0.1 });
+  var smallSphere = new THREE.Mesh(smallSphereGeo, smallSphereMat);
+  smallSphere.position.set(0, 0.4, 2);
+  smallSphere.castShadow = true;
+  smallSphere.receiveShadow = true;
+  scene.add(smallSphere);
+
+  // 控制滑块
+  var lightX = document.getElementById('rtDemo7_lightX');
+  var lightY = document.getElementById('rtDemo7_lightY');
+  var lightZ = document.getElementById('rtDemo7_lightZ');
+  var lightXVal = document.getElementById('rtDemo7_lightXVal');
+  var lightYVal = document.getElementById('rtDemo7_lightYVal');
+  var lightZVal = document.getElementById('rtDemo7_lightZVal');
+
+  function updateLight() {
+    var x = parseFloat(lightX.value);
+    var y = parseFloat(lightY.value);
+    var z = parseFloat(lightZ.value);
+    light.position.set(x, y, z);
+    lightHelper.update();
+    lightXVal.textContent = x.toFixed(1);
+    lightYVal.textContent = y.toFixed(1);
+    lightZVal.textContent = z.toFixed(1);
+  }
+
+  lightX.addEventListener('input', updateLight);
+  lightY.addEventListener('input', updateLight);
+  lightZ.addEventListener('input', updateLight);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    var w = canvas.parentElement.clientWidth;
+    var h = 400;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  });
+
+  var w = canvas.parentElement.clientWidth;
+  renderer.setSize(w, 400, false);
+  camera.aspect = w / 400;
+  camera.updateProjectionMatrix();
+})();
+
+// ============================================
+// 演示 8：色彩空间对比 (Canvas 2D)
+// ============================================
+(function rtDemo8_init() {
+  var canvas = document.getElementById('rtDemo8_canvas');
+  if (!canvas) return;
+
+  var ctx = canvas.getContext('2d');
+  var gammaSlider = document.getElementById('rtDemo8_gamma');
+  var gammaVal = document.getElementById('rtDemo8_gammaVal');
+
+  function draw() {
+    var w = canvas.parentElement.clientWidth;
+    var h = 300;
+    canvas.width = w;
+    canvas.height = h;
+
+    var gamma = parseFloat(gammaSlider.value);
+    gammaVal.textContent = gamma.toFixed(1);
+
+    ctx.fillStyle = '#0d1117';
+    ctx.fillRect(0, 0, w, h);
+
+    var gradientH = 200;
+    var startY1 = 30;
+    var startY2 = startY1 + gradientH + 50;
+
+    // 标题
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = '14px "Noto Sans SC", sans-serif';
+    ctx.fillText('Without Gamma Correction (sRGB 直接显示 — 错误)', 20, startY1 - 10);
+    ctx.fillText('With Gamma Correction (Linear -> sRGB — 正确)', 20, startY2 - 10);
+
+    var barWidth = w - 80;
+    var barX = 20;
+
+    // 上方：无 Gamma 校正
+    for (var x = 0; x < barWidth; x++) {
+      var t = x / barWidth; // 0 to 1
+      var r = Math.floor(t * 255);
+      var g = Math.floor(t * 255);
+      var b = Math.floor(t * 255);
+      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+      ctx.fillRect(barX + x, startY1, 1, gradientH);
+    }
+
+    // 下方：有 Gamma 校正
+    for (var x = 0; x < barWidth; x++) {
+      var t = x / barWidth; // 0 to 1 (线性值)
+      var corrected = Math.pow(t, 1.0 / gamma); // Gamma 编码
+      var r = Math.floor(corrected * 255);
+      var g = Math.floor(corrected * 255);
+      var b = Math.floor(corrected * 255);
+      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+      ctx.fillRect(barX + x, startY2, 1, gradientH);
+    }
+
+    // 标记中间点
+    ctx.fillStyle = '#ff7b72';
+    ctx.font = '11px monospace';
+    var midX = barX + barWidth / 2;
+    ctx.fillText('50%', midX + 4, startY1 + gradientH / 2 + 4);
+    ctx.fillText('50%', midX + 4, startY2 + gradientH / 2 + 4);
+
+    // 标记 0 和 1
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('0', barX, startY1 + gradientH + 14);
+    ctx.fillText('1', barX + barWidth + 4, startY1 + gradientH + 14);
+  }
+
+  gammaSlider.addEventListener('input', draw);
+  draw();
+
+  window.addEventListener('resize', draw);
+})();
+
+// ============================================
+// 演示 9：PBR 材质编辑器
+// ============================================
+(function rtDemo9_init() {
+  var canvas = document.getElementById('rtDemo9_canvas');
+  if (!canvas) return;
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x111111);
+
+  var camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 3);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  var controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+
+  // 光照
+  var dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  dirLight.position.set(3, 5, 4);
+  scene.add(dirLight);
+
+  var dirLight2 = new THREE.DirectionalLight(0x8888ff, 0.3);
+  dirLight2.position.set(-3, 2, -2);
+  scene.add(dirLight2);
+
+  var ambientLight = new THREE.AmbientLight(0x222222, 0.5);
+  scene.add(ambientLight);
+
+  // 环境贴图 (使用简单的渐变环境)
+  var pmremGenerator = new THREE.PMREMGenerator(renderer);
+  var envScene = new THREE.Scene();
+  envScene.background = new THREE.Color(0x333344);
+  var envLight1 = new THREE.PointLight(0xffffff, 100, 0);
+  envLight1.position.set(10, 10, 10);
+  envScene.add(envLight1);
+  var envLight2 = new THREE.PointLight(0xff8844, 50, 0);
+  envLight2.position.set(-10, 5, -5);
+  envScene.add(envLight2);
+  var envMap = pmremGenerator.fromScene(envScene).texture;
+  scene.environment = envMap;
+  pmremGenerator.dispose();
+
+  // PBR 球体
+  var sphereGeo = new THREE.SphereGeometry(1.0, 64, 64);
+  var sphereMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0.8, 0.53, 0.27),
+    metalness: 0.5,
+    roughness: 0.3,
+    envMap: envMap,
+    envMapIntensity: 1.0
+  });
+  var sphere = new THREE.Mesh(sphereGeo, sphereMat);
+  scene.add(sphere);
+
+  // 控件
+  var metalnessSlider = document.getElementById('rtDemo9_metalness');
+  var roughnessSlider = document.getElementById('rtDemo9_roughness');
+  var albedoInput = document.getElementById('rtDemo9_albedo');
+  var metalnessVal = document.getElementById('rtDemo9_metalnessVal');
+  var roughnessVal = document.getElementById('rtDemo9_roughnessVal');
+  var albedoVal = document.getElementById('rtDemo9_albedoVal');
+
+  function updateMaterial() {
+    sphereMat.metalness = parseFloat(metalnessSlider.value);
+    sphereMat.roughness = parseFloat(roughnessSlider.value);
+    sphereMat.color.set(albedoInput.value);
+    metalnessVal.textContent = parseFloat(metalnessSlider.value).toFixed(2);
+    roughnessVal.textContent = parseFloat(roughnessSlider.value).toFixed(2);
+    albedoVal.textContent = albedoInput.value;
+  }
+
+  metalnessSlider.addEventListener('input', updateMaterial);
+  roughnessSlider.addEventListener('input', updateMaterial);
+  albedoInput.addEventListener('input', updateMaterial);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    var w = canvas.parentElement.clientWidth;
+    var h = 400;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  });
+
+  var w = canvas.parentElement.clientWidth;
+  renderer.setSize(w, 400, false);
+  camera.aspect = w / 400;
+  camera.updateProjectionMatrix();
+})();
+
+// ============================================
+// 演示 10：多光源场景
+// ============================================
+(function rtDemo10_init() {
+  var canvas = document.getElementById('rtDemo10_canvas');
+  if (!canvas) return;
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0a14);
+
+  var camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(5, 4, 7);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  var controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.target.set(0, 0.5, 0);
+
+  // 地面
+  var groundGeo = new THREE.PlaneGeometry(10, 10);
+  var groundMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.9, metalness: 0.0 });
+  var ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // 中心球体
+  var sphereGeo = new THREE.SphereGeometry(0.8, 32, 32);
+  var sphereMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.3, metalness: 0.1 });
+  var sphere = new THREE.Mesh(sphereGeo, sphereMat);
+  sphere.position.set(0, 0.8, 0);
+  sphere.castShadow = true;
+  sphere.receiveShadow = true;
+  scene.add(sphere);
+
+  // 立方体
+  var boxGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+  var boxMat = new THREE.MeshStandardMaterial({ color: 0xcc8844, roughness: 0.5, metalness: 0.3 });
+  var box = new THREE.Mesh(boxGeo, boxMat);
+  box.position.set(-2, 0.4, -1);
+  box.castShadow = true;
+  box.receiveShadow = true;
+  scene.add(box);
+
+  // 圆环
+  var torusGeo = new THREE.TorusGeometry(0.5, 0.15, 16, 32);
+  var torusMat = new THREE.MeshStandardMaterial({ color: 0x4488cc, roughness: 0.2, metalness: 0.7 });
+  var torus = new THREE.Mesh(torusGeo, torusMat);
+  torus.position.set(2, 0.5, -1);
+  torus.rotation.x = Math.PI / 4;
+  torus.castShadow = true;
+  torus.receiveShadow = true;
+  scene.add(torus);
+
+  // --- 光源 ---
+  // 1. 环境光
+  var ambientLight = new THREE.AmbientLight(0x222233, 0.5);
+  scene.add(ambientLight);
+
+  // 2. 方向光（模拟太阳）
+  var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 8, 5);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 1024;
+  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.camera.near = 0.5;
+  dirLight.shadow.camera.far = 50;
+  dirLight.shadow.camera.left = -8;
+  dirLight.shadow.camera.right = 8;
+  dirLight.shadow.camera.top = 8;
+  dirLight.shadow.camera.bottom = -8;
+  scene.add(dirLight);
+
+  // 3. 点光源（红色）
+  var pointLight = new THREE.PointLight(0xff4444, 1.0, 10);
+  pointLight.position.set(-3, 2, 2);
+  scene.add(pointLight);
+  var pointHelper = new THREE.PointLightHelper(pointLight, 0.15);
+  scene.add(pointHelper);
+
+  // 4. 聚光灯（绿色）
+  var spotLight = new THREE.SpotLight(0x44ff44, 1.0, 15, Math.PI / 6, 0.3);
+  spotLight.position.set(3, 5, -3);
+  spotLight.target.position.set(0, 0, 0);
+  spotLight.castShadow = true;
+  spotLight.shadow.mapSize.width = 512;
+  spotLight.shadow.mapSize.height = 512;
+  scene.add(spotLight);
+  scene.add(spotLight.target);
+  var spotHelper = new THREE.SpotLightHelper(spotLight);
+  scene.add(spotHelper);
+
+  // 控制
+  var cbAmbient = document.getElementById('rtDemo10_ambient');
+  var cbDirectional = document.getElementById('rtDemo10_directional');
+  var cbPoint = document.getElementById('rtDemo10_point');
+  var cbSpot = document.getElementById('rtDemo10_spot');
+
+  function updateLights() {
+    ambientLight.visible = cbAmbient.checked;
+    dirLight.visible = cbDirectional.checked;
+    pointLight.visible = cbPoint.checked;
+    pointHelper.visible = cbPoint.checked;
+    spotLight.visible = cbSpot.checked;
+    spotHelper.visible = cbSpot.checked;
+  }
+
+  cbAmbient.addEventListener('change', updateLights);
+  cbDirectional.addEventListener('change', updateLights);
+  cbPoint.addEventListener('change', updateLights);
+  cbSpot.addEventListener('change', updateLights);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    spotHelper.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    var w = canvas.parentElement.clientWidth;
+    var h = 400;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  });
+
+  var w = canvas.parentElement.clientWidth;
+  renderer.setSize(w, 400, false);
+  camera.aspect = w / 400;
+  camera.updateProjectionMatrix();
+})();
+
+// ============================================
+// 演示 11：前向 vs 延迟渲染流程图 (Canvas 2D)
+// ============================================
+(function rtDemo11_init() {
+  var canvas = document.getElementById('rtDemo11_canvas');
+  if (!canvas) return;
+
+  var ctx = canvas.getContext('2d');
+  var btnForward = document.getElementById('rtDemo11_forward');
+  var btnDeferred = document.getElementById('rtDemo11_deferred');
+
+  var currentMode = 'forward';
+  var animStep = 0;
+  var animTimer = null;
+
+  function draw() {
+    var w = canvas.parentElement.clientWidth;
+    var h = 350;
+    canvas.width = w;
+    canvas.height = h;
+
+    ctx.fillStyle = '#0d1117';
+    ctx.fillRect(0, 0, w, h);
+
+    var boxW = 140;
+    var boxH = 50;
+    var arrowLen = 50;
+
+    if (currentMode === 'forward') {
+      drawForwardPipeline(w, h, boxW, boxH, arrowLen);
+    } else {
+      drawDeferredPipeline(w, h, boxW, boxH, arrowLen);
+    }
+  }
+
+  function drawBox(x, y, w, h, label, sublabel, active, color) {
+    var bgColor = active ? (color || 'rgba(88,166,255,0.15)') : '#1c2128';
+    var borderColor = active ? '#58a6ff' : '#30363d';
+    var textColor = active ? '#e6edf3' : '#8b949e';
+
+    ctx.fillStyle = bgColor;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = active ? 2 : 1;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 13px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + w / 2, y + h / 2 - 2);
+
+    if (sublabel) {
+      ctx.fillStyle = active ? '#8b949e' : '#6e7681';
+      ctx.font = '10px "Noto Sans SC", sans-serif';
+      ctx.fillText(sublabel, x + w / 2, y + h / 2 + 14);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  function drawArrow(x1, y1, x2, y2, active) {
+    ctx.strokeStyle = active ? '#58a6ff' : '#30363d';
+    ctx.fillStyle = active ? '#58a6ff' : '#30363d';
+    ctx.lineWidth = active ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // arrowhead
+    var angle = Math.atan2(y2 - y1, x2 - x1);
+    var headLen = 8;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen * Math.cos(angle - 0.4), y2 - headLen * Math.sin(angle - 0.4));
+    ctx.lineTo(x2 - headLen * Math.cos(angle + 0.4), y2 - headLen * Math.sin(angle + 0.4));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawForwardPipeline(w, h, boxW, boxH, arrowLen) {
+    var stages = [
+      { label: '顶点着色', sub: '每个顶点' },
+      { label: '光栅化', sub: '三角形→像素' },
+      { label: '片段着色', sub: '所有光源累加' },
+      { label: '深度测试 & 混合', sub: '输出到帧缓冲' }
+    ];
+
+    var totalW = stages.length * boxW + (stages.length - 1) * arrowLen;
+    var startX = (w - totalW) / 2;
+    var y = h / 2 - boxH / 2;
+
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = 'bold 16px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('前向渲染 (Forward Rendering)', w / 2, 30);
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '12px "Noto Sans SC", sans-serif';
+    ctx.fillText('每个物体 -> 对每个光源计算光照 -> 累加输出', w / 2, 52);
+
+    for (var i = 0; i < stages.length; i++) {
+      var x = startX + i * (boxW + arrowLen);
+      var active = (animStep === i);
+      drawBox(x, y, boxW, boxH, stages[i].label, stages[i].sub, active, 'rgba(88,166,255,0.15)');
+
+      if (i < stages.length - 1) {
+        drawArrow(x + boxW, y + boxH / 2, x + boxW + arrowLen, y + boxH / 2, animStep === i);
+      }
+    }
+
+    // 注释
+    ctx.fillStyle = '#d29922';
+    ctx.font = '11px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('x N个物体 x M个光源 = N*M 次光照计算', w / 2, h - 20);
+    ctx.textAlign = 'left';
+  }
+
+  function drawDeferredPipeline(w, h, boxW, boxH, arrowLen) {
+    var geoStages = [
+      { label: '几何 Pass', sub: '输出 G-Buffer' }
+    ];
+
+    var gBufItems = ['位置', '法线', 'Albedo', '深度'];
+    var lightStages = [
+      { label: '光照 Pass', sub: '读取 G-Buffer' },
+      { label: '光源 1 计算', sub: '贡献累加' },
+      { label: '光源 2 计算', sub: '贡献累加' },
+      { label: '最终合成', sub: '输出到帧缓冲' }
+    ];
+
+    var topY = 80;
+    var botY = 220;
+
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = 'bold 16px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('延迟渲染 (Deferred Shading)', w / 2, 30);
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '12px "Noto Sans SC", sans-serif';
+    ctx.fillText('先渲染几何信息到 G-Buffer，再统一计算光照', w / 2, 52);
+
+    // Geometry Pass
+    var gx = 40;
+    var activeGeo = (animStep === 0);
+    drawBox(gx, topY, boxW, boxH, '几何 Pass', '渲染所有物体', activeGeo, 'rgba(63,185,80,0.15)');
+
+    // G-Buffer
+    var gBufX = gx + boxW + arrowLen;
+    var gBufTotalW = gBufItems.length * 55;
+    var activeGBuf = (animStep === 1);
+    ctx.fillStyle = activeGBuf ? 'rgba(210,153,34,0.15)' : '#1c2128';
+    ctx.strokeStyle = activeGBuf ? '#d29922' : '#30363d';
+    ctx.lineWidth = activeGBuf ? 2 : 1;
+    ctx.beginPath();
+    ctx.roundRect(gBufX, topY, gBufTotalW, boxH, 8);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = activeGBuf ? '#e6edf3' : '#8b949e';
+    ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('G-Buffer', gBufX + gBufTotalW / 2, topY + 16);
+    for (var i = 0; i < gBufItems.length; i++) {
+      var ix = gBufX + 8 + i * 55;
+      ctx.fillStyle = activeGBuf ? '#8b949e' : '#6e7681';
+      ctx.font = '10px "Noto Sans SC", sans-serif';
+      ctx.fillText(gBufItems[i], ix + 22, topY + 38);
+    }
+
+    drawArrow(gx + boxW, topY + boxH / 2, gBufX, topY + boxH / 2, animStep === 0);
+
+    // 箭头到下方
+    var midX = gBufX + gBufTotalW / 2;
+    drawArrow(midX, topY + boxH, midX, botY, animStep === 1);
+
+    // Lighting Pass stages
+    var lightStartX = 40;
+    for (var i = 0; i < lightStages.length; i++) {
+      var lx = lightStartX + i * (boxW + arrowLen);
+      var active = (animStep === i + 2);
+      var color = (i === lightStages.length - 1) ? 'rgba(188,140,255,0.15)' : 'rgba(88,166,255,0.15)';
+      drawBox(lx, botY, boxW, boxH, lightStages[i].label, lightStages[i].sub, active, color);
+      if (i < lightStages.length - 1) {
+        drawArrow(lx + boxW, botY + boxH / 2, lx + boxW + arrowLen, botY + boxH / 2, animStep === i + 2);
+      }
+    }
+
+    // 注释
+    ctx.fillStyle = '#3fb950';
+    ctx.font = '11px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('光照计算与物体数量无关，仅与光源数量相关', w / 2, h - 20);
+    ctx.textAlign = 'left';
+  }
+
+  function animateStep() {
+    var maxSteps = currentMode === 'forward' ? 4 : 6;
+    animStep = (animStep + 1) % maxSteps;
+    draw();
+  }
+
+  function startAnimation() {
+    if (animTimer) clearInterval(animTimer);
+    animStep = -1;
+    animateStep();
+    animTimer = setInterval(animateStep, 1500);
+  }
+
+  btnForward.addEventListener('click', function() {
+    currentMode = 'forward';
+    btnForward.style.background = 'var(--accent-blue)';
+    btnForward.style.color = '#fff';
+    btnForward.style.borderColor = 'var(--accent-blue)';
+    btnDeferred.style.background = 'transparent';
+    btnDeferred.style.color = 'var(--text-secondary)';
+    btnDeferred.style.borderColor = 'var(--border-primary)';
+    startAnimation();
+  });
+
+  btnDeferred.addEventListener('click', function() {
+    currentMode = 'deferred';
+    btnDeferred.style.background = 'var(--accent-purple)';
+    btnDeferred.style.color = '#fff';
+    btnDeferred.style.borderColor = 'var(--accent-purple)';
+    btnForward.style.background = 'transparent';
+    btnForward.style.color = 'var(--text-secondary)';
+    btnForward.style.borderColor = 'var(--border-primary)';
+    startAnimation();
+  });
+
+  startAnimation();
+
+  window.addEventListener('resize', draw);
+})();
+</script>
+
+<!-- END OF PART 2: Ch6-Ch11 -->

@@ -19,5 +19,14 @@ node_modules/
 !.opencode/
 !.gitignore
 !README.md
+!games-computer-graphics-courses.md
 !UE4_Source_Guide/
 UE4_Source_Guide/*
+!ue_graph_inspector_mcp/
+!ue_graph_inspector_mcp/**
+
+!obsidian-canvas-plus/
+!obsidian-canvas-plus/**
+
+!realtime-rendering-tutorial/
+!realtime-rendering-tutorial/**
