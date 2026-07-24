@@ -30,3 +30,11 @@ UE4_Source_Guide/*
 
 !realtime-rendering-tutorial/
 !realtime-rendering-tutorial/**
+
+# Houdini enhancement workspace (MCP + knowledge base + docs)
+# 知识库和 MCP 源码作为 submodule/clone 引用,默认不跟踪其内容,只跟踪我们自己的 docs
+!houdini-enhancement/
+!houdini-enhancement/docs/
+!houdini-enhancement/docs/**
+houdini-enhancement/knowledge-base/*
+houdini-enhancement/mcp-servers/*
