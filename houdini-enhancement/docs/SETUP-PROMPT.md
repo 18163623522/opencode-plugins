@@ -1,5 +1,19 @@
 # Houdini AI 增强 —— 跨电脑自动安装提示词
 
+> ⚠️ **此文件已被取代 —— 请改用全环境版**
+>
+> 本文件(Houdini 专用迁移 prompt)是早期版本,只覆盖 Houdini MCP/skill。
+> 完整方案已升级为**全环境迁移**(skill + 24 插件 + MCP + 偏好一键搞定),权威版本在:
+>
+> 👉 **`zcode-skills` 仓库的 `env/SETUP-PROMPT.md`**
+>    (GitHub: `18163623522/zcode-skills`,私有;本地:`~/.zcode/skills/env/SETUP-PROMPT.md`)
+>
+> 新电脑请直接用那个全环境版,它会连带处理 Houdini 部分。
+>
+> **本文件保留**,作为 Houdini 专用的细节参考(MCP 架构、Python 3.14 风险、验证清单等),但**触发入口**已迁移。
+>
+> ---
+>
 > **用途**:把下面整段 prompt 复制到另一台电脑的 ZCode / Claude Code / 任何支持工具调用的 agent 里,它会自动完成 Houdini MCP + skill + 知识库的安装。
 >
 > **怎么用**:见本文件末尾的【使用方法】。
