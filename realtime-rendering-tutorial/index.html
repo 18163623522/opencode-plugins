@@ -3776,38 +3776,74 @@ function toggleSidebar() {
   document.getElementById('sidebarOverlay').classList.toggle('open');
 }
 
-// 回到顶部按钮显示/隐藏
-window.addEventListener('scroll', function() {
-  var btn = document.getElementById('backToTop');
-  if (window.scrollY > 300) {
-    btn.classList.add('visible');
-  } else {
-    btn.classList.remove('visible');
+// ============================================
+// 全局性能优化工具
+// ============================================
+// 防抖函数 -- 用于 resize 等高频事件
+function _debounce(fn, delay) {
+  var timer = null;
+  return function() {
+    var ctx = this, args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function() { fn.apply(ctx, args); }, delay);
+  };
+}
+
+// WebGL 场景暂停/恢复管理器 -- 不可见时停止渲染
+var _rafManager = {
+  scenes: [], // {canvas, animateFn, rafId, isRunning}
+  observer: null,
+  init: function() {
+    if (!('IntersectionObserver' in window)) return;
+    var self = this;
+    this.observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        var target = entry.target;
+        var scene = self.scenes.find(function(s) { return s.canvas === target; });
+        if (!scene) return;
+        if (entry.isIntersecting) {
+          if (!scene.isRunning) {
+            scene.isRunning = true;
+            scene.rafId = requestAnimationFrame(scene.animateFn);
+          }
+        } else {
+          if (scene.isRunning) {
+            scene.isRunning = false;
+            cancelAnimationFrame(scene.rafId);
+          }
+        }
+      });
+    }, { rootMargin: '100px' });
+  },
+  register: function(canvas, animateFn) {
+    var scene = { canvas: canvas, animateFn: animateFn, rafId: null, isRunning: false };
+    this.scenes.push(scene);
+    if (this.observer) {
+      this.observer.observe(canvas);
+    } else {
+      // Fallback: 不支持 IntersectionObserver 时直接运行
+      scene.isRunning = true;
+      scene.rafId = requestAnimationFrame(animateFn);
+    }
+    return scene;
+  },
+  start: function(scene) {
+    if (!scene.isRunning) {
+      scene.isRunning = true;
+      scene.rafId = requestAnimationFrame(scene.animateFn);
+    }
+  },
+  loop: function(scene) {
+    if (scene.isRunning) {
+      scene.rafId = requestAnimationFrame(scene.animateFn);
+    }
   }
-  // 更新侧边栏 active 状态
-  updateActiveNav();
-});
+};
+_rafManager.init();
 
-// 更新侧边栏 active 状态
-function updateActiveNav() {
-  var sections = document.querySelectorAll('section[id]');
-  var navItems = document.querySelectorAll('.nav-item');
-  var scrollPos = window.scrollY + 100;
-
-  var currentSection = '';
-  sections.forEach(function(section) {
-    if (section.offsetTop <= scrollPos) {
-      currentSection = section.getAttribute('id');
-    }
-  });
-
-  navItems.forEach(function(item) {
-    item.classList.remove('active');
-    var href = item.getAttribute('href');
-    if (href && href === '#' + currentSection) {
-      item.classList.add('active');
-    }
-  });
+// 通用 resize 包装器 -- 自动防抖
+function _onResize(fn) {
+  window.addEventListener('resize', _debounce(fn, 150));
 }
 
 // ============================================
@@ -3864,6 +3900,7 @@ function updateActiveNav() {
 
   function animate() {
     requestAnimationFrame(animate);
+    if (canvas._paused) return;
     cube.rotation.x += 0.005;
     cube.rotation.y += 0.008;
     controls.update();
@@ -3872,7 +3909,7 @@ function updateActiveNav() {
   animate();
 
   // 响应式
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var parent = canvas.parentElement;
     var w = parent.clientWidth;
     var h = Math.min(w * 0.6, 500);
@@ -4091,13 +4128,14 @@ function switchCoordSpace(space) {
 
   function animate() {
     requestAnimationFrame(animate);
+    if (canvas._paused) return;
     demo3Object.rotation.y += 0.003;
     demo3Controls.update();
     demo3Renderer.render(demo3Scene, demo3Camera);
   }
   animate();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var parent = canvas.parentElement;
     var w = parent.clientWidth;
     var h = Math.min(w * 0.6, 500);
@@ -4546,6 +4584,7 @@ function resetTransform() {
 
   function animate() {
     requestAnimationFrame(animate);
+    if (canvas._paused) return;
     demo5Controls.update();
     demo5Renderer.render(demo5Scene, demo5Camera);
   }
@@ -4553,7 +4592,7 @@ function resetTransform() {
 
   updateTransform();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var parent = canvas.parentElement;
     var w = parent.clientWidth;
     var h = 300;
@@ -4649,6 +4688,7 @@ function createDemo6Objects(scene) {
 
   function animate() {
     requestAnimationFrame(animate);
+    if (perspCanvas._paused) return;
     // Slowly orbit cameras
     var t = Date.now() * 0.0002;
     var cx = Math.sin(t) * 8;
@@ -4665,7 +4705,7 @@ function createDemo6Objects(scene) {
   }
   animate();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var parent = orthoCanvas.parentElement;
     var w = parent.clientWidth;
     var h = 250;
@@ -4799,6 +4839,7 @@ function updateLightIntensity() {
   // Orbit lights
   function animate() {
     requestAnimationFrame(animate);
+    if (canvas._paused) return;
     var t = Date.now() * 0.0005;
     var lx = Math.sin(t) * 4;
     var lz = Math.cos(t) * 4;
@@ -4816,7 +4857,7 @@ function updateLightIntensity() {
   }
   animate();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var parent = canvas.parentElement;
     var w = parent.clientWidth;
     var h = Math.min(w * 0.6, 500);
@@ -4826,12 +4867,6 @@ function updateLightIntensity() {
   });
 })();
 
-// ============================================
-// 初始化
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-  updateActiveNav();
-});
 </script>
 
 <script>
@@ -4964,12 +4999,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function animate8() {
     requestAnimationFrame(animate8);
+    if (canvas._paused) return;
     demo8Controls.update();
     demo8Renderer.render(demo8Scene, demo8Camera);
   }
   animate8();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement;
     var ww = p.clientWidth;
     var hh = Math.min(ww * 0.6, 500);
@@ -5073,11 +5109,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function animate9() {
     requestAnimationFrame(animate9);
+    if (canvas._paused) return;
     demo9Renderer.render(demo9Scene, demo9Camera);
   }
   animate9();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement;
     var ww = p.clientWidth;
     var hh = Math.min(ww * 0.6, 500);
@@ -5180,7 +5217,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.updateToneMappingDemo = drawToneMappingDemo;
   drawToneMappingDemo();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement;
     var ww = p.clientWidth;
     canvas.width = ww;
@@ -5271,12 +5308,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function animate11() {
     requestAnimationFrame(animate11);
+    if (canvas._paused) return;
     demo11Controls.update();
     demo11Renderer.render(demo11Scene, demo11Camera);
   }
   animate11();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement;
     var ww = p.clientWidth;
     var hh = Math.min(ww * 0.6, 500);
@@ -5433,12 +5471,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function animate12() {
     requestAnimationFrame(animate12);
+    if (canvas._paused) return;
     demo12Controls.update();
     demo12Renderer.render(demo12Scene, demo12Camera);
   }
   animate12();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement;
     var ww = p.clientWidth;
     var hh = Math.min(ww * 0.6, 500);
@@ -6459,6 +6498,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
   function animateDemo13() {
     requestAnimationFrame(animateDemo13);
+    if (canvas._paused) return;
     var t = Date.now() * 0.001;
     spheres.forEach(function(s, i) {
       s.position.y = configs[i].pos[1] + Math.sin(t + i) * 0.3;
@@ -6549,7 +6589,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   }
   animateDemo13();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement;
     var nw = p.clientWidth, nh = Math.min(nw * 0.6, 500);
     demo13Camera.aspect = nw / nh;
@@ -6608,6 +6648,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
   function demo14Animate() {
     requestAnimationFrame(demo14Animate);
+    if (canvas._paused) return;
     ctx.fillStyle = 'rgba(10,10,20,0.15)';
     ctx.fillRect(0, 0, w, h);
     if (demo14AutoMode && Math.random() < 0.02) demo14Emit(Math.random()*w, Math.random()*h*0.6+h*0.1);
@@ -6624,7 +6665,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   }
   demo14Animate();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement; var nw = p.clientWidth, nh = Math.min(nw*0.5, 400);
     canvas.width = nw; canvas.height = nh; w = nw; h = nh;
   });
@@ -6705,6 +6746,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
   function animateDemo15() {
     requestAnimationFrame(animateDemo15);
+    if (canvas._paused) return;
     var t = Date.now() * 0.001;
     demo15Sphere.rotation.y = t * 0.3;
     demo15DirLight.position.x = Math.sin(t) * 4;
@@ -6713,7 +6755,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   }
   animateDemo15();
 
-  window.addEventListener('resize', function() {
+  _onResize(function() {
     var p = canvas.parentElement; var nw = p.clientWidth, nh = Math.min(nw*0.6, 500);
     demo15Camera.aspect = nw/nh; demo15Camera.updateProjectionMatrix();
     demo15Renderer.setSize(nw, nh, false);
@@ -7031,6 +7073,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   var demo17Angle = 0;
   function demo17Animate() {
     requestAnimationFrame(demo17Animate);
+    if (canvas._paused) return;
     demo17Angle += 0.008;
     demo17Group.rotation.y = demo17Angle;
     renderer.render(scene, camera);
@@ -7745,7 +7788,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   }
 
   document.getElementById('stereo-ipd').addEventListener('input',function(){stereoDraw();});
-  function animate(){requestAnimationFrame(animate);stereoDraw();}
+  function animate(){requestAnimationFrame(animate);if(canvas._paused)return;stereoDraw();}
   animate();
 })();
 </script>
@@ -8446,7 +8489,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     document.getElementById('col-narrow').textContent=collisions.length;
   }
 
-  function animate(){requestAnimationFrame(animate);colDraw();}
+  function animate(){requestAnimationFrame(animate);if(canvas._paused)return;colDraw();}
   animate();
 })();
 </script>
@@ -9026,6 +9069,38 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 <!-- ==========================================
      底部脚本：导航高亮 + 阅读进度 + 回到顶部
      ========================================== -->
+
+<!-- ==========================================
+     性能优化：IntersectionObserver 暂停不可见的 WebGL 场景
+     ========================================== -->
+<script>
+(function() {
+  if (!('IntersectionObserver' in window)) return;
+  
+  // 收集所有 canvas 的 animate 函数引用，用于恢复
+  var canvasResumeFns = {};
+  
+  // 找到所有 canvas，为每个创建观察者
+  var canvases = document.querySelectorAll('canvas');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var canvas = entry.target;
+      if (entry.isIntersecting) {
+        // 可见：取消暂停
+        canvas._paused = false;
+      } else {
+        // 不可见：暂停
+        canvas._paused = true;
+      }
+    });
+  }, { rootMargin: '50px' });
+  
+  canvases.forEach(function(c) {
+    c._paused = false;
+    observer.observe(c);
+  });
+})();
+</script>
 
 <!-- ======== Ch4 新增演示脚本 ======== -->
 <script>
