@@ -4962,16 +4962,17 @@ function updateTransform() {
   // [cos(rz), -sin(rz), 0]
   // [sin(rz),  cos(rz), 0]
   // [0,          0,     1]
-  // 合成 R = Rz × Ry × Rx:
-  var r00 = cz*cy;
-  var r01 = cz*sy*sxr - sz*cx;
-  var r02 = cz*sy*cx + sz*sxr;
-  var r10 = sz*cy;
-  var r11 = sz*sy*sxr + cz*cx;
-  var r12 = sz*sy*cx - cz*sxr;
-  var r20 = -syr;
-  var r21 = cy*sxr;
-  var r22 = cy*cx;
+  // 合成 R = Rz × Ry × Rx -- 直接从 Three.js matrixWorld 读取，保证与 M 一致
+  // Three.js matrixWorld 是列主序: m[col*4+row]
+  var m = demo5Mesh ? demo5Mesh.matrixWorld.elements : null;
+  var r00, r01, r02, r10, r11, r12, r20, r21, r22;
+  if (m) {
+    r00 = m[0];  r01 = m[4];  r02 = m[8];
+    r10 = m[1];  r11 = m[5];  r12 = m[9];
+    r20 = m[2];  r21 = m[6];  r22 = m[10];
+  } else {
+    r00=1; r01=0; r02=0; r10=0; r11=1; r12=0; r20=0; r21=0; r22=1;
+  }
 
   // 决定每个单元格的 type
   function rType(isTrig, isThisAxis) {
@@ -8154,12 +8155,18 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
     function animateStep(){
       if(step>=order.length){
-        // Show final heatmap
-        var imgData=ctx.getImageData(0,0,W,H);
+        // Show final heatmap using putImageData for performance
+        var imgData=ctx.createImageData(W,H);
         for(var py=0;py<H;py++)for(var px=0;px<W;px++){
           var n=overdrawBuf[py*W+px];
-          if(n>1){var idx=(py*W+px)*4;var hc=heatColor(n);ctx.fillStyle=hc;ctx.fillRect(px,py,1,1);}
+          if(n>1){var idx=(py*W+px)*4;var hc=heatColor(n);
+            imgData.data[idx]=parseInt(hc.substr(1,2),16);
+            imgData.data[idx+1]=parseInt(hc.substr(3,2),16);
+            imgData.data[idx+2]=parseInt(hc.substr(5,2),16);
+            imgData.data[idx+3]=180;
+          }
         }
+        ctx.putImageData(imgData,0,0);
         // Count total overdraw
         var total=0,overPixels=0;
         for(var i=0;i<W*H;i++){if(overdrawBuf[i]>0)total+=overdrawBuf[i];if(overdrawBuf[i]>1)overPixels++;}
@@ -8363,11 +8370,15 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
       }
     }
 
-    // Sort by depth
-    var sorted=scene.slice().sort(function(a,b){return b[2]-a[2];});
-    sorted.forEach(function(obj){
+    // Project all objects first, then sort by projected depth
+    var projected=[];
+    scene.forEach(function(obj){
       var p=project(obj,offsetX);
-      if(!p||p.x+cx<-50||p.x+cx>halfW+50)return;
+      if(p&&p.x+cx>-50&&p.x+cx<halfW+50)projected.push({p:p,obj:obj});
+    });
+    projected.sort(function(a,b){return b.p.z-a.p.z;});
+    projected.forEach(function(item){
+      var p=item.p,obj=item.obj;
       var r=Math.max(2,p.s);
       ctx.beginPath();ctx.arc(cx+p.x,p.y,r,0,Math.PI*2);
       ctx.fillStyle=obj[4];ctx.globalAlpha=Math.min(1,0.3+p.s*0.1);ctx.fill();ctx.globalAlpha=1;
@@ -9098,15 +9109,14 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     var checked={};
     for(var key in grid){
       var cell=grid[key];
-      // Check within cell and adjacent
-      var cx=parseInt(key),cy=0;
-      var parts=key.split(',');cx=parseInt(parts[0]);cy=parseInt(parts[1]);
+      var parts=key.split(',');var cx=parseInt(parts[0]);var cy=parseInt(parts[1]);
       for(var dx=0;dx<=1;dx++)for(var dy=-1;dy<=1;dy++){
         var nkey=(cx+dx)+','+(cy+dy);
         var ncell=grid[nkey];if(!ncell)continue;
         cell.forEach(function(ai){ncell.forEach(function(bi){
-          if(ai>=bi)return;
-          var pk=ai+'-'+bi;
+          if(ai===bi)return; // 跳过自身
+          // 规范化配对key，避免重复和漏检
+          var pk=Math.min(ai,bi)+'-'+Math.max(ai,bi);
           if(checked[pk])return;checked[pk]=true;
           broadCount++;
           broadPairs[pk]={a:ai,b:bi};
@@ -9966,17 +9976,16 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
             }
           });
         }
-        // Base color with AO darkening
+        // Base color (AO applied only via gradient, not global darkening)
         var baseR=80+100*c.z,baseG=90+80*c.z,baseB=100+120*c.z;
-        var aoFactor=1-ao;
-        var r=Math.floor(baseR*aoFactor),g=Math.floor(baseG*aoFactor),b=Math.floor(baseB*aoFactor);
+        var r=Math.floor(baseR),g=Math.floor(baseG),b=Math.floor(baseB);
         // Top face (lit)
         ctx.fillStyle='rgb('+Math.min(255,r+40)+','+Math.min(255,g+40)+','+Math.min(255,b+40)+')';
         ctx.fillRect(cx,cy,c.w,c.h);
         // Right face (darker)
         ctx.fillStyle='rgb('+Math.max(0,r-30)+','+Math.max(0,g-30)+','+Math.max(0,b-30)+')';
         ctx.fillRect(cx+c.w,cy+5,8,c.h-5);
-        // AO darkening at base
+        // AO darkening at base (single pass, no double darkening)
         if(side===1&&ao>0.1){
           var grad=ctx.createLinearGradient(cx,cy+c.h,cx,cy+c.h-20);
           grad.addColorStop(0,'rgba(0,0,0,'+ao+')');
@@ -10078,17 +10087,20 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     var maxTime=naiveTime; // for bar scaling
     var barH=60,barGap=20,startY=40;
 
-    // Naive bar
+    // Naive bar (dim if not active mode)
     var naiveW=(naiveTime/maxTime)*(W-200);
-    ctx.fillStyle='#f85149';ctx.fillRect(100,startY,naiveW,barH);
-    ctx.fillStyle='#fff';ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='right';
+    ctx.fillStyle=mode===0?'#f85149':'rgba(248,81,73,0.3)';
+    ctx.fillRect(100,startY,naiveW,barH);
+    ctx.fillStyle=mode===0?'#fff':'rgba(255,255,255,0.4)';
+    ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='right';
     ctx.fillText('无优化 ('+count+' Draw Calls)',95,startY+barH/2+4);
     ctx.fillText(naiveTime.toFixed(1)+'ms',100+naiveW+8,startY+barH/2+4);
 
-    // Instanced bar
+    // Instanced bar (highlight if active mode)
     var instW=(instancedTime/maxTime)*(W-200);
-    var barColor=mode===1?'#3fb950':'#3fb950';
-    ctx.fillStyle=barColor;ctx.fillRect(100,startY+barH+barGap,instW,barH);
+    ctx.fillStyle=mode===1?'#3fb950':'rgba(63,185,80,0.3)';
+    ctx.fillRect(100,startY+barH+barGap,instW,barH);
+    ctx.fillStyle=mode===1?'#fff':'rgba(255,255,255,0.4)';
     ctx.fillText('实例化 (1 Draw Call)',95,startY+barH+barGap+barH/2+4);
     ctx.fillText(instancedTime.toFixed(2)+'ms',100+instW+8,startY+barH+barGap+barH/2+4);
 
@@ -10204,7 +10216,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     {year:2001,title:'可编程着色器',desc:'DX8 引入 Vertex/Pixel Shader'},
     {year:2006,title:'统一着色器',desc:'DX10，VS/PS共享同一核心'},
     {year:2011,title:'DX11 计算着色器',desc:'GPU通用计算（GPGPU）普及'},
-    {year:2014,title:'PBR 标准化',desc:'Disney BRDF 引领物理着色'},
+    {year:2012,title:'PBR 标准化',desc:'Disney BRDF 论文发表，引领物理着色'},
     {year:2018,title:'RTX 光线追踪',desc:'硬件光线追踪核心（RT Core）'},
     {year:2020,title:'DLSS 2.0',desc:'AI 超分辨率，1080p渲染4K输出'},
     {year:2023,title:'3D Gaussian Splatting',desc:'神经渲染新范式，实时照片级重建'},
@@ -10295,6 +10307,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
           state:'idle', // idle, exec, wait, done, stall
           progress:0,
           waitCounter:0,
+          memHit:false, // 防止重复触发内存等待
           hasBranch:Math.random()*100<branchPct,
           branchTaken:Math.random()<0.5,
           branchStall:0
@@ -10317,7 +10330,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
         warp.threads.forEach(function(t){
           if(t.state==='wait'){
             t.waitCounter--;
-            if(t.waitCounter<=0){t.state='exec';t.progress=0;}
+            if(t.waitCounter<=0){t.state='exec';} // 恢复执行，不重置进度
           }
         });
         return;
@@ -10328,7 +10341,8 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
         if(t.state==='exec'){
           // Check for branch divergence
           if(t.hasBranch && t.progress>0.3 && t.progress<0.5 && t.branchStall===0){
-            // Simulate branch divergence: some threads stall while others execute
+            // 分支分歧简化模型：实际 SIMT 中两个分支会串行执行
+            // 这里仅让未走分支的线程停滞，模拟串行开销
             if(!t.branchTaken){
               t.state='stall';
               t.branchStall=latency;
@@ -10341,10 +10355,11 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
             return;
           }
           t.progress+=0.08;
-          if(t.progress>=0.5 && t.waitCounter===0 && Math.random()<0.3 && latency>0){
-            // Hit a memory access -- go to wait state
+          if(t.progress>=0.5 && !t.memHit && Math.random()<0.3 && latency>0){
+            // Hit a memory access -- go to wait state (only once per thread)
             t.state='wait';
             t.waitCounter=latency;
+            t.memHit=true;
           }else if(t.progress>=1.0){
             t.state='done';
           }
@@ -10910,15 +10925,15 @@ function project3D(v,camDist){
   ];
   var cubeEdges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
 
-  // 透视投影矩阵
+  // 透视投影矩阵（行向量形式，与 mat4MulVec 的行向量约定一致）
   function perspectiveMatrix(fovDeg,aspect,near,far){
     var f=1/Math.tan(fovDeg*Math.PI/360);
     var nf=1/(near-far);
     return[
-      f/aspect,0,0,0,
-      0,f,0,0,
-      0,0,(far+near)*nf,2*far*near*nf,
-      0,0,-1,0
+      f/aspect,0,0,               0,
+      0,        f,0,               0,
+      0,        0,(far+near)*nf,  -1,
+      0,        0,2*far*near*nf,   0
     ];
   }
   // lookAt 视图矩阵
@@ -11083,15 +11098,18 @@ function project3D(v,camDist){
     }
   }
 
-  function pointInFrustum(px,py){
-    var dx=px-camX,dy=py-camY;
+  function sphereInFrustum(o){
+    var dx=o.x-camX,dy=o.y-camY;
     var dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist<nearLen||dist>farLen+objects[0].r)return false;
+    // 近/远平面测试（加物体半径余量）
+    if(dist<nearLen-o.r||dist>farLen+o.r)return false;
     var ang=Math.atan2(dy,dx);
     var rel=ang-camAngle;
     while(rel>Math.PI)rel-=2*Math.PI;
     while(rel<-Math.PI)rel+=2*Math.PI;
-    return Math.abs(rel)<fovHalf;
+    // 球体角度测试：中心角度 + 物体半径对应的视角
+    var angularRadius=dist>o.r?Math.asin(o.r/dist):Math.PI/2;
+    return Math.abs(rel)<fovHalf+angularRadius;
   }
 
   function draw(){
@@ -11116,7 +11134,7 @@ function project3D(v,camDist){
 
     var visible=0,culled=0;
     objects.forEach(function(o){
-      var inView=pointInFrustum(o.x,o.y);
+      var inView=sphereInFrustum(o);
       if(inView)visible++;else culled++;
       ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,2*Math.PI);
       if(inView){
@@ -11410,7 +11428,8 @@ function project3D(v,camDist){
   }
 
   function drawSphereGouraud(cx,cy){
-    // vertex lighting, interpolate via canvas gradient (approx: draw small triangles)
+    // Gouraud 着色：顶点计算光照，三角形内用线性渐变近似插值
+    // 注意：真正的 Gouraud 使用重心坐标插值，这里用 createLinearGradient 做可视化近似
     tris.forEach(function(t){
       var v0=verts[t[0]],v1=verts[t[1]],v2=verts[t[2]];
       var i0=shadeLambert(v0.nx,v0.ny,v0.nz);
@@ -11527,130 +11546,167 @@ function project3D(v,camDist){
   var ctx=canvas.getContext('2d');
   var W=canvas.width,H=canvas.height;
   var mode=1; // 0=no depth, 1=depth test, 2=alpha blend
+  var mainW=W-160;
 
   var rects=[
-    {x:80,y:60,w:180,h:200,depth:0.8,color:'rgba(248,81,73,',alpha:1.0},
-    {x:160,y:100,w:180,h:200,depth:0.3,color:'rgba(88,166,255,',alpha:1.0},
-    {x:100,y:140,w:160,h:160,depth:0.5,color:'rgba(63,185,80,',alpha:1.0},
-    {x:220,y:80,w:150,h:180,depth:0.9,color:'rgba(210,153,34,',alpha:1.0},
-    {x:60,y:180,w:200,h:140,depth:0.1,color:'rgba(188,140,255,',alpha:1.0}
+    {x:80,y:60,w:180,h:200,depth:0.8,r:248,g:81,b:73},
+    {x:160,y:100,w:180,h:200,depth:0.3,r:88,g:166,b:255},
+    {x:100,y:140,w:160,h:160,depth:0.5,r:63,g:185,b:80},
+    {x:220,y:80,w:150,h:180,depth:0.9,r:210,g:153,b:34},
+    {x:60,y:180,w:200,h:140,depth:0.1,r:188,g:140,b:255}
   ];
 
   var depthBuf;
-  var mainW=W-160; // main area width, right 160px for depth viz
+  var colorBuf; // ImageData for per-pixel rendering
 
-  function clearDepth(){
+  function clearBuffers(){
     depthBuf=new Float32Array(mainW*H);
     for(var i=0;i<depthBuf.length;i++)depthBuf[i]=1e9;
+    colorBuf=ctx.createImageData(mainW,H);
   }
 
-  function drawRect(r){
+  function setPixel(x,y,r,g,b,a){
+    if(x<0||x>=mainW||y<0||y>=H)return;
+    var idx=(y*mainW+x)*4;
+    // alpha blend onto existing color
+    var srcA=a/255;
+    var dstA=colorBuf.data[idx+3]/255;
+    var outA=srcA+dstA*(1-srcA);
+    if(outA<0.001)return;
+    colorBuf.data[idx]  =(r*srcA+colorBuf.data[idx]  *dstA*(1-srcA))/outA;
+    colorBuf.data[idx+1]=(g*srcA+colorBuf.data[idx+1]*dstA*(1-srcA))/outA;
+    colorBuf.data[idx+2]=(b*srcA+colorBuf.data[idx+2]*dstA*(1-srcA))/outA;
+    colorBuf.data[idx+3]=outA*255;
+  }
+
+  function drawRectDepth(r){
+    // 真正的逐像素深度测试
     var x0=Math.max(0,Math.floor(r.x)),y0=Math.max(0,Math.floor(r.y));
     var x1=Math.min(mainW,Math.ceil(r.x+r.w)),y1=Math.min(H,Math.ceil(r.y+r.h));
     for(var y=y0;y<y1;y++){
       for(var x=x0;x<x1;x++){
         var idx=y*mainW+x;
-        if(mode===0){
-          // no depth test, just overwrite
-          var fill=r.color+(mode===2?r.alpha:r.alpha)+')';
-          // pixel by pixel is slow; use fillRect for no-depth
-        }else if(mode===1){
-          if(r.depth<depthBuf[idx]){
-            depthBuf[idx]=r.depth;
-          }else continue;
-        }else if(mode===2){
-          // alpha blend
-          // we'll handle via separate pass
+        if(r.depth<depthBuf[idx]){
+          depthBuf[idx]=r.depth;
+          var di=idx*4;
+          colorBuf.data[di]=r.r; colorBuf.data[di+1]=r.g; colorBuf.data[di+2]=r.b; colorBuf.data[di+3]=255;
         }
+      }
+    }
+  }
+
+  function drawRectNoDepth(r){
+    // 无深度测试：按绘制顺序覆盖
+    var x0=Math.max(0,Math.floor(r.x)),y0=Math.max(0,Math.floor(r.y));
+    var x1=Math.min(mainW,Math.ceil(r.x+r.w)),y1=Math.min(H,Math.ceil(r.y+r.h));
+    for(var y=y0;y<y1;y++){
+      for(var x=x0;x<x1;x++){
+        var idx=(y*mainW+x)*4;
+        colorBuf.data[idx]=r.r; colorBuf.data[idx+1]=r.g; colorBuf.data[idx+2]=r.b; colorBuf.data[idx+3]=255;
+      }
+    }
+  }
+
+  function drawRectBlend(r,alpha){
+    // Alpha 混合：半透明叠加
+    var x0=Math.max(0,Math.floor(r.x)),y0=Math.max(0,Math.floor(r.y));
+    var x1=Math.min(mainW,Math.ceil(r.x+r.w)),y1=Math.min(H,Math.ceil(r.y+r.h));
+    for(var y=y0;y<y1;y++){
+      for(var x=x0;x<x1;x++){
+        setPixel(x,y,r.r,r.g,r.b,Math.floor(alpha*255));
       }
     }
   }
 
   function render(){
     ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
-    clearDepth();
+    clearBuffers();
 
     if(mode===0){
-      // No depth test: draw in array order (painter's without sorting)
-      rects.forEach(function(r){
-        ctx.fillStyle=r.color+'1)';
-        ctx.fillRect(r.x,r.y,r.w,r.h);
-        ctx.strokeStyle=r.color+'0.6)';ctx.lineWidth=1;
-        ctx.strokeRect(r.x,r.y,r.w,r.h);
-      });
+      // 无深度测试：按数组顺序覆盖（远处可能遮挡近处）
+      rects.forEach(function(r){drawRectNoDepth(r);});
     }else if(mode===1){
-      // Depth test: sort by depth (far first), draw with depth
-      var sorted=rects.slice().sort(function(a,b){return b.depth-a.depth;});
-      sorted.forEach(function(r){
-        ctx.fillStyle=r.color+'1)';
-        ctx.fillRect(r.x,r.y,r.w,r.h);
-        ctx.strokeStyle=r.color+'0.6)';ctx.lineWidth=1;
-        ctx.strokeRect(r.x,r.y,r.w,r.h);
-      });
-      // Draw depth buffer visualization on the right
-      drawDepthViz();
+      // 逐像素深度测试：每个像素只保留最近的片段
+      rects.forEach(function(r){drawRectDepth(r);});
     }else if(mode===2){
-      // Alpha blend: sort by depth (far first), blend
-      var sorted2=rects.slice().sort(function(a,b){return b.depth-a.depth;});
-      // set alpha for blending
-      sorted2.forEach(function(r){
-        r.alpha=0.55;
-      });
-      // First pass: draw with alpha on main area
-      sorted2.forEach(function(r){
-        ctx.save();
-        ctx.globalAlpha=r.alpha;
-        ctx.fillStyle=r.color+'1)';
-        ctx.fillRect(r.x,r.y,r.w,r.h);
-        ctx.strokeStyle=r.color+'1)';ctx.lineWidth=1;
-        ctx.strokeRect(r.x,r.y,r.w,r.h);
-        ctx.restore();
-      });
-      // Show blend formula
-      ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='10px "JetBrains Mono","Consolas",monospace';ctx.textAlign='left';
-      ctx.fillText('result = src*α',12,H-24);
-      ctx.fillText('+ dst*(1-α)',12,H-10);
-      drawDepthViz();
+      // Alpha 混合：从远到近半透明叠加
+      var sorted=rects.slice().sort(function(a,b){return b.depth-a.depth;});
+      sorted.forEach(function(r){drawRectBlend(r,0.6);});
     }
 
-    // labels
-    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-    rects.forEach(function(r,i){
+    // 输出主画面
+    ctx.putImageData(colorBuf,0,0);
+
+    // 绘制矩形边框和标签
+    rects.forEach(function(r){
+      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
+      ctx.strokeRect(r.x,r.y,r.w,r.h);
+      ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
       ctx.fillText('z='+r.depth.toFixed(1),r.x+r.w/2,r.y-4);
     });
 
-    // depth viz label
+    // 深度缓冲可视化（模式1和2显示真实depthBuf）
+    if(mode>=1){
+      drawDepthViz();
+    }
+
+    // 混合公式（模式2）
+    if(mode===2){
+      ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='10px "JetBrains Mono","Consolas",monospace';ctx.textAlign='left';
+      ctx.fillText('result = src*α',12,H-24);
+      ctx.fillText('+ dst*(1-α)',12,H-10);
+    }
+
+    // 深度缓冲标签
     if(mode>=1){
       ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-      ctx.fillText('深度缓冲',mainW+80,16);
+      ctx.fillText(mode===1?'深度缓冲 (Z-Buffer)':'深度参考',mainW+80,16);
     }
 
     var st=document.getElementById('merge-status');
     if(st){
-      var names=['关闭深度测试（错误遮挡）','深度测试（正确遮挡）','Alpha 混合（半透明叠加）'];
+      var names=['关闭深度测试（按绘制顺序覆盖，远处遮挡近处）','深度测试（逐像素Z-Buffer，正确遮挡）','Alpha 混合（半透明叠加）'];
       st.textContent='当前模式：'+names[mode];
     }
   }
 
   function drawDepthViz(){
-    // Build a simple depth viz: sample each rect's depth at center
     var vizX=mainW+10,vizY=24,vizW=140,vizH=H-40;
     ctx.fillStyle='#161b22';ctx.fillRect(vizX,vizY,vizW,vizH);
     ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.strokeRect(vizX,vizY,vizW,vizH);
 
-    // Draw each rect in depth viz as grayscale (near=white, far=black)
-    var sorted=rects.slice().sort(function(a,b){return b.depth-a.depth;});
-    sorted.forEach(function(r){
-      var sx=vizX+(r.x/mainW)*vizW;
-      var sy=vizY+(r.y/H)*vizH;
-      var sw=(r.w/mainW)*vizW;
-      var sh=(r.h/H)*vizH;
-      var gray=Math.floor((1-r.depth)*200)+30;
-      ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
-      ctx.fillRect(sx,sy,sw,sh);
-      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
-      ctx.strokeRect(sx,sy,sw,sh);
-    });
+    if(mode===1){
+      // 显示真实的 depthBuf 内容（近=白，远=黑，未写入=黑）
+      var vizImg=ctx.createImageData(vizW,vizH);
+      for(var py=0;py<vizH;py++){
+        for(var px=0;px<vizW;px++){
+          // 映射到 depthBuf 坐标
+          var srcX=Math.floor(px/vizW*mainW);
+          var srcY=Math.floor(py/vizH*H);
+          var d=depthBuf[srcY*mainW+srcX];
+          var gray;
+          if(d>=1e9){gray=10;} // 未写入=深黑
+          else{gray=Math.floor((1-d)*220)+20;} // 近=白(240)，远=黑(20)
+          var vi=(py*vizW+px)*4;
+          vizImg.data[vi]=gray;vizImg.data[vi+1]=gray;vizImg.data[vi+2]=gray;vizImg.data[vi+3]=255;
+        }
+      }
+      ctx.putImageData(vizImg,vizX,vizY);
+    }else{
+      // 模式2：显示各矩形的深度作为参考
+      var sorted=rects.slice().sort(function(a,b){return b.depth-a.depth;});
+      sorted.forEach(function(r){
+        var sx=vizX+(r.x/mainW)*vizW;
+        var sy=vizY+(r.y/H)*vizH;
+        var sw=(r.w/mainW)*vizW;
+        var sh=(r.h/H)*vizH;
+        var gray=Math.floor((1-r.depth)*200)+30;
+        ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
+        ctx.fillRect(sx,sy,sw,sh);
+        ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
+        ctx.strokeRect(sx,sy,sw,sh);
+      });
+    }
     // legend
     ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='8px "JetBrains Mono","Consolas",monospace';ctx.textAlign='left';
     ctx.fillText('白=近',vizX+4,vizY+12);
