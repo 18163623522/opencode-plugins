@@ -1811,96 +1811,25 @@ hr {
 <div class="demo-card">
   <div class="demo-header">
     <span class="demo-badge">&#9654; 交互演示</span>
-    <h4>演示 2：渲染管线流程图动画</h4>
+    <h4>演示 2：渲染管线流程可视化</h4>
   </div>
   <div class="demo-description">
-    点击下方按钮或自动播放，观察数据在渲染管线中的流动。每个阶段高亮时会显示对应的说明文字，帮助你理解管线的各阶段及其功能。
+    渲染管线的四个阶段以动画形式展示数据流动：<strong>应用阶段(CPU)</strong> → <strong>几何处理(GPU)</strong> → <strong>光栅化(GPU)</strong> → <strong>像素处理(GPU)</strong> → 屏幕。粒子代表数据在管线中流动。点击各个阶段查看详细说明。
   </div>
   <div class="demo-body">
-    <div class="demo-canvas-wrapper">
-      <svg id="pipeline-svg" class="pipeline-svg" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
-        <!-- 箭头标记 -->
-        <defs>
-          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#30363d"/>
-          </marker>
-          <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#58a6ff"/>
-          </marker>
-          <linearGradient id="stageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#21262d;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#161b22;stop-opacity:1" />
-          </linearGradient>
-          <linearGradient id="stageGradActive" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#1a3a5c;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#162236;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-
-        <!-- 阶段1: 应用阶段 -->
-        <g class="pipeline-stage" id="stage-app">
-          <rect x="20" y="30" width="170" height="80" rx="10" fill="url(#stageGrad)" stroke="#30363d" stroke-width="2"/>
-          <text x="105" y="65" text-anchor="middle" fill="#e6edf3" font-size="14" font-weight="600">应用阶段</text>
-          <text x="105" y="88" text-anchor="middle" fill="#8b949e" font-size="11">Application (CPU)</text>
-        </g>
-
-        <!-- 箭头 1->2 -->
-        <line class="pipeline-arrow" id="arrow-1-2" x1="190" y1="70" x2="228" y2="70" stroke-width="2" marker-end="url(#arrowhead)"/>
-
-        <!-- 阶段2: 几何处理 -->
-        <g class="pipeline-stage" id="stage-geo">
-          <rect x="230" y="30" width="170" height="80" rx="10" fill="url(#stageGrad)" stroke="#30363d" stroke-width="2"/>
-          <text x="315" y="65" text-anchor="middle" fill="#e6edf3" font-size="14" font-weight="600">几何处理</text>
-          <text x="315" y="88" text-anchor="middle" fill="#8b949e" font-size="11">Geometry Processing</text>
-        </g>
-
-        <!-- 箭头 2->3 -->
-        <line class="pipeline-arrow" id="arrow-2-3" x1="400" y1="70" x2="438" y2="70" stroke-width="2" marker-end="url(#arrowhead)"/>
-
-        <!-- 阶段3: 光栅化 -->
-        <g class="pipeline-stage" id="stage-rast">
-          <rect x="440" y="30" width="170" height="80" rx="10" fill="url(#stageGrad)" stroke="#30363d" stroke-width="2"/>
-          <text x="525" y="65" text-anchor="middle" fill="#e6edf3" font-size="14" font-weight="600">光栅化</text>
-          <text x="525" y="88" text-anchor="middle" fill="#8b949e" font-size="11">Rasterization</text>
-        </g>
-
-        <!-- 箭头 3->4 -->
-        <line class="pipeline-arrow" id="arrow-3-4" x1="610" y1="70" x2="648" y2="70" stroke-width="2" marker-end="url(#arrowhead)"/>
-
-        <!-- 阶段4: 像素处理 -->
-        <g class="pipeline-stage" id="stage-pixel">
-          <rect x="650" y="30" width="130" height="80" rx="10" fill="url(#stageGrad)" stroke="#30363d" stroke-width="2"/>
-          <text x="715" y="65" text-anchor="middle" fill="#e6edf3" font-size="14" font-weight="600">像素处理</text>
-          <text x="715" y="88" text-anchor="middle" fill="#8b949e" font-size="11">Pixel Processing</text>
-        </g>
-
-        <!-- 输出 -->
-        <line class="pipeline-arrow" id="arrow-4-out" x1="780" y1="70" x2="798" y2="70" stroke-width="2" marker-end="url(#arrowhead)"/>
-        <text x="800" y="74" fill="#3fb950" font-size="12" font-weight="500">屏幕</text>
-
-        <!-- 阶段说明区域 -->
-        <rect x="20" y="140" width="760" height="200" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-        <text id="pipeline-desc" class="pipeline-description" x="40" y="170" font-size="14">
-          点击"播放"按钮开始演示，或点击各个阶段查看详细说明。
-        </text>
-
-        <!-- 子阶段说明 -->
-        <text id="pipeline-sub" class="pipeline-description" x="40" y="200" font-size="13" fill="#6e7681"></text>
-
-        <!-- 子阶段细节框 -->
-        <rect x="20" y="360" width="760" height="140" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1"/>
-        <text x="40" y="388" fill="#6e7681" font-size="12" font-weight="500">管线子阶段细分：</text>
-        <text id="pipeline-detail" x="40" y="415" fill="#8b949e" font-size="12">请选择一个阶段查看子阶段详情。</text>
-      </svg>
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-pipeline-canvas" width="600" height="380" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);cursor:pointer;display:block;margin:0 auto;"></canvas>
     </div>
   </div>
   <div class="demo-controls">
-    <button class="btn" onclick="pipelineAnimate()">&#9654; 播放动画</button>
+    <button class="btn" onclick="pipelineTogglePlay()" id="pp-play-btn">&#9654; 播放</button>
     <button class="btn" onclick="pipelineReset()">&#8634; 重置</button>
-    <button class="btn" onclick="pipelineSelectStage(0)">应用阶段</button>
-    <button class="btn" onclick="pipelineSelectStage(1)">几何处理</button>
-    <button class="btn" onclick="pipelineSelectStage(2)">光栅化</button>
-    <button class="btn" onclick="pipelineSelectStage(3)">像素处理</button>
+    <div class="demo-stat-bar">
+      <div class="stat-item"><span class="stat-label">当前阶段:</span><span class="stat-value" id="pp-stage-name">--</span></div>
+      <div class="stat-item"><span class="stat-label">执行者:</span><span class="stat-value" id="pp-executor">--</span></div>
+      <div class="stat-item"><span class="stat-label">数据流:</span><span class="stat-value" id="pp-flow">0 粒子/秒</span></div>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="pp-desc">点击"播放"开始动画，或点击画布上的阶段方块查看详情</p>
   </div>
 </div>
 
@@ -4651,120 +4580,220 @@ function _onResize(fn) {
 })();
 
 // ============================================
-// 演示 2：渲染管线流程图动画
+// 演示 2：渲染管线流程可视化 (Canvas 2D 动画版)
 // ============================================
-var pipelineStageIds = ['stage-app', 'stage-geo', 'stage-rast', 'stage-pixel'];
-var pipelineArrowIds = ['arrow-1-2', 'arrow-2-3', 'arrow-3-4', 'arrow-4-out'];
-var pipelineDescriptions = [
-  {
-    desc: '应用阶段由 CPU 执行。CPU 准备渲染所需的所有数据：更新物理、动画、AI，执行可见性判断（剔除不需要渲染的物体），然后通过 API（如 OpenGL/DirectX）向 GPU 发送绘制命令。',
-    sub: '核心任务：物理模拟 | 碰撞检测 | 动画更新 | 视锥体剔除 | 遮挡剔除 | Draw Call',
-    detail: '输入：游戏状态、用户输入\n处理：CPU 通用计算\n输出：渲染命令 + 顶点数据\n性能关注：Draw Call 数量、剔除效率'
-  },
-  {
-    desc: '几何处理由 GPU 执行。所有顶点数据通过顶点着色器进行坐标变换（模型空间 -> 世界空间 -> 相机空间 -> 裁剪空间），然后执行裁剪和屏幕映射。',
-    sub: '核心任务：顶点着色（可编程） | 曲面细分（可选） | 几何着色器（可选） | 裁剪 | 屏幕映射',
-    detail: '输入：顶点属性（位置、法线、UV）\n处理：矩阵变换 + 裁剪\n输出：屏幕空间坐标的顶点\n可编程：顶点着色器（必须）'
-  },
-  {
-    desc: '光栅化由 GPU 固定功能硬件执行。三角形被"切碎"成一个个像素片段。GPU 判断每个像素是否在三角形内部，如果是就生成一个片段，传递给像素处理阶段。',
-    sub: '核心任务：三角形设置 | 三角形遍历 | 插值属性',
-    detail: '输入：屏幕空间三角形\n处理：判断像素覆盖 + 属性插值\n输出：片段（候选像素）\n性能关注：像素填充率（Fill Rate）'
-  },
-  {
-    desc: '像素处理由 GPU 执行。片段着色器计算每个像素的最终颜色（纹理采样、光照计算），然后通过深度测试、混合等操作决定是否写入帧缓冲。',
-    sub: '核心任务：片段着色（可编程） | 深度测试 | 模板测试 | 混合',
-    detail: '输入：片段 + 插值后的属性\n处理：着色计算 + 各种测试\n输出：最终像素颜色\n可编程：片段着色器（必须）'
+(function(){
+  var canvas=document.getElementById('demo-pipeline-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var playing=false,selectedStage=-1,activeStage=0;
+  var particles=[];
+  var stageTimer=0;
+
+  var stages=[
+    {name:'应用阶段',en:'Application',exec:'CPU',color:'#58a6ff',x:30,w:120,
+     desc:'CPU 准备渲染数据：物理模拟、碰撞检测、动画更新、视锥剔除，然后发送 Draw Call 给 GPU',
+     sub:'物理 | 动画 | AI | 剔除 | Draw Call'},
+    {name:'几何处理',en:'Geometry',exec:'GPU',color:'#bc8cff',x:170,w:120,
+     desc:'GPU 顶点着色器做坐标变换（模型→世界→相机→裁剪空间），然后裁剪不可见部分，映射到屏幕',
+     sub:'顶点着色 | 曲面细分 | 裁剪 | 屏幕映射'},
+    {name:'光栅化',en:'Rasterization',exec:'GPU',color:'#d29922',x:310,w:120,
+     desc:'GPU 把三角形"切碎"成像素片段，判断哪些像素在三角形内部，插值顶点属性',
+     sub:'三角形设置 | 三角形遍历 | 属性插值'},
+    {name:'像素处理',en:'Pixel',exec:'GPU',color:'#3fb950',x:450,w:120,
+     desc:'片段着色器计算每个像素颜色（纹理+光照+阴影），然后深度测试、混合，写入帧缓冲',
+     sub:'片段着色 | 深度测试 | 模板测试 | 混合'}
+  ];
+  var stageY=60,stageH=70;
+
+  function spawnParticle(){
+    if(!playing)return;
+    particles.push({
+      x:stages[0].x+5,y:stageY+stageH/2+(Math.random()-0.5)*20,
+      vx:1.5+Math.random()*0.5,vy:(Math.random()-0.5)*0.3,
+      stage:0,life:1,color:stages[0].color
+    });
   }
-];
 
-var pipelineAnimTimer = null;
-var pipelineAnimIndex = -1;
-
-function pipelineReset() {
-  if (pipelineAnimTimer) {
-    clearInterval(pipelineAnimTimer);
-    pipelineAnimTimer = null;
+  function updateParticles(){
+    for(var i=particles.length-1;i>=0;i--){
+      var p=particles[i];
+      p.x+=p.vx;p.y+=p.vy;
+      // Check if entered next stage
+      var s=stages[p.stage];
+      if(p.x>s.x+s.w){
+        p.stage++;
+        if(p.stage>=stages.length){
+          // Reached screen
+          particles.splice(i,1);continue;
+        }
+        p.color=stages[p.stage].color;
+      }
+      // Slight vertical oscillation
+      p.vy+=Math.sin(p.x*0.05)*0.02;
+      p.vy*=0.95;
+    }
   }
-  pipelineAnimIndex = -1;
 
-  pipelineStageIds.forEach(function(id) {
-    var el = document.getElementById(id);
-    el.classList.remove('active');
-    var rect = el.querySelector('rect');
-    rect.setAttribute('fill', 'url(#stageGrad)');
-    rect.setAttribute('stroke', '#30363d');
-  });
-
-  pipelineArrowIds.forEach(function(id) {
-    var el = document.getElementById(id);
-    el.classList.remove('active');
-    el.setAttribute('stroke', '#30363d');
-    el.setAttribute('marker-end', 'url(#arrowhead)');
-  });
-
-  document.getElementById('pipeline-desc').textContent = '点击"播放"按钮开始演示，或点击各个阶段查看详细说明。';
-  document.getElementById('pipeline-desc').setAttribute('fill', '#8b949e');
-  document.getElementById('pipeline-sub').textContent = '';
-  document.getElementById('pipeline-detail').textContent = '请选择一个阶段查看子阶段详情。';
-}
-
-function pipelineSelectStage(index) {
-  if (pipelineAnimTimer) {
-    clearInterval(pipelineAnimTimer);
-    pipelineAnimTimer = null;
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
   }
-  pipelineAnimIndex = index;
 
-  // Reset all
-  pipelineStageIds.forEach(function(id, i) {
-    var el = document.getElementById(id);
-    var rect = el.querySelector('rect');
-    if (i <= index) {
-      el.classList.add('active');
-      rect.setAttribute('fill', 'url(#stageGradActive)');
-      rect.setAttribute('stroke', '#58a6ff');
-    } else {
-      el.classList.remove('active');
-      rect.setAttribute('fill', 'url(#stageGrad)');
-      rect.setAttribute('stroke', '#30363d');
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Draw connection lines between stages
+    for(var i=0;i<stages.length-1;i++){
+      var s1=stages[i],s2=stages[i+1];
+      var x1=s1.x+s1.w,x2=s2.x,y=stageY+stageH/2;
+      ctx.strokeStyle=selectedStage===i||activeStage===i?'rgba(88,166,255,0.4)':'rgba(110,118,129,0.15)';
+      ctx.lineWidth=2;ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();
+      ctx.setLineDash([]);
+      // Arrow head
+      ctx.fillStyle=selectedStage===i||activeStage===i?'rgba(88,166,255,0.6)':'rgba(110,118,129,0.3)';
+      ctx.beginPath();ctx.moveTo(x2-1,y);ctx.lineTo(x2-8,y-4);ctx.lineTo(x2-8,y+4);ctx.closePath();ctx.fill();
+    }
+
+    // Draw screen output
+    var screenX=stages[3].x+stages[3].w+15;
+    ctx.fillStyle='rgba(63,185,80,0.1)';ctx.strokeStyle='rgba(63,185,80,0.4)';
+    roundRect(screenX,stageY+15,40,40,6);ctx.fill();ctx.stroke();
+    ctx.fillStyle='rgba(63,185,80,0.7)';ctx.font='bold 9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('屏幕',screenX+20,stageY+75);
+
+    // Draw stages
+    stages.forEach(function(s,i){
+      var isActive=(i===activeStage&&playing)||(i===selectedStage);
+      var glow=isActive?15:0;
+      // Glow
+      if(glow>0){
+        ctx.shadowColor=s.color;ctx.shadowBlur=glow;
+      }
+      // Background gradient
+      var grad=ctx.createLinearGradient(s.x,stageY,s.x,stageY+stageH);
+      if(isActive){
+        grad.addColorStop(0,s.color+'30');grad.addColorStop(1,s.color+'10');
+      }else{
+        grad.addColorStop(0,'#21262d');grad.addColorStop(1,'#161b22');
+      }
+      ctx.fillStyle=grad;
+      ctx.strokeStyle=isActive?s.color:'#30363d';ctx.lineWidth=isActive?2:1;
+      roundRect(s.x,stageY,s.w,stageH,10);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      // Text
+      ctx.fillStyle=isActive?s.color:'#e6edf3';ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(s.name,s.x+s.w/2,stageY+28);
+      ctx.fillStyle='rgba(139,148,158,0.7)';ctx.font='10px "JetBrains Mono","Consolas",monospace';
+      ctx.fillText(s.en,s.x+s.w/2,stageY+45);
+      ctx.fillStyle=s.exec==='CPU'?'rgba(88,166,255,0.6)':'rgba(188,140,255,0.6)';ctx.font='bold 9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      ctx.fillText(s.exec,s.x+s.w/2,stageY+60);
+    });
+
+    // Draw particles (data flowing through pipeline)
+    particles.forEach(function(p){
+      ctx.fillStyle=p.color;
+      ctx.shadowColor=p.color;ctx.shadowBlur=6;
+      ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+      // Trail
+      ctx.strokeStyle=p.color+'40';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(p.x-p.vx*4,p.y-p.vy*4);ctx.lineTo(p.x,p.y);ctx.stroke();
+    });
+
+    // Draw info panel at bottom
+    var infoY=165;
+    ctx.fillStyle='rgba(13,17,23,0.6)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
+    roundRect(15,infoY,W-30,185,8);ctx.fill();ctx.stroke();
+    var showStage=selectedStage>=0?selectedStage:(playing?activeStage:-1);
+    if(showStage>=0){
+      var s=stages[showStage];
+      ctx.fillStyle=s.color;ctx.font='bold 14px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+      ctx.fillText(s.name+' ('+s.en+')',30,infoY+25);
+      ctx.fillStyle='#8b949e';ctx.font='12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      // Wrap text
+      var desc=s.desc;var lineLen=0;var line='';var dy=infoY+48;
+      for(var ci=0;ci<desc.length;ci++){
+        line+=desc[ci];lineLen++;
+        if(lineLen>32){ctx.fillText(line,30,dy);line='';lineLen=0;dy+=18;}
+      }
+      if(line)ctx.fillText(line,30,dy);
+      dy+=22;
+      ctx.fillStyle=s.color+'80';ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      ctx.fillText('核心任务:',30,dy);dy+=16;
+      ctx.fillStyle='#6e7681';ctx.font='11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      ctx.fillText(s.sub,30,dy);
+    }else{
+      ctx.fillStyle='#6e7681';ctx.font='12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText('点击"播放"开始动画，或点击画布上的阶段方块查看详情',W/2,infoY+90);
+    }
+
+    // Update stats
+    var sn=document.getElementById('pp-stage-name');
+    var ex=document.getElementById('pp-executor');
+    var fl=document.getElementById('pp-flow');
+    var ds=document.getElementById('pp-desc');
+    if(showStage>=0){
+      if(sn)sn.textContent=stages[showStage].name;
+      if(ex)ex.textContent=stages[showStage].exec;
+    }else{
+      if(sn)sn.textContent='--';if(ex)ex.textContent='--';
+    }
+    if(fl)fl.textContent=particles.length+' 粒子';
+    if(ds&&showStage>=0)ds.textContent=stages[showStage].desc.substring(0,60)+'...';
+    else if(ds)ds.textContent='点击"播放"开始动画，或点击画布上的阶段方块查看详情';
+  }
+
+  function animate(){
+    if(playing){
+      stageTimer++;
+      if(stageTimer>120){activeStage=(activeStage+1)%4;stageTimer=0;}
+      if(Math.random()<0.3)spawnParticle();
+      updateParticles();
+    }
+    draw();
+    requestAnimationFrame(animate);
+  }
+
+  // Click to select stage
+  canvas.addEventListener('click',function(e){
+    var rect=canvas.getBoundingClientRect();
+    var mx=(e.clientX-rect.left)/rect.width*W;
+    var my=(e.clientY-rect.top)/rect.height*H;
+    for(var i=0;i<stages.length;i++){
+      var s=stages[i];
+      if(mx>=s.x&&mx<=s.x+s.w&&my>=stageY&&my<=stageY+stageH){
+        selectedStage=selectedStage===i?-1:i;
+        playing=false;
+        var btn=document.getElementById('pp-play-btn');
+        if(btn)btn.innerHTML='&#9654; 播放';
+        draw();
+        return;
+      }
     }
   });
 
-  pipelineArrowIds.forEach(function(id, i) {
-    var el = document.getElementById(id);
-    if (i < index) {
-      el.classList.add('active');
-      el.setAttribute('stroke', '#58a6ff');
-      el.setAttribute('marker-end', 'url(#arrowhead-active)');
-    } else {
-      el.classList.remove('active');
-      el.setAttribute('stroke', '#30363d');
-      el.setAttribute('marker-end', 'url(#arrowhead)');
-    }
-  });
+  window.pipelineTogglePlay=function(){
+    playing=!playing;
+    selectedStage=-1;
+    if(playing){activeStage=0;stageTimer=0;}
+    var btn=document.getElementById('pp-play-btn');
+    if(btn)btn.innerHTML=playing?'&#9208; 暂停':'&#9654; 播放';
+  };
+  window.pipelineReset=function(){
+    playing=false;selectedStage=-1;activeStage=0;particles=[];stageTimer=0;
+    var btn=document.getElementById('pp-play-btn');
+    if(btn)btn.innerHTML='&#9654; 播放';
+    draw();
+  };
 
-  var info = pipelineDescriptions[index];
-  document.getElementById('pipeline-desc').textContent = info.desc;
-  document.getElementById('pipeline-desc').setAttribute('fill', '#e6edf3');
-  document.getElementById('pipeline-sub').textContent = info.sub;
-  document.getElementById('pipeline-sub').setAttribute('fill', '#8b949e');
-  document.getElementById('pipeline-detail').textContent = info.detail;
-}
-
-function pipelineAnimate() {
-  pipelineReset();
-  var index = 0;
-  pipelineAnimTimer = setInterval(function() {
-    if (index < 4) {
-      pipelineSelectStage(index);
-      index++;
-    } else {
-      clearInterval(pipelineAnimTimer);
-      pipelineAnimTimer = null;
-    }
-  }, 1500);
-}
+  animate();
+})();
 
 // ============================================
 // 演示 3：坐标空间变换
