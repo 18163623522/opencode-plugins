@@ -1452,7 +1452,7 @@ hr {
   <div class="meta">
     <span class="badge">初学者友好</span>
     <span>26 个章节</span>
-    <span>34 交互式演示</span>
+    <span>40 交互式演示</span>
     <span>Three.js 实战</span>
   </div>
 </section>
@@ -2189,6 +2189,80 @@ hr {
 <div class="callout callout-info">
   <strong>着色器语言：</strong>主流的着色器语言有 GLSL（OpenGL）、HLSL（DirectX）、和 SPIR-V（Vulkan，可从 GLSL/HLSL 编译）。语法上它们非常相似，学会一种就能很快掌握其他。
 </div>
+
+<div class="section-header"><h3>3.4 Warp 与线程并行</h3></div>
+
+<p>GPU 的并行不是"每个核心独立工作"那么简单。NVIDIA GPU 将 32 个线程组成一个 <strong>Warp</strong>（AMD 称为 Wavefront，通常 64 个线程）。同一个 Warp 中的所有线程<strong>必须同时执行相同的指令</strong>（SIMT 模型 -- Single Instruction, Multiple Threads）。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：</strong>想象一个 32 人的合唱团。指挥（Warp 调度器）喊一个指令，32 个人同时做同一个动作。如果 30 个人唱高音、2 个人唱低音，指挥就得先喊"唱高音"让 30 人唱、再喊"唱低音"让 2 人唱 -- 那 30 人在等 2 人时就浪费了。这就是<strong>Warp 分歧（Warp Divergence）</strong>。
+</div>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="lang">GLSL</span></div>
+  <pre><code>// 着色器中的 if-else 分支会导致 Warp 分歧
+if (x > 0.5) {
+    color = vec3(1.0, 0.0, 0.0);  // 一部分线程走这里
+} else {
+    color = vec3(0.0, 0.0, 1.0);  // 另一部分线程走这里
+}
+// GPU 实际上会串行执行两个分支！
+// 走 if 的线程执行时，走 else 的线程空转等待
+// 这就是为什么着色器中要尽量避免复杂的分支</code></pre>
+</div>
+
+<div class="callout callout-tip">
+  <strong>优化建议：</strong>着色器中尽量用数学运算（如 step、mix、clamp）代替 if-else。例如 `color = mix(vec3(0,0,1), vec3(1,0,0), step(0.5, x));` 等价于上面的 if-else，但没有分支分歧，所有线程同时执行。
+</div>
+
+<div class="section-header"><h3>3.5 延迟隐藏（Latency Hiding）</h3></div>
+
+<p>GPU 访问显存需要几百个时钟周期（高延迟）。如果只有一个 Warp，访问内存时核心就会空闲等待。GPU 的解决方案是<strong>同时维护大量 Warp，在一个 Warp 等待内存时切换到另一个 Warp 执行</strong>。这就是"延迟隐藏"。</p>
+
+<div class="callout callout-analogy">
+  <strong>比喻：</strong>想象一个厨师同时管 20 口锅。A 锅在炖汤（等 30 分钟），厨师不会干等，而是去炒 B 锅的菜。B 锅在等油热时，又去切 C 锅的菜。只要同时管的锅足够多，厨师的手就永远不会闲着。GPU 就是那个厨师，Warp 就是锅。
+</div>
+
+<p><strong>占用率（Occupancy）</strong> = 活跃 Warp 数 / 最大可容纳 Warp 数。占用率越高，延迟隐藏的效果越好。但如果每个 Warp 使用的寄存器太多，能同时容纳的 Warp 数就会减少，占用率下降。</p>
+
+<div class="section-header"><h3>3.6 内存合并（Memory Coalescing）</h3></div>
+
+<p>当同一个 Warp 中的 32 个线程同时访问<strong>连续的内存地址</strong>时，GPU 可以把它们合并成一次大事务（128 字节或 256 字节），极大提升带宽利用率。如果访问的是分散的地址，每个线程的访问会变成独立事务，性能急剧下降。</p>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="lang">GLSL</span></div>
+  <pre><code>// 好的访问模式：线程 i 访问 array[i]（连续地址）
+// GPU 合并为 1 次事务，带宽利用率 100%
+vec4 data = texelFetch(buffer, gl_InstanceID, 0);
+
+// 坏的访问模式：线程 i 访问 array[i*7]（分散地址）
+// GPU 无法合并，变成 32 次独立事务，带宽利用率 ~14%
+vec4 data = texelFetch(buffer, gl_InstanceID * 7, 0);</code></pre>
+</div>
+
+<!-- ======== 交互式演示：GPU Warp 并行模拟 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：GPU Warp 并行与分歧可视化</h4>
+  </div>
+  <div class="demo-description">
+    模拟 GPU Warp 的执行过程：4 个 Warp（各 8 线程，用颜色块表示）并行执行着色器。绿色=正在执行，黄色=等待内存（延迟），灰色=已完成，红色=分支分歧（串行等待）。拖动滑块改变内存延迟和分支比例，观察执行时间和空闲率的变化。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-gpu-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:#0d1117;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <button class="btn" onclick="gpuRun()">&#9654; 运行</button>
+    <button class="btn" onclick="gpuReset()">&#8634; 重置</button>
+    <label>内存延迟: <input type="range" id="gpu-latency" min="0" max="20" step="1" value="5" oninput="gpuUpdateLabel()"></label>
+    <label>分支比例: <input type="range" id="gpu-branch" min="0" max="80" step="5" value="20" oninput="gpuUpdateLabel()"></label>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="gpu-status">点击"运行"开始模拟</p>
+  </div>
+</div>
+
 </section>
 
 <hr>
@@ -3560,6 +3634,22 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
   <strong>Split-Sum 近似：</strong>这是 Epic Games 在 UE4 中提出的方法。它把镜面 IBL 的积分公式拆成两个独立的部分分别预计算：一部分是环境光照（与 roughness 相关的模糊环境贴图），另一部分是 BRDF（与 roughness 和视角相关的 2D LUT）。运行时只需两次纹理采样就能得到结果，极其高效。
 </div>
 
+<div class="section-header"><h3>10.4 环境光遮蔽 (AO)</h3></div>
+
+<p>环境光遮蔽（Ambient Occlusion, AO）是一种近似间接光照阴影的技术。它模拟"环境光被几何体遮挡"的效果 -- 在角落、缝隙、褶皱处，环境光被周围的几何体遮挡，导致这些区域更暗。</p>
+
+<div class="callout callout-info">
+  <strong>AO 的核心思想：</strong>对于表面上每个点，计算其上半球方向有多少比例被其他几何体遮挡。遮挡比例越高，该点越暗。这近似了间接光照在这些区域被阻挡的效果。
+</div>
+
+<p>常见的 AO 技术包括：</p>
+<ul>
+  <li><strong>SSAO（Screen Space Ambient Occlusion）：</strong>在屏幕空间工作，对深度缓冲采样来判断遮挡。性能好但精度有限。</li>
+  <li><strong>HBAO+（Horizon-Based Ambient Occlusion）：</strong>改进版 SSAO，使用更物理的方法计算遮挡角度。</li>
+  <li><strong>GTAO（Ground Truth Ambient Occlusion）：</strong>接近离线渲染精度的实时 AO。</li>
+  <li><strong>Ray Traced AO：</strong>用 RTX 硬件追踪光线，精度最高但性能开销大。</li>
+</ul>
+
 <div class="section-header"><h3>10.5 基于图像的高光照明</h3></div>
 
 <p>镜面反射的环境光照计算更加复杂，因为它需要考虑 BRDF 的视角依赖性和粗糙度对高光形状的影响。</p>
@@ -3570,6 +3660,27 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
   <li><strong>BRDF LUT：</strong>预计算 BRDF 对 (roughness, cos&theta;) 的积分结果，存为一张小的 2D 纹理</li>
   <li><strong>运行时计算：</strong>L<sub>spec</sub> = prefilteredColor &times; (F0 &times; brdfLUT.x + brdfLUT.y)</li>
 </ul>
+
+<!-- ======== 交互式演示：环境光遮蔽 (AO) ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：环境光遮蔽 (Ambient Occlusion)</h4>
+  </div>
+  <div class="demo-description">
+    对比<strong>无 AO</strong>和<strong>有 AO</strong>的效果。左侧只使用常数环境光（所有区域亮度相同，看起来"平"），右侧使用 AO（角落和缝隙处变暗，增加层次感）。拖动强度滑块调整 AO 效果。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-ao-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:#0d1117;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label>AO 强度: <span class="slider-value" id="ao-strength-val">0.8</span></label>
+    <input type="range" id="ao-strength" min="0" max="1" step="0.05" value="0.8" oninput="aoDraw()">
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;">左: 无AO（常数环境光） | 右: 有AO（角落变暗）</p>
+  </div>
+</div>
 
 </section>
 
@@ -6049,6 +6160,35 @@ finalColor = mix(fogColor, objectColor, fogFactor);
 
 <div class="section-header"><h3>14.5 半透明表面</h3></div>
 
+<!-- ======== 交互式演示：雾效与体积渲染 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：雾效 (Fog) 与距离衰减</h4>
+  </div>
+  <div class="demo-description">
+    雾效是最简单的体积效果：物体离相机越远，越被雾的颜色"吞没"。下方演示一排物体从近到远排列，拖动<strong>雾密度</strong>和<strong>雾色</strong>滑块，观察远处物体逐渐消失在雾中。公式：color = mix(objectColor, fogColor, 1 - e^(-distance &times; density))。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-fog-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:#0d1117;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label>雾密度: <span class="slider-value" id="fog-density-val">0.015</span></label>
+    <input type="range" id="fog-density" min="0" max="0.05" step="0.001" value="0.015" oninput="fogDraw()">
+    <select id="fog-color" onchange="fogDraw()">
+      <option value="#5a7a9a">蓝灰雾</option>
+      <option value="#8a8060">黄沙雾</option>
+      <option value="#aaaaaa">白雾</option>
+      <option value="#1a1a2e">黑夜雾</option>
+    </select>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;">物体从左(近)到右(远)排列，雾密度越高远处越模糊</p>
+  </div>
+</div>
+
+<div class="section-header"><h3>14.5b 半透明表面</h3></div>
+
 <p>半透明材质（如玻璃、水、宝石）会<strong>折射</strong>（Refraction）光线 -- 光线穿过材质时改变方向。折射的强弱取决于材质的<strong>折射率（Index of Refraction, IOR）</strong>。</p>
 
 <p>渲染折射效果通常使用<strong>折射贴图（Refraction Map）</strong>：从表面位置沿折射方向采样场景（或环境贴图），获得"透过物体看到的画面"，再将其扭曲后叠加到物体表面。</p>
@@ -6612,6 +6752,28 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="callout callout-keypoint">
   <strong>注意：</strong>多线程编程复杂度高，容易出现竞态条件（Race Condition）和死锁（Deadlock）。现代引擎通常提供封装好的 Job System，让开发者不必手动管理线程。
+</div>
+
+<!-- ======== 交互式演示：Draw Call 批处理 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：Draw Call 优化 -- 实例化 (Instancing)</h4>
+  </div>
+  <div class="demo-description">
+    渲染 100 个相同物体时：<strong>无优化</strong>需要 100 次 Draw Call（CPU 开销大），<strong>实例化</strong>只需 1 次 Draw Call（GPU 复制数据）。下方演示两种模式的帧时间对比，拖动物体数量滑块观察差异。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-drawcall-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:#0d1117;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label>物体数量: <span class="slider-value" id="dc-count-val">100</span></label>
+    <input type="range" id="dc-count" min="10" max="500" step="10" value="100" oninput="dcDraw()">
+    <button class="btn" onclick="dcToggle()">&#9654; 切换模式</button>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="dc-status">当前: 实例化 (1 Draw Call)</p>
+  </div>
 </div>
 
 </section>
@@ -8354,6 +8516,25 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   <strong>关键概念 -- 帧同步（Frame Synchronization）：</strong>CPU 和 GPU 的速度不同步。如果 CPU 准备命令太快，GPU 来不及处理，命令就会堆积。如果 GPU 处理太快，就要等 CPU 提供下一帧命令。好的引擎会让 CPU 和 GPU 的工作量平衡，避免任何一方成为瓶颈。
 </div>
 
+<!-- ======== 交互式演示：GPU 内存层次结构 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：GPU 内存层次结构与延迟对比</h4>
+  </div>
+  <div class="demo-description">
+    GPU 的存储层次从快到慢：寄存器(1周期) -> 共享内存(~30周期) -> L1缓存(~100周期) -> L2缓存(~200周期) -> 显存(~400周期)。每层容量递增但速度递减。点击各层查看延迟和容量数据。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-memhier-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:#0d1117;cursor:pointer;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="memhier-status">点击各层查看详细信息</p>
+  </div>
+</div>
+
 </section>
 
 <hr>
@@ -8450,6 +8631,32 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   <li><strong>普及：</strong>随着硬件成本下降和云渲染的成熟，高质量实时渲染将触达更多平台和用户。</li>
   <li><strong>融合：</strong>传统光栅化与光线追踪将长期共存并融合，形成混合渲染管线。</li>
 </ul>
+
+<div class="book-quote">
+  <p>实时渲染领域正在经历前所未有的技术革命。在过去，渲染管线的改进主要是渐进式的 -- 更多的像素、更多的三角形、更快的时钟频率。而现在，我们正在见证几种根本性范式的转变同时发生：光线追踪从离线走向实时，神经网络从推理走向渲染管线内部，以及云计算从概念走向消费级产品。</p>
+  <div class="attribution">RTR4 §24.0 - 渲染技术的未来</div>
+</div>
+
+<!-- ======== 交互式演示：渲染技术演进时间线 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：实时渲染技术演进时间线</h4>
+  </div>
+  <div class="demo-description">
+    从 1999 年到 2025 年的关键技术里程碑。点击各个节点查看详细说明，了解每项技术如何改变了实时渲染的面貌。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-timeline-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:#0d1117;cursor:pointer;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <button class="btn" onclick="timelinePrev()">&larr; 上一个</button>
+    <button class="btn" onclick="timelineNext()">&rarr; 下一个</button>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="timeline-status">点击时间线上的节点</p>
+  </div>
+</div>
 
 <div class="callout callout-analogy">
   <strong>一句话展望：</strong>如果说过去 50 年实时渲染的目标是"让计算机画出来"，那么未来 50 年的目标就是"让计算机画得比真实更像"。AI 是通往这个目标的加速器。
@@ -9393,6 +9600,542 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     c._paused = false;
     observer.observe(c);
   });
+})();
+</script>
+
+<!-- ======== 阶段3 新增演示脚本 (Ch10/14/18/23/24) ======== -->
+<script>
+// ============================================
+// 演示：环境光遮蔽 (AO) -- Ch10
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-ao-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+
+  function draw(){
+    var strength=parseFloat(document.getElementById('ao-strength').value);
+    document.getElementById('ao-strength-val').textContent=strength.toFixed(2);
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+    var halfW=W/2;
+    // Draw a simple 3D-like scene with cubes on each half
+    var cubes=[
+      {x:60,y:120,w:60,h:60,z:0.3},
+      {x:130,y:100,w:70,h:80,z:0.5},
+      {x:80,y:180,w:50,h:50,z:0.2},
+      {x:200,y:140,w:55,h:55,z:0.4},
+      {x:150,y:200,w:45,h:45,z:0.1}
+    ];
+    var labels=['无 AO','有 AO'];
+    for(var side=0;side<2;side++){
+      var xoff=side*halfW;
+      // divider
+      if(side===1){ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(halfW,0);ctx.lineTo(halfW,H);ctx.stroke();}
+      // label
+      ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(labels[side],xoff+halfW/2,20);
+      // draw cubes
+      cubes.forEach(function(c){
+        var cx=xoff+c.x,cy=c.y;
+        // Compute AO based on nearby cubes (simplified)
+        var ao=0;
+        if(side===1){
+          cubes.forEach(function(other){
+            if(other===c)return;
+            var dx=(other.x+other.w/2)-(c.x+c.w/2);
+            var dy=(other.y+other.h/2)-(c.y+c.h/2);
+            var dist=Math.sqrt(dx*dx+dy*dy);
+            if(dist<80){
+              var occ=(1-dist/80)*strength;
+              if(other.z<c.z)ao=Math.max(ao,occ*0.7); // object behind, less occlusion
+              else ao=Math.max(ao,occ);
+            }
+          });
+        }
+        // Base color with AO darkening
+        var baseR=80+100*c.z,baseG=90+80*c.z,baseB=100+120*c.z;
+        var aoFactor=1-ao;
+        var r=Math.floor(baseR*aoFactor),g=Math.floor(baseG*aoFactor),b=Math.floor(baseB*aoFactor);
+        // Top face (lit)
+        ctx.fillStyle='rgb('+Math.min(255,r+40)+','+Math.min(255,g+40)+','+Math.min(255,b+40)+')';
+        ctx.fillRect(cx,cy,c.w,c.h);
+        // Right face (darker)
+        ctx.fillStyle='rgb('+Math.max(0,r-30)+','+Math.max(0,g-30)+','+Math.max(0,b-30)+')';
+        ctx.fillRect(cx+c.w,cy+5,8,c.h-5);
+        // AO darkening at base
+        if(side===1&&ao>0.1){
+          var grad=ctx.createLinearGradient(cx,cy+c.h,cx,cy+c.h-20);
+          grad.addColorStop(0,'rgba(0,0,0,'+ao+')');
+          grad.addColorStop(1,'rgba(0,0,0,0)');
+          ctx.fillStyle=grad;
+          ctx.fillRect(cx,cy,c.w,c.h);
+        }
+        // outline
+        ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+        ctx.strokeRect(cx,cy,c.w,c.h);
+      });
+      // Ground
+      ctx.strokeStyle='rgba(110,118,129,0.2)';ctx.lineWidth=1;
+      for(var gx=xoff;gx<xoff+halfW;gx+=20){
+        ctx.beginPath();ctx.moveTo(gx,250);ctx.lineTo(gx,H-10);ctx.stroke();
+      }
+    }
+  }
+  window.aoDraw=draw;
+  draw();
+})();
+
+// ============================================
+// 演示：雾效 (Fog) -- Ch14
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-fog-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var objects=[];
+  function init(){
+    objects=[];
+    for(var i=0;i<8;i++){
+      objects.push({
+        x:50+i*65+Math.random()*20,
+        y:120+Math.random()*80,
+        w:30+Math.random()*20,
+        h:50+Math.random()*60,
+        depth:i*30+20,
+        hue:Math.floor(Math.random()*360)
+      });
+    }
+  }
+  function draw(){
+    var density=parseFloat(document.getElementById('fog-density').value);
+    var fogColor=document.getElementById('fog-color').value;
+    document.getElementById('fog-density-val').textContent=density.toFixed(3);
+    // Parse fog color to RGB
+    var r=parseInt(fogColor.substr(1,2),16),g=parseInt(fogColor.substr(3,2),16),b=parseInt(fogColor.substr(5,2),16);
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+    // Sky gradient
+    var skyGrad=ctx.createLinearGradient(0,0,0,H);
+    skyGrad.addColorStop(0,'rgb('+r+','+g+','+b+')');
+    skyGrad.addColorStop(1,'#0d1117');
+    ctx.fillStyle=skyGrad;ctx.fillRect(0,0,W,H);
+    // Objects
+    objects.forEach(function(o){
+      var fogAmount=1-Math.exp(-o.depth*density);
+      var objR=Math.floor(o.hue*0.7+60),objG=Math.floor(150-o.hue*0.3),objB=200;
+      var fr=Math.floor(objR*(1-fogAmount)+r*fogAmount);
+      var fg=Math.floor(objG*(1-fogAmount)+g*fogAmount);
+      var fb=Math.floor(objB*(1-fogAmount)+b*fogAmount);
+      ctx.fillStyle='rgb('+fr+','+fg+','+fb+')';
+      ctx.fillRect(o.x,o.y,o.w,o.h);
+      // Outline
+      ctx.strokeStyle='rgba(0,0,0,'+(0.3*(1-fogAmount))+')';ctx.lineWidth=1;
+      ctx.strokeRect(o.x,o.y,o.w,o.h);
+      // Distance label
+      ctx.fillStyle='rgba(255,255,255,'+(0.4*(1-fogAmount))+')';ctx.font='9px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+      ctx.fillText('d='+o.depth,o.x+o.w/2,o.y+o.h+12);
+    });
+    // Info
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+    ctx.fillText('fogColor='+fogColor+' density='+density.toFixed(3),12,H-8);
+  }
+  window.fogDraw=draw;
+  init();draw();
+})();
+
+// ============================================
+// 演示：Draw Call 优化 -- Ch18
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-drawcall-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var mode=1; // 0=naive, 1=instanced
+  var count=100;
+
+  function draw(){
+    count=parseInt(document.getElementById('dc-count').value);
+    document.getElementById('dc-count-val').textContent=count;
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+    // Simulate frame time: naive = count * 0.05ms overhead, instanced = 0.05ms + count*0.001ms
+    var naiveTime=count*0.05;
+    var instancedTime=0.05+count*0.001;
+    var maxTime=naiveTime; // for bar scaling
+    var barH=60,barGap=20,startY=40;
+
+    // Naive bar
+    var naiveW=(naiveTime/maxTime)*(W-200);
+    ctx.fillStyle='#f85149';ctx.fillRect(100,startY,naiveW,barH);
+    ctx.fillStyle='#fff';ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='right';
+    ctx.fillText('无优化 ('+count+' Draw Calls)',95,startY+barH/2+4);
+    ctx.fillText(naiveTime.toFixed(1)+'ms',100+naiveW+8,startY+barH/2+4);
+
+    // Instanced bar
+    var instW=(instancedTime/maxTime)*(W-200);
+    var barColor=mode===1?'#3fb950':'#3fb950';
+    ctx.fillStyle=barColor;ctx.fillRect(100,startY+barH+barGap,instW,barH);
+    ctx.fillText('实例化 (1 Draw Call)',95,startY+barH+barGap+barH/2+4);
+    ctx.fillText(instancedTime.toFixed(2)+'ms',100+instW+8,startY+barH+barGap+barH/2+4);
+
+    // Speedup
+    var speedup=naiveTime/instancedTime;
+    ctx.fillStyle='rgba(88,166,255,0.8)';ctx.font='bold 16px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('加速 '+speedup.toFixed(1)+'x',W/2,H-40);
+
+    // Visualize objects
+    var dotsPerRow=Math.min(count,30);
+    var dotSize=Math.max(2,Math.min(8,300/count));
+    for(var i=0;i<Math.min(count,150);i++){
+      var dx=100+(i%dotsPerRow)*(dotSize+2);
+      var dy=H-60+Math.floor(i/dotsPerRow)*(dotSize+2);
+      if(dy>H-10)break;
+      ctx.fillStyle=mode===1?'#3fb950':'#f85149';
+      ctx.fillRect(dx,dy,dotSize,dotSize);
+    }
+
+    var st=document.getElementById('dc-status');
+    if(st)st.textContent='当前: '+(mode===1?'实例化 (1 Draw Call)':'无优化 ('+count+' Draw Calls)')+' | 加速 '+speedup.toFixed(1)+'x';
+  }
+  window.dcDraw=draw;
+  window.dcToggle=function(){mode=1-mode;draw();};
+  draw();
+})();
+
+// ============================================
+// 演示：GPU 内存层次结构 -- Ch23
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-memhier-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var layers=[
+    {name:'寄存器\nRegisters',latency:'1 周期',capacity:'~256KB/SM',speed:'最快',color:'#3fb950',w:80,h:50},
+    {name:'共享内存\nShared Memory',latency:'~30 周期',capacity:'~128KB/SM',speed:'极快',color:'#58a6ff',w:120,h:80},
+    {name:'L1 缓存\nL1 Cache',latency:'~100 周期',capacity:'~256KB/SM',speed:'快',color:'#d29922',w:160,h:110},
+    {name:'L2 缓存\nL2 Cache',latency:'~200 周期',capacity:'~6MB',speed:'中等',color:'#bc8cff',w:200,h:140},
+    {name:'显存\nVRAM (GDDR6)',latency:'~400 周期',capacity:'8-24GB',speed:'慢',color:'#f85149',w:240,h:180}
+  ];
+  var selected=-1;
+  var rects=[];
+
+  function draw(){
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+    rects=[];
+    var cx=W/2,cy=H/2;
+    // Draw as nested boxes (pyramid)
+    for(var i=layers.length-1;i>=0;i--){
+      var l=layers[i];
+      var x=cx-l.w/2,y=cy-l.h/2-10;
+      rects.push({x:x,y:y,w:l.w,h:l.h,idx:i});
+      ctx.fillStyle=selected===i?l.color:l.color+'33';
+      ctx.strokeStyle=l.color;ctx.lineWidth=selected===i?3:1.5;
+      ctx.fillRect(x,y,l.w,l.h);
+      ctx.strokeRect(x,y,l.w,l.h);
+      // Label
+      ctx.fillStyle=selected===i?'#fff':l.color;
+      ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      var lines=l.name.split('\n');
+      lines.forEach(function(ln,li){ctx.fillText(ln,cx,y+l.h/2-6+li*12);});
+    }
+    // Arrow indicating speed
+    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+    ctx.fillText('快 ↑',12,20);
+    ctx.fillText('慢 ↓',12,H-12);
+    ctx.fillText('容量小',W-50,20);
+    ctx.fillText('容量大',W-55,H-12);
+    // Info panel
+    if(selected>=0){
+      var l=layers[selected];
+      ctx.fillStyle='rgba(13,17,23,0.9)';ctx.fillRect(W-180,H-80,170,70);
+      ctx.strokeStyle=l.color;ctx.lineWidth=1;ctx.strokeRect(W-180,H-80,170,70);
+      ctx.fillStyle=l.color;ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+      ctx.fillText(l.name.replace('\n',' '),W-170,H-60);
+      ctx.fillStyle='#8b949e';ctx.font='10px "JetBrains Mono","Consolas",monospace';
+      ctx.fillText('延迟: '+l.latency,W-170,H-42);
+      ctx.fillText('容量: '+l.capacity,W-170,H-28);
+      ctx.fillText('速度: '+l.speed,W-170,H-14);
+    }
+  }
+  canvas.addEventListener('click',function(e){
+    var rect=canvas.getBoundingClientRect();
+    var sx=(e.clientX-rect.left)/rect.width*W;
+    var sy=(e.clientY-rect.top)/rect.height*H;
+    for(var i=0;i<rects.length;i++){
+      var r=rects[i];
+      if(sx>=r.x&&sx<=r.x+r.w&&sy>=r.y&&sy<=r.y+r.h){
+        selected=r.idx;
+        var l=layers[selected];
+        var st=document.getElementById('memhier-status');
+        if(st)st.textContent=l.name.replace('\n',' ')+' | 延迟:'+l.latency+' | 容量:'+l.capacity+' | '+l.speed;
+        draw();
+        return;
+      }
+    }
+  });
+  draw();
+})();
+
+// ============================================
+// 演示：渲染技术演进时间线 -- Ch24
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-timeline-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var events=[
+    {year:1999,title:'GeForce 256',desc:'首个GPU，硬件T&L（变换与光照）'},
+    {year:2001,title:'可编程着色器',desc:'DX8 引入 Vertex/Pixel Shader'},
+    {year:2006,title:'统一着色器',desc:'DX10，VS/PS共享同一核心'},
+    {year:2011,title:'DX11 计算着色器',desc:'GPU通用计算（GPGPU）普及'},
+    {year:2014,title:'PBR 标准化',desc:'Disney BRDF 引领物理着色'},
+    {year:2018,title:'RTX 光线追踪',desc:'硬件光线追踪核心（RT Core）'},
+    {year:2020,title:'DLSS 2.0',desc:'AI 超分辨率，1080p渲染4K输出'},
+    {year:2023,title:'3D Gaussian Splatting',desc:'神经渲染新范式，实时照片级重建'},
+    {year:2025,title:'路径追踪实时化',desc:'混合渲染管线（光栅+RT+AI）成熟'}
+  ];
+  var selected=5;
+
+  function draw(){
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+    var padding=60;
+    var lineY=H/2-20;
+    var step=(W-padding*2)/(events.length-1);
+    // Timeline line
+    ctx.strokeStyle='#30363d';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(padding,lineY);ctx.lineTo(W-padding,lineY);ctx.stroke();
+    // Events
+    events.forEach(function(e,i){
+      var x=padding+i*step;
+      var y=lineY;
+      var isSel=i===selected;
+      // Dot
+      ctx.beginPath();ctx.arc(x,y,isSel?8:5,0,2*Math.PI);
+      ctx.fillStyle=isSel?'#58a6ff':'#21262d';
+      ctx.fill();
+      ctx.strokeStyle=isSel?'#79c0ff':'#30363d';ctx.lineWidth=isSel?2:1;
+      ctx.stroke();
+      // Year label
+      ctx.fillStyle=isSel?'#58a6ff':'#8b949e';
+      ctx.font=(isSel?'bold ':'')+'10px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+      ctx.fillText(e.year,x,y-15);
+      // Title (alternate above/below)
+      var titleY=i%2===0?y+25:y-30;
+      ctx.fillStyle=isSel?'#e6edf3':'#6e7681';
+      ctx.font=(isSel?'bold ':'')+'9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      ctx.fillText(e.title,x,titleY);
+    });
+    // Selected detail
+    if(selected>=0){
+      var e=events[selected];
+      ctx.fillStyle='rgba(13,17,23,0.9)';ctx.fillRect(0,H-60,W,60);
+      ctx.strokeStyle='#58a6ff';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,H-60);ctx.lineTo(W,H-60);ctx.stroke();
+      ctx.fillStyle='#58a6ff';ctx.font='bold 14px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(e.year+' -- '+e.title,W/2,H-38);
+      ctx.fillStyle='#8b949e';ctx.font='12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      ctx.fillText(e.desc,W/2,H-18);
+    }
+    var st=document.getElementById('timeline-status');
+    if(st&&selected>=0)st.textContent=events[selected].year+' '+events[selected].title+': '+events[selected].desc;
+  }
+  canvas.addEventListener('click',function(e){
+    var rect=canvas.getBoundingClientRect();
+    var sx=(e.clientX-rect.left)/rect.width*W;
+    var padding=60;
+    var step=(W-padding*2)/(events.length-1);
+    for(var i=0;i<events.length;i++){
+      var x=padding+i*step;
+      if(Math.abs(sx-x)<20){selected=i;draw();return;}
+    }
+  });
+  window.timelinePrev=function(){selected=Math.max(0,selected-1);draw();};
+  window.timelineNext=function(){selected=Math.min(events.length-1,selected+1);draw();};
+  draw();
+})();
+</script>
+
+<!-- ======== Ch3 新增演示脚本 ======== -->
+<script>
+// ============================================
+// 演示：GPU Warp 并行与分歧可视化
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-gpu-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var running=false,tick=0;
+  // 4 warps, 8 threads each
+  var warps=[];
+  var latency=5,branchPct=20;
+
+  function initWarps(){
+    warps=[];
+    var colors=['#58a6ff','#3fb950','#d29922','#bc8cff'];
+    for(var w=0;w<4;w++){
+      var threads=[];
+      for(var t=0;t<8;t++){
+        threads.push({
+          state:'idle', // idle, exec, wait, done, stall
+          progress:0,
+          waitCounter:0,
+          hasBranch:Math.random()*100<branchPct,
+          branchTaken:Math.random()<0.5,
+          branchStall:0
+        });
+      }
+      warps.push({threads:threads,color:colors[w],warpWait:false});
+    }
+  }
+
+  function step(){
+    tick++;
+    var allDone=true;
+    warps.forEach(function(warp){
+      // Check if warp is in wait state (memory latency)
+      var anyWaiting=warp.threads.some(function(t){return t.state==='wait';});
+      var anyExecuting=warp.threads.some(function(t){return t.state==='exec';});
+      
+      if(anyWaiting && !anyExecuting){
+        // Warp is hiding latency -- advance wait counters
+        warp.threads.forEach(function(t){
+          if(t.state==='wait'){
+            t.waitCounter--;
+            if(t.waitCounter<=0){t.state='exec';t.progress=0;}
+          }
+        });
+        return;
+      }
+      
+      warp.threads.forEach(function(t){
+        if(t.state==='idle'){t.state='exec';t.progress=0;}
+        if(t.state==='exec'){
+          // Check for branch divergence
+          if(t.hasBranch && t.progress>0.3 && t.progress<0.5 && t.branchStall===0){
+            // Simulate branch divergence: some threads stall while others execute
+            if(!t.branchTaken){
+              t.state='stall';
+              t.branchStall=latency;
+              return;
+            }
+          }
+          if(t.state==='stall'){
+            t.branchStall--;
+            if(t.branchStall<=0){t.state='exec';}
+            return;
+          }
+          t.progress+=0.08;
+          if(t.progress>=0.5 && t.waitCounter===0 && Math.random()<0.3 && latency>0){
+            // Hit a memory access -- go to wait state
+            t.state='wait';
+            t.waitCounter=latency;
+          }else if(t.progress>=1.0){
+            t.state='done';
+          }
+          allDone=false;
+        }
+      });
+    });
+    return !allDone;
+  }
+
+  function draw(){
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+    var blockW=60,blockH=22,gap=4;
+    var startY=30;
+    
+    // Title
+    ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+    ctx.fillText('Warp 0-3 (每Warp 8线程)',12,18);
+
+    warps.forEach(function(warp,wi){
+      var y=startY+wi*(blockH+gap+16);
+      // Warp label
+      ctx.fillStyle=warp.color;ctx.font='bold 10px "JetBrains Mono","Consolas",monospace';
+      ctx.fillText('Warp '+wi,12,y+blockH/2+4);
+      
+      warp.threads.forEach(function(t,ti){
+        var x=70+ti*(blockW+gap);
+        var color='#21262d';
+        if(t.state==='idle')color='#21262d';
+        else if(t.state==='exec')color='#3fb950';
+        else if(t.state==='wait')color='#d29922';
+        else if(t.state==='stall')color='#f85149';
+        else if(t.state==='done')color='#30363d';
+        
+        ctx.fillStyle=color;
+        ctx.fillRect(x,y,blockW,blockH);
+        // Progress bar
+        if(t.state==='exec'||t.state==='wait'){
+          ctx.fillStyle=warp.color;
+          ctx.fillRect(x,y+blockH-3,blockW*t.progress,3);
+        }
+        // Thread number
+        ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='9px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+        ctx.fillText('T'+ti,x+blockW/2,y+blockH/2+3);
+      });
+    });
+
+    // Legend
+    var ly=H-20;
+    var legend=[['#3fb950','执行'],['#d29922','等内存'],['#f85149','分支停滞'],['#30363d','完成'],['#21262d','空闲']];
+    var lx=12;
+    legend.forEach(function(l){
+      ctx.fillStyle=l[0];ctx.fillRect(lx,ly,10,10);
+      ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+      ctx.fillText(l[1],lx+14,ly+9);
+      lx+=60;
+    });
+
+    // Stats
+    var executing=0,waiting=0,stalling=0,done=0;
+    warps.forEach(function(w){w.threads.forEach(function(t){
+      if(t.state==='exec')executing++;
+      else if(t.state==='wait')waiting++;
+      else if(t.state==='stall')stalling++;
+      else if(t.state==='done')done++;
+    });});
+    ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='10px "JetBrains Mono","Consolas",monospace';ctx.textAlign='right';
+    ctx.fillText('Cycle '+tick+' | Exec:'+executing+' Wait:'+waiting+' Stall:'+stalling+' Done:'+done,W-12,ly+9);
+    
+    var st=document.getElementById('gpu-status');
+    if(st){
+      var total=32;
+      var efficiency=Math.round(executing/total*100);
+      if(done===total)st.textContent='完成！'+tick+' 周期 | 效率:'+efficiency+'% | 分支停滞:'+stalling+'个线程';
+      else st.textContent='Cycle '+tick+' | 执行:'+executing+' 等待:'+waiting+' 停滞:'+stalling+' 完成:'+done+'/32';
+    }
+  }
+
+  function animate(){
+    if(!running)return;
+    var more=step();
+    draw();
+    if(more){requestAnimationFrame(animate);}
+    else{running=false;draw();}
+  }
+
+  window.gpuRun=function(){
+    if(running)return;
+    latency=parseInt(document.getElementById('gpu-latency').value);
+    branchPct=parseInt(document.getElementById('gpu-branch').value);
+    initWarps();tick=0;running=true;animate();
+  };
+  window.gpuReset=function(){
+    running=false;tick=0;
+    latency=parseInt(document.getElementById('gpu-latency').value);
+    branchPct=parseInt(document.getElementById('gpu-branch').value);
+    initWarps();draw();
+  };
+  window.gpuUpdateLabel=function(){
+    // Just redraw to show current slider values in status
+    draw();
+  };
+
+  latency=5;branchPct=20;initWarps();draw();
 })();
 </script>
 
