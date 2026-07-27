@@ -1553,7 +1553,7 @@ hr {
   <div class="meta">
     <span class="badge">初学者友好</span>
     <span>26 个章节</span>
-    <span>40 交互式演示</span>
+    <span>45 交互式演示</span>
     <span>Three.js 实战</span>
   </div>
 </section>
@@ -2978,11 +2978,36 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
     </p>
   </div>
 </div>
+
+<!-- ======== 交互式演示：BRDF 可视化球 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：BRDF 可视化 -- 光照响应球</h4>
+  </div>
+  <div class="demo-description">
+    一个球体在不同光照模型下的外观对比。拖动光源观察高光如何随角度变化。<strong>Lambert</strong> 只有漫反射（均匀），<strong>Phong</strong> 有圆形高光，<strong>Blinn-Phong</strong> 高光更锐利。切换模型和粗糙度感受差异。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-brdf-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);cursor:grab;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <button class="btn active" onclick="brdfSetModel(0)" id="brdf-btn-0">Lambert</button>
+    <button class="btn" onclick="brdfSetModel(1)" id="brdf-btn-1">Phong</button>
+    <button class="btn" onclick="brdfSetModel(2)" id="brdf-btn-2">Blinn-Phong</button>
+    <label>粗糙度: <span class="slider-value" id="brdf-rough-val">0.3</span></label>
+    <input type="range" id="brdf-rough" min="0.05" max="1" step="0.05" value="0.3" oninput="brdfDraw()">
+    <div class="demo-stat-bar">
+      <div class="stat-item"><span class="stat-label">模型:</span><span class="stat-value" id="brdf-model-name">Lambert</span></div>
+      <div class="stat-item"><span class="stat-label">高光指数:</span><span class="stat-value" id="brdf-shininess">--</span></div>
+      <div class="stat-item"><span class="stat-label">光源角度:</span><span class="stat-value" id="brdf-light-ang">45°</span></div>
+    </div>
+  </div>
+</div>
+
 </section>
-
-<hr>
-
-<!-- ==========================================
      第5章：着色基础
      ========================================== -->
 <section id="ch5">
@@ -3539,12 +3564,33 @@ void main() {
   </div>
 </div>
 
+<!-- ======== 交互式演示：阴影贴图原理 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：阴影贴图 (Shadow Map) 原理</h4>
+  </div>
+  <div class="demo-description">
+    阴影贴图的核心：从光源视角渲染一张深度图，再判断每个像素在光源视角下是否被遮挡。拖动光源角度，观察阴影如何变化。黄色区域=光照到，黑色=阴影。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-shadowmap-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);cursor:grab;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label>光源角度: <span class="slider-value" id="sm-ang-val">45</span>°</label>
+    <input type="range" id="sm-ang" min="10" max="170" step="1" value="45" oninput="smDraw()">
+    <label>光源高度: <span class="slider-value" id="sm-h-val">150</span></label>
+    <input type="range" id="sm-h" min="80" max="250" step="5" value="150" oninput="smDraw()">
+    <div class="demo-stat-bar">
+      <div class="stat-item"><span class="stat-label">阴影面积:</span><span class="stat-value" id="sm-shadow-pct">--</span></div>
+      <div class="stat-item"><span class="stat-label">光源视角:</span><span class="stat-value" id="sm-view">45°</span></div>
+    </div>
+  </div>
+</div>
+
 </section>
-
-<hr>
-
-<!-- ==========================================
-     第8章：光与颜色
      ========================================== -->
 <section id="ch8">
 <div class="chapter-header">
@@ -3649,6 +3695,34 @@ void main() {
     <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;">
       从上到下依次为：线性、Reinhard、ACES、Uncharted2 Filmic
     </p>
+  </div>
+</div>
+
+<!-- ======== 交互式演示：HDR 与色调映射交互 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：HDR 曝光与色调映射交互</h4>
+  </div>
+  <div class="demo-description">
+    拖动<strong>曝光</strong>滑块模拟相机调整光圈：低曝光时暗部细节丢失，高曝光时亮部过曝。切换<strong>色调映射</strong>算法观察不同曲线如何处理高光截断。右侧直方图实时显示亮度分布。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-tonemap-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label>曝光 (EV): <span class="slider-value" id="tm-ev-val">0.0</span></label>
+    <input type="range" id="tm-ev" min="-3" max="3" step="0.1" value="0" oninput="tmDraw()">
+    <button class="btn active" onclick="tmSetMode(0)" id="tm-btn-0">线性</button>
+    <button class="btn" onclick="tmSetMode(1)" id="tm-btn-1">Reinhard</button>
+    <button class="btn" onclick="tmSetMode(2)" id="tm-btn-2">ACES</button>
+    <div class="demo-stat-bar">
+      <div class="stat-item"><span class="stat-label">映射:</span><span class="stat-value" id="tm-mode-name">线性</span></div>
+      <div class="stat-item"><span class="stat-label">平均亮度:</span><span class="stat-value" id="tm-avg-lum">--</span></div>
+      <div class="stat-item"><span class="stat-label">过曝像素:</span><span class="stat-value" id="tm-overexpose">--</span></div>
+    </div>
   </div>
 </div>
 
@@ -6283,6 +6357,34 @@ outputToScreen(buffer);           // 最终输出到屏幕</code></pre>
   </div>
 </div>
 
+<!-- ======== 交互式演示：后处理效果对比 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：后处理效果实时对比</h4>
+  </div>
+  <div class="demo-description">
+    同一张渲染图像经过不同后处理效果：原图、<strong>高斯模糊</strong>、<strong>边缘检测 (Sobel)</strong>、<strong>像素化</strong>。拖动参数滑块实时调整效果强度。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-postfx-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <button class="btn active" onclick="fxSetMode(0)" id="fx-btn-0">原图</button>
+    <button class="btn" onclick="fxSetMode(1)" id="fx-btn-1">高斯模糊</button>
+    <button class="btn" onclick="fxSetMode(2)" id="fx-btn-2">边缘检测</button>
+    <button class="btn" onclick="fxSetMode(3)" id="fx-btn-3">像素化</button>
+    <label>强度: <span class="slider-value" id="fx-strength-val">3</span></label>
+    <input type="range" id="fx-strength" min="1" max="10" step="1" value="3" oninput="fxDraw()">
+    <div class="demo-stat-bar">
+      <div class="stat-item"><span class="stat-label">效果:</span><span class="stat-value" id="fx-name">原图</span></div>
+      <div class="stat-item"><span class="stat-label">处理像素:</span><span class="stat-value" id="fx-pixels">210,000</span></div>
+    </div>
+  </div>
+</div>
+
 </section>
 
 <!-- ==========================================
@@ -6647,6 +6749,33 @@ float toonShade = floor(normalShade * levels) / levels;  // 只有几个离散�
     <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
       &#128161; 操作提示：鼠标拖拽旋转 | 滚轮缩放
     </p>
+  </div>
+</div>
+
+<!-- ======== 交互式演示：卡通着色与轮廓线 ======== -->
+<div class="demo-card">
+  <div class="demo-header">
+    <span class="demo-badge">&#9654; 交互演示</span>
+    <h4>演示：卡通着色 (Cel Shading) 与轮廓线</h4>
+  </div>
+  <div class="demo-description">
+    NPR 最经典的效果：将连续光照<strong>量化</strong>为离散色带（卡通着色），加上<strong>轮廓线</strong>（边缘检测）。拖动色阶数量和轮廓强度，观察从真实感到卡通风格的转变。
+  </div>
+  <div class="demo-body">
+    <div class="demo-canvas-wrapper" style="text-align:center;">
+      <canvas id="demo-cel-canvas" width="600" height="350" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);cursor:grab;display:block;margin:0 auto;"></canvas>
+    </div>
+  </div>
+  <div class="demo-controls">
+    <label>色阶数: <span class="slider-value" id="cel-steps-val">4</span></label>
+    <input type="range" id="cel-steps" min="2" max="8" step="1" value="4" oninput="celDraw()">
+    <label>轮廓强度: <span class="slider-value" id="cel-outline-val">0.5</span></label>
+    <input type="range" id="cel-outline" min="0" max="1" step="0.05" value="0.5" oninput="celDraw()">
+    <button class="btn" onclick="celToggleLight()">&#9654; 旋转光源</button>
+    <div class="demo-stat-bar">
+      <div class="stat-item"><span class="stat-label">色阶:</span><span class="stat-value" id="cel-steps-stat">4</span></div>
+      <div class="stat-item"><span class="stat-label">光源角度:</span><span class="stat-value" id="cel-light-stat">0°</span></div>
+    </div>
   </div>
 </div>
 
@@ -10449,6 +10578,436 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   });
   window.timelinePrev=function(){selected=Math.max(0,selected-1);draw();};
   window.timelineNext=function(){selected=Math.min(events.length-1,selected+1);draw();};
+  draw();
+})();
+</script>
+
+<!-- ======== 新增精美交互演示脚本 ======== -->
+<script>
+// ============================================
+// 演示：BRDF 可视化球 (Ch5)
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-brdf-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var model=0,rough=0.3;
+  var lightAng=Math.PI/4,lightDist=200;
+  var dragging=false;
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var cx=W/2,cy=H/2,R=110;
+    var lx=cx+Math.cos(lightAng)*lightDist,ly=cy-Math.sin(lightAng)*lightDist;
+    // Draw light source
+    var grad=ctx.createRadialGradient(lx,ly,0,lx,ly,30);
+    grad.addColorStop(0,'rgba(255,240,180,0.8)');
+    grad.addColorStop(1,'rgba(255,240,180,0)');
+    ctx.fillStyle=grad;ctx.fillRect(lx-30,ly-30,60,60);
+    ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.fillStyle='#ffe080';ctx.fill();
+
+    // Draw sphere with per-pixel shading
+    var imgData=ctx.createImageData(R*2+2,R*2+2);
+    var shininess=Math.max(2,Math.floor(2/Math.max(rough,0.01)));
+    for(var py=0;py<R*2+2;py++){
+      for(var px=0;px<R*2+2;px++){
+        var sx=px-R-1,sy=R+1-py;
+        var r2=sx*sx+sy*sy;
+        if(r2>R*R)continue;
+        var sz=Math.sqrt(R*R-r2);
+        var nx=sx/R,ny=sy/R,nz=sz/R;
+        var Lx=(lx-cx)/lightDist,Ly=(ly-cy)/lightDist,Lz=0;
+        var lLen=Math.sqrt(Lx*Lx+Ly*Ly);Lx/=lLen;Ly/=lLen;
+        var NdotL=Math.max(0,nx*Lx+ny*Ly+nz*0);
+        var ambient=0.15;
+        var diffuse=NdotL*0.7;
+        var specular=0;
+        if(model>0&&NdotL>0){
+          var Vz=1;
+          if(model===1){
+            var Rx=2*NdotL*nx-Lx,Ry=2*NdotL*ny-Ly,Rz=2*NdotL*nz;
+            var RdotV=Math.max(0,Rz*Vz);
+            specular=Math.pow(RdotV,shininess)*0.6;
+          }else{
+            var Hx=Lx,Hy=Ly,Hz=1;
+            var hLen=Math.sqrt(Hx*Hx+Hy*Hy+1);Hx/=hLen;Hy/=hLen;Hz/=hLen;
+            var NdotH=Math.max(0,nx*Hx+ny*Hy+nz*Hz);
+            specular=Math.pow(NdotH,shininess)*0.7;
+          }
+        }
+        var intensity=ambient+diffuse+specular;
+        var idx=(py*(R*2+2)+px)*4;
+        imgData.data[idx]=Math.min(255,80+140*intensity);
+        imgData.data[idx+1]=Math.min(255,100+120*intensity);
+        imgData.data[idx+2]=Math.min(255,140+100*intensity);
+        imgData.data[idx+3]=255;
+      }
+    }
+    ctx.putImageData(imgData,cx-R-1,cy-R-1);
+    // Outline
+    ctx.beginPath();ctx.arc(cx,cy,R+1,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.stroke();
+    // Stats
+    var names=['Lambert','Phong','Blinn-Phong'];
+    document.getElementById('brdf-model-name').textContent=names[model];
+    document.getElementById('brdf-shininess').textContent=model===0?'--':shininess;
+    document.getElementById('brdf-light-ang').textContent=Math.round(lightAng*180/Math.PI)+'°';
+  }
+
+  canvas.addEventListener('mousedown',function(e){
+    dragging=true;canvas.style.cursor='grabbing';
+    var rect=canvas.getBoundingClientRect();
+    var mx=(e.clientX-rect.left)/rect.width*W;
+    var my=(e.clientY-rect.top)/rect.height*H;
+    lightAng=Math.atan2(H/2-my,mx-W/2);
+    draw();
+  });
+  canvas.addEventListener('mousemove',function(e){
+    if(!dragging)return;
+    var rect=canvas.getBoundingClientRect();
+    var mx=(e.clientX-rect.left)/rect.width*W;
+    var my=(e.clientY-rect.top)/rect.height*H;
+    lightAng=Math.atan2(H/2-my,mx-W/2);
+    draw();
+  });
+  window.addEventListener('mouseup',function(){dragging=false;canvas.style.cursor='grab';});
+
+  window.brdfSetModel=function(m){
+    model=m;
+    for(var i=0;i<3;i++){
+      var btn=document.getElementById('brdf-btn-'+i);
+      if(btn)btn.classList.toggle('active',i===m);
+    }
+    draw();
+  };
+  window.brdfDraw=function(){
+    rough=parseFloat(document.getElementById('brdf-rough').value);
+    document.getElementById('brdf-rough-val').textContent=rough.toFixed(2);
+    draw();
+  };
+  draw();
+})();
+
+// ============================================
+// 演示：阴影贴图原理 (Ch7)
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-shadowmap-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+
+  var objects=[
+    {x:150,y:200,w:60,h:80},
+    {x:280,y:180,w:80,h:100},
+    {x:420,y:210,w:50,h:70}
+  ];
+
+  function draw(){
+    var ang=parseInt(document.getElementById('sm-ang').value);
+    var lh=parseInt(document.getElementById('sm-h').value);
+    document.getElementById('sm-ang-val').textContent=ang;
+    document.getElementById('sm-h-val').textContent=lh;
+    var lx=W/2,ly=H-lh;
+    var lightDir={x:Math.cos(ang*Math.PI/180),y:-Math.sin(ang*Math.PI/180)};
+    ctx.clearRect(0,0,W,H);
+    // Ground
+    ctx.fillStyle='#1a1f26';ctx.fillRect(0,H-50,W,50);
+    // Light
+    var grad=ctx.createRadialGradient(lx,ly,0,lx,ly,40);
+    grad.addColorStop(0,'rgba(255,230,150,0.6)');grad.addColorStop(1,'rgba(255,230,150,0)');
+    ctx.fillStyle=grad;ctx.fillRect(lx-40,ly-40,80,80);
+    ctx.beginPath();ctx.arc(lx,ly,8,0,Math.PI*2);ctx.fillStyle='#ffe080';ctx.fill();
+
+    // Draw shadows
+    var shadowArea=0;
+    objects.forEach(function(o){
+      // Shadow projection: from light through object base to ground
+      var baseY=o.y+o.h;
+      var shadowLen=(H-50-baseY)/Math.abs(lightDir.y||0.01)*Math.abs(lightDir.x);
+      var shadowDir=lightDir.x>0?1:-1;
+      var sx0=o.x+shadowDir*shadowLen*0.3;
+      var sx1=o.x+o.w+shadowDir*shadowLen*0.5;
+      ctx.fillStyle='rgba(0,0,0,0.5)';
+      ctx.beginPath();
+      ctx.moveTo(o.x,H-50);
+      ctx.lineTo(o.x+o.w,H-50);
+      ctx.lineTo(sx1,H-50);
+      ctx.lineTo(sx0,H-50);
+      ctx.closePath();ctx.fill();
+      shadowArea+=Math.abs(sx1-sx0);
+
+      // Object
+      var lit=Math.max(0,lightDir.y)<0;
+      var shade=lit?1:0.5;
+      ctx.fillStyle='rgb('+Math.floor(100*shade)+','+Math.floor(140*shade)+','+Math.floor(200*shade)+')';
+      ctx.fillRect(o.x,o.y,o.w,o.h);
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
+      ctx.strokeRect(o.x,o.y,o.w,o.h);
+    });
+    // Light rays
+    ctx.strokeStyle='rgba(255,230,150,0.1)';ctx.lineWidth=1;
+    objects.forEach(function(o){
+      ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(o.x,H-50);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(o.x+o.w,H-50);ctx.stroke();
+    });
+    // Stats
+    document.getElementById('sm-shadow-pct').textContent=Math.round(shadowArea/W*100)+'%';
+    document.getElementById('sm-view').textContent=ang+'°';
+  }
+  window.smDraw=draw;
+  draw();
+})();
+
+// ============================================
+// 演示：HDR 色调映射 (Ch8)
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-tonemap-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var mode=0,ev=0;
+
+  // Generate a synthetic HDR scene
+  var hdrData=[];
+  function genHDR(){
+    hdrData=new Float32Array(W*(H-80));
+    for(var y=0;y<H-80;y++){
+      for(var x=0;x<W;x++){
+        var cx=W*0.4,cy=(H-80)*0.4;
+        var dx=x-cx,dy=y-cy;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        var sun=Math.exp(-dist*dist/800);
+        var sky=0.3+0.1*Math.sin(x*0.01);
+        var ground=y>(H-80)*0.6?0.2:0;
+        hdrData[y*W+x]=sun*8+sky+ground;
+      }
+    }
+  }
+  genHDR();
+
+  function toneMap(v){
+    v*=Math.pow(2,ev);
+    if(mode===0)return Math.min(1,v);
+    if(mode===1)return v/(1+v);
+    if(mode===2){var a=2.51,b=0.03,c=2.43,d=0.59,e=0.14;return Math.max(0,Math.min(1,(v*(a*v+b))/(v*(c*v+d)+e)));}
+    return v;
+  }
+
+  function draw(){
+    document.getElementById('tm-ev-val').textContent=ev.toFixed(1);
+    var imgData=ctx.createImageData(W,H-80);
+    var overCount=0,sumLum=0;
+    for(var i=0;i<W*(H-80);i++){
+      var v=hdrData[i];
+      var mapped=toneMap(v);
+      if(mapped>=0.99)overCount++;
+      sumLum+=mapped;
+      var idx=i*4;
+      imgData.data[idx]=Math.min(255,mapped*255*1.2);
+      imgData.data[idx+1]=Math.min(255,mapped*255*1.0);
+      imgData.data[idx+2]=Math.min(255,mapped*255*0.8);
+      imgData.data[idx+3]=255;
+    }
+    ctx.putImageData(imgData,0,0);
+    // Histogram
+    var histX=W-120,histY=H-75,histW=100,histH=70;
+    ctx.fillStyle='rgba(13,17,23,0.8)';ctx.fillRect(histX,histY,histW,histH);
+    ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.strokeRect(histX,histY,histW,histH);
+    var bins=new Array(20).fill(0);
+    for(var i=0;i<W*(H-80);i++){var b=Math.min(19,Math.floor(toneMap(hdrData[i])*20));bins[b]++;}
+    var maxBin=Math.max.apply(null,bins);
+    for(var b=0;b<20;b++){
+      var bh=bins[b]/maxBin*histH*0.8;
+      ctx.fillStyle=b<5?'#f85149':b<15?'#3fb950':'#d29922';
+      ctx.fillRect(histX+b*5,histY+histH-bh,4,bh);
+    }
+    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='8px "JetBrains Mono","Consolas",monospace';ctx.textAlign='left';
+    ctx.fillText('直方图',histX+4,histY+10);
+    // Stats
+    var names=['线性','Reinhard','ACES'];
+    document.getElementById('tm-mode-name').textContent=names[mode];
+    document.getElementById('tm-avg-lum').textContent=(sumLum/(W*(H-80))).toFixed(3);
+    document.getElementById('tm-overexpose').textContent=Math.round(overCount/(W*(H-80))*100)+'%';
+  }
+
+  window.tmDraw=function(){ev=parseFloat(document.getElementById('tm-ev').value);draw();};
+  window.tmSetMode=function(m){
+    mode=m;
+    for(var i=0;i<3;i++){var btn=document.getElementById('tm-btn-'+i);if(btn)btn.classList.toggle('active',i===m);}
+    draw();
+  };
+  draw();
+})();
+
+// ============================================
+// 演示：后处理效果 (Ch12)
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-postfx-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var mode=0,strength=3;
+  var srcData=null;
+
+  function genSource(){
+    // Draw a colorful scene as source
+    var off=document.createElement('canvas');
+    off.width=W;off.height=H;
+    var octx=off.getContext('2d');
+    // Gradient sky
+    var g=octx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#1a1a3e');g.addColorStop(0.5,'#3a2a5e');g.addColorStop(1,'#1a1a2e');
+    octx.fillStyle=g;octx.fillRect(0,0,W,H);
+    // Sun
+    var sg=octx.createRadialGradient(W*0.3,H*0.3,0,W*0.3,H*0.3,80);
+    sg.addColorStop(0,'#ffe080');sg.addColorStop(0.5,'#ff8040');sg.addColorStop(1,'rgba(255,128,64,0)');
+    octx.fillStyle=sg;octx.fillRect(0,0,W,H);
+    // Ground
+    octx.fillStyle='#1a2a1a';octx.fillRect(0,H*0.65,W,H*0.35);
+    // Shapes
+    octx.fillStyle='#58a6ff';octx.fillRect(100,H*0.4,80,120);
+    octx.fillStyle='#3fb950';octx.beginPath();octx.arc(300,H*0.45,50,0,Math.PI*2);octx.fill();
+    octx.fillStyle='#d29922';octx.fillRect(420,H*0.35,60,140);
+    // Stars
+    for(var i=0;i<30;i++){octx.fillStyle='rgba(255,255,255,'+Math.random()*0.6+')';octx.fillRect(Math.random()*W,Math.random()*H*0.5,2,2);}
+    srcData=octx.getImageData(0,0,W,H);
+  }
+  genSource();
+
+  function draw(){
+    document.getElementById('fx-strength-val').textContent=strength;
+    if(mode===0){
+      ctx.putImageData(srcData,0,0);
+    }else if(mode===1){
+      // Gaussian blur (simplified box blur)
+      var r=strength;
+      var out=ctx.createImageData(W,H);
+      for(var y=0;y<H;y++){
+        for(var x=0;x<W;x++){
+          var sr=0,sg=0,sb=0,cnt=0;
+          for(var dy=-r;dy<=r;dy+=2){
+            for(var dx=-r;dx<=r;dx+=2){
+              var nx=x+dx,ny=y+dy;
+              if(nx<0||nx>=W||ny<0||ny>=H)continue;
+              var si=(ny*W+nx)*4;
+              sr+=srcData.data[si];sg+=srcData.data[si+1];sb+=srcData.data[si+2];cnt++;
+            }
+          }
+          var di=(y*W+x)*4;
+          out.data[di]=sr/cnt;out.data[di+1]=sg/cnt;out.data[di+2]=sb/cnt;out.data[di+3]=255;
+        }
+      }
+      ctx.putImageData(out,0,0);
+    }else if(mode===2){
+      // Sobel edge detection
+      var out=ctx.createImageData(W,H);
+      for(var y=1;y<H-1;y++){
+        for(var x=1;x<W-1;x++){
+          var gx=0,gy=0;
+          for(var ky=-1;ky<=1;ky++){
+            for(var kx=-1;kx<=1;kx++){
+              var si=((y+ky)*W+(x+kx))*4;
+              var lum=srcData.data[si]*0.3+srcData.data[si+1]*0.59+srcData.data[si+2]*0.11;
+              var w=(kx*ky===0)?(kx||ky):0;
+              gx+=lum*kx;gy+=lum*ky;
+            }
+          }
+          var mag=Math.min(255,Math.sqrt(gx*gx+gy*gy)*strength);
+          var di=(y*W+x)*4;
+          out.data[di]=mag;out.data[di+1]=mag;out.data[di+2]=mag;out.data[di+3]=255;
+        }
+      }
+      ctx.putImageData(out,0,0);
+    }else if(mode===3){
+      // Pixelate
+      var ps=strength*2;
+      ctx.putImageData(srcData,0,0);
+      var tmp=ctx.getImageData(0,0,W,H);
+      for(var y=0;y<H;y+=ps){
+        for(var x=0;x<W;x+=ps){
+          var si=(y*W+x)*4;
+          ctx.fillStyle='rgb('+tmp.data[si]+','+tmp.data[si+1]+','+tmp.data[si+2]+')';
+          ctx.fillRect(x,y,ps,ps);
+        }
+      }
+    }
+    var names=['原图','高斯模糊','边缘检测','像素化'];
+    document.getElementById('fx-name').textContent=names[mode];
+    document.getElementById('fx-pixels').textContent=(W*H).toLocaleString();
+  }
+
+  window.fxSetMode=function(m){
+    mode=m;
+    for(var i=0;i<4;i++){var btn=document.getElementById('fx-btn-'+i);if(btn)btn.classList.toggle('active',i===m);}
+    draw();
+  };
+  window.fxDraw=function(){strength=parseInt(document.getElementById('fx-strength').value);draw();};
+  draw();
+})();
+
+// ============================================
+// 演示：卡通着色 Cel Shading (Ch15)
+// ============================================
+(function(){
+  var canvas=document.getElementById('demo-cel-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width,H=canvas.height;
+  var steps=4,outline=0.5;
+  var lightAng=0.5,lightRotating=false;
+
+  function draw(){
+    document.getElementById('cel-steps-val').textContent=steps;
+    document.getElementById('cel-outline-val').textContent=outline.toFixed(2);
+    document.getElementById('cel-steps-stat').textContent=steps;
+    document.getElementById('cel-light-stat').textContent=Math.round(lightAng*180/Math.PI)+'°';
+    ctx.clearRect(0,0,W,H);
+    var cx=W/2,cy=H/2,R=110;
+    var lx=Math.cos(lightAng),ly=Math.sin(lightAng);
+    var imgData=ctx.createImageData(R*2+2,R*2+2);
+    for(var py=0;py<R*2+2;py++){
+      for(var px=0;px<R*2+2;px++){
+        var sx=px-R-1,sy=R+1-py;
+        var r2=sx*sx+sy*sy;
+        if(r2>R*R)continue;
+        var sz=Math.sqrt(R*R-r2);
+        var nx=sx/R,ny=sy/R,nz=sz/R;
+        var NdotL=Math.max(0,nx*lx+ny*ly);
+        // Quantize to steps
+        var quantized=Math.floor(NdotL*steps)/steps;
+        var intensity=0.2+quantized*0.7;
+        var idx=(py*(R*2+2)+px)*4;
+        // Check edge for outline
+        var isEdge=r2>(R-2)*(R-2);
+        if(isEdge&&outline>0){
+          imgData.data[idx]=20;imgData.data[idx+1]=20;imgData.data[idx+2]=30;
+        }else{
+          imgData.data[idx]=Math.min(255,80+140*intensity);
+          imgData.data[idx+1]=Math.min(255,100+120*intensity);
+          imgData.data[idx+2]=Math.min(255,140+80*intensity);
+        }
+        imgData.data[idx+3]=255;
+      }
+    }
+    ctx.putImageData(imgData,cx-R-1,cy-R-1);
+  }
+
+  function animate(){
+    if(!lightRotating)return;
+    lightAng+=0.015;
+    draw();
+    requestAnimationFrame(animate);
+  }
+
+  window.celDraw=draw;
+  window.celToggleLight=function(){
+    lightRotating=!lightRotating;
+    if(lightRotating)animate();
+  };
   draw();
 })();
 </script>
