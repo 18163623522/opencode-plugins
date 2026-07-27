@@ -4694,75 +4694,140 @@ function _onResize(fn) {
   }
 
   function drawAppStageViz(x,y,w,h,color){
-    // 画一个俯视图：相机视锥+物体剔除
-    var cx=x+w/2,cy=y+h/2;
-    // 视锥
-    ctx.fillStyle='rgba(88,166,255,0.05)';ctx.strokeStyle='rgba(88,166,255,0.2)';
-    ctx.beginPath();ctx.moveTo(cx,cy);
-    ctx.lineTo(cx-80,y+h-8);ctx.lineTo(cx+80,y+h-8);ctx.closePath();
+    // 应用阶段：俯视图 -- 相机视锥 + 物体剔除
+    // 相机在顶部，视锥向下展开
+    var camX=x+w/2,camY=y+15;
+    var fovHalf=0.35; // 半视场角
+    var nearY=y+25,farY=y+h-12;
+    var nearHalfW=(nearY-camY)*Math.tan(fovHalf);
+    var farHalfW=(farY-camY)*Math.tan(fovHalf);
+    // 绘制视锥（梯形）
+    ctx.fillStyle='rgba(88,166,255,0.06)';ctx.strokeStyle='rgba(88,166,255,0.25)';ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(camX-nearHalfW,nearY);ctx.lineTo(camX+nearHalfW,nearY);
+    ctx.lineTo(camX+farHalfW,farY);ctx.lineTo(camX-farHalfW,farY);ctx.closePath();
     ctx.fill();ctx.stroke();
-    // 物体
-    for(var i=0;i<10;i++){
-      var ang=i/10*Math.PI*2+subAnimT*0.5;
-      var dist=40+Math.sin(subAnimT+i)*20;
-      var ox=cx+Math.cos(ang)*dist,oy=cy+Math.sin(ang)*dist*0.5+15;
-      var inView=Math.abs(ang-Math.PI/2)<0.7;
+    // 相机标记
+    ctx.beginPath();ctx.arc(camX,camY,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+    ctx.fillStyle=color;ctx.font='10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('📷 相机',camX,camY-6);
+    // 物体 -- 用真正的点在视锥内测试
+    var visible=0,culled=0;
+    for(var i=0;i<12;i++){
+      var ox=x+20+Math.random()*(w-40); // 用固定种子让位置稳定
+      var oy=nearY+10+((i*37+Math.floor(subAnimT*2))%200)/200*(farY-nearY-20);
+      // 用 i 作为种子生成稳定位置
+      ox=x+15+((i*73)%Math.max(1,w-30));
+      oy=nearY+8+((i*41)%Math.max(1,farY-nearY-16));
+      // 点在视锥内测试：通过插值判断
+      var t=(oy-camY)/(farY-camY); // 0~1
+      var halfWAtY=nearHalfW+t*(farHalfW-nearHalfW);
+      var inView=Math.abs(ox-camX)<halfWAtY && oy>nearY && oy<farY;
+      if(inView){visible++;}else{culled++;}
       ctx.beginPath();ctx.arc(ox,oy,5,0,Math.PI*2);
-      ctx.fillStyle=inView?color:'#3a3a3a';ctx.fill();
-      if(!inView){
-        ctx.strokeStyle='rgba(248,81,73,0.4)';ctx.lineWidth=1.5;
+      if(inView){
+        ctx.fillStyle=color;ctx.fill();
+      }else{
+        ctx.fillStyle='#3a3a3a';ctx.fill();
+        ctx.strokeStyle='rgba(248,81,73,0.5)';ctx.lineWidth=1.5;
         ctx.beginPath();ctx.moveTo(ox-6,oy-6);ctx.lineTo(ox+6,oy+6);
         ctx.moveTo(ox+6,oy-6);ctx.lineTo(ox-6,oy+6);ctx.stroke();
       }
     }
     ctx.fillStyle='#6e7681';ctx.font='11px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
-    ctx.fillText('● 可见  ✕ 已剔除',cx,y+h-2);
+    ctx.fillText('● 可见 '+visible+'  ✕ 已剔除 '+culled,camX,y+h-2);
   }
 
   function drawGeoStageViz(x,y,w,h,color){
-    // 顶点变换：坐标系变换动画
-    var cx=x+w/2,cy=y+h/2;
-    var rot=subAnimT*0.5;
-    // 原始坐标系（灰色）
-    ctx.strokeStyle='rgba(110,118,129,0.3)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(cx-40,cy);ctx.lineTo(cx+40,cy);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy-40);ctx.lineTo(cx,cy+40);ctx.stroke();
-    // 变换后的坐标系（彩色，旋转）
-    ctx.strokeStyle=color;ctx.lineWidth=2.5;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(rot)*40,cy+Math.sin(rot)*40);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(rot+Math.PI/2)*40,cy+Math.sin(rot+Math.PI/2)*40);ctx.stroke();
-    // 顶点
-    for(var i=0;i<6;i++){
-      var a=i/6*Math.PI*2+rot;
-      ctx.beginPath();ctx.arc(cx+Math.cos(a)*28,cy+Math.sin(a)*28,4,0,Math.PI*2);
-      ctx.fillStyle=color;ctx.fill();
+    // 几何处理：展示顶点变换链 -- 模型空间→世界空间→相机空间
+    // 画三个小坐标系并排，箭头连接，顶点在变换中移动
+    var step=Math.floor(subAnimT)%3; // 0=模型,1=世界,2=相机
+    var labels=['模型空间','世界空间','相机空间'];
+    var colors=['#6e7681','#3fb950',color];
+    var boxW=(w-20)/3;
+    for(var s=0;s<3;s++){
+      var bx=x+10+s*boxW,by=y+15,bw=boxW-10,bh=h-25;
+      var isActive=s===step;
+      // 边框
+      ctx.strokeStyle=isActive?colors[s]:'#21262d';ctx.lineWidth=isActive?2:1;
+      ctx.fillStyle=isActive?colors[s]+'08':'rgba(0,0,0,0)';
+      roundRect(bx,by,bw,bh,6);ctx.fill();ctx.stroke();
+      // 标签
+      ctx.fillStyle=isActive?colors[s]:'#6e7681';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(labels[s],bx+bw/2,by+14);
+      // 画一个小立方体（用旋转角度区分各空间）
+      var cx=bx+bw/2,cy=by+bh/2+5;
+      var rot=subAnimT*0.6+s*Math.PI/3;
+      var size=isActive?22:16;
+      ctx.strokeStyle=isActive?colors[s]:'rgba(110,118,129,0.4)';ctx.lineWidth=isActive?2:1;
+      // 立方体的8条边（简化为旋转的方块+对角线）
+      var pts=[];
+      for(var i=0;i<4;i++){
+        var a=rot+i*Math.PI/2;
+        pts.push({x:cx+Math.cos(a)*size,y:cy+Math.sin(a)*size*0.6});
+      }
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x,pts[0].y);
+      for(var i=1;i<4;i++)ctx.lineTo(pts[i].x,pts[i].y);
+      ctx.closePath();ctx.stroke();
+      // 后方面（偏移）
+      var off=isActive?8:5;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x+off,pts[0].y-off);
+      for(var i=1;i<4;i++)ctx.lineTo(pts[i].x+off,pts[i].y-off);
+      ctx.closePath();ctx.stroke();
+      // 连接线
+      for(var i=0;i<4;i++){
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[i].x+off,pts[i].y-off);ctx.stroke();
+      }
+      // 顶点
+      if(isActive){
+        pts.forEach(function(p){
+          ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);
+          ctx.fillStyle=colors[s];ctx.fill();
+        });
+      }
     }
-    ctx.fillStyle='#6e7681';ctx.font='11px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
-    ctx.fillText('模型→世界→相机→裁剪空间',cx,y+h-2);
+    // 变换箭头
+    ctx.fillStyle='#6e7681';ctx.font='10px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+    ctx.fillText('× 模型矩阵 → × 视图矩阵',x+w/2,y+h-2);
   }
 
   function drawRastStageViz(x,y,w,h,color){
-    // 三角形光栅化：三角形+像素网格
+    // 光栅化：扫描线填充动画
+    // 真实光栅化是逐行扫描，不是从中心扩散
     var cx=x+w/2,cy=y+h/2;
-    var v0={x:cx-40,y:cy+20},v1={x:cx+35,y:cy+15},v2={x:cx-8,y:cy-28};
+    var v0={x:cx-45,y:cy+25},v1={x:cx+38,y:cy+18},v2={x:cx-10,y:cy-30};
+    // 计算三角形的边界
+    var minY=Math.min(v0.y,v1.y,v2.y);
+    var maxY=Math.max(v0.y,v1.y,v2.y);
+    // 扫描线动画：当前扫描到的 y 位置
+    var scanProgress=(subAnimT*0.5)%1;
+    var scanY=minY+scanProgress*(maxY-minY);
     // 像素网格
-    var gridSize=8;
+    var gridSize=7;
     var filledCount=0;
-    for(var py=y+2;py<y+h-2;py+=gridSize){
-      for(var px=x+2;px<x+w-2;px+=gridSize){
+    for(var py=y+5;py<y+h-5;py+=gridSize){
+      for(var px=x+5;px<x+w-5;px+=gridSize){
         var pxx=px+gridSize/2,pyy=py+gridSize/2;
         if(pointInTri(pxx,pyy,v0,v1,v2)){
-          var phase=(subAnimT*2-Math.sqrt((pxx-cx)*(pxx-cx)+(pyy-cy)*(pyy-cy))*0.04)%1;
-          if(phase>0&&phase<1){
+          filledCount++;
+          // 只填充扫描线以下的像素
+          if(pyy<=scanY){
             ctx.fillStyle=color;
-            ctx.globalAlpha=phase;
             ctx.fillRect(px,py,gridSize-1,gridSize-1);
-            ctx.globalAlpha=1;
-            filledCount++;
+          }else{
+            // 待光栅化区域（暗色）
+            ctx.fillStyle=color+'15';
+            ctx.fillRect(px,py,gridSize-1,gridSize-1);
           }
         }
       }
     }
+    // 扫描线
+    ctx.strokeStyle='#f85149';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(x+5,scanY);ctx.lineTo(x+w-5,scanY);ctx.stroke();
+    ctx.setLineDash([]);
     // 三角形轮廓
     ctx.strokeStyle=color;ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(v0.x,v0.y);ctx.lineTo(v1.x,v1.y);ctx.lineTo(v2.x,v2.y);ctx.closePath();ctx.stroke();
@@ -4772,7 +4837,8 @@ function _onResize(fn) {
       ctx.fillStyle='#d29922';ctx.fill();
     });
     ctx.fillStyle='#6e7681';ctx.font='11px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
-    ctx.fillText('三角形 → '+filledCount+' 个像素片段',cx,y+h-2);
+    var pct=Math.round(scanProgress*100);
+    ctx.fillText('扫描线 '+pct+'% | '+filledCount+' 像素片段',cx,y+h-2);
   }
 
   function pointInTri(px,py,a,b,c){
@@ -4784,31 +4850,59 @@ function _onResize(fn) {
   function sign(px,py,a,b){return (px-b.x)*(a.y-b.y)-(a.x-b.x)*(py-b.y);}
 
   function drawPixelStageViz(x,y,w,h,color){
-    // 像素着色+深度测试：并排两个小矩形（着色前/着色后）
+    // 像素处理：展示深度测试和着色的真实过程
+    // 画3个重叠的矩形（不同深度），展示深度比较
     var halfW=(w-10)/2;
-    // 左：深度测试（灰度图）
+    // 左侧：深度测试 -- 3个矩形重叠，用Z-Buffer决定可见性
     ctx.fillStyle='#6e7681';ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-    ctx.fillText('深度测试',x+halfW/2,y-2);
-    for(var py=0;py<h-10;py+=5){
-      for(var px=0;px<halfW-4;px+=5){
-        var depth=(Math.sin(px*0.1+subAnimT)*0.5+0.5+Math.cos(py*0.08)*0.3);
-        depth=Math.max(0,Math.min(1,depth));
-        var gray=Math.floor(depth*200)+30;
-        ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
-        ctx.fillRect(x+px+2,y+py+4,4,4);
+    ctx.fillText('深度测试 (Z-Buffer)',x+halfW/2,y-2);
+    var rects=[
+      {x:8,y:8,w:50,h:50,depth:0.8,r:248,g:81,b:73},
+      {x:25,y:20,w:45,h:45,depth:0.3,r:88,g:166,b:255},
+      {x:15,y:35,w:40,h:35,depth:0.5,r:63,g:185,b:80}
+    ];
+    // 按深度排序：远的先画（画家算法可视化），但标注深度值
+    var sorted=rects.slice().sort(function(a,b){return b.depth-a.depth;});
+    var depthBuf=new Float32Array(halfW*h); // 模拟深度缓冲
+    for(var i=0;i<depthBuf.length;i++)depthBuf[i]=1e9;
+    sorted.forEach(function(r){
+      for(var py2=r.y;py2<r.y+r.h;py2++){
+        for(var px2=r.x;px2<r.x+r.w;px2++){
+          if(px2<0||px2>=halfW||py2<0||py2>=h)continue;
+          var idx=py2*halfW+px2;
+          // 深度测试：只有更近的才写入
+          if(r.depth<depthBuf[idx]){
+            depthBuf[idx]=r.depth;
+            ctx.fillStyle='rgb('+r.r+','+r.g+','+r.b+')';
+            ctx.fillRect(x+px2+2,y+py2+4,1,1);
+          }
+        }
       }
-    }
+    });
+    // 边框
     ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.strokeRect(x+2,y+4,halfW-4,h-10);
-    // 右：着色结果（彩色）
+    // 深度值标注
+    sorted.forEach(function(r){
+      ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='9px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+      ctx.fillText('z='+r.depth.toFixed(1),x+r.x+r.w/2+2,y+r.y-2+4);
+    });
+
+    // 右侧：片段着色 -- 一个球体的逐像素着色
     ctx.fillStyle=color;ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-    ctx.fillText('片段着色',x+halfW+10+halfW/2,y-2);
-    for(var py2=0;py2<h-10;py2+=5){
-      for(var px2=0;px2<halfW-4;px2+=5){
-        var r=80+Math.sin(px2*0.1+subAnimT)*60;
-        var g=100+Math.cos(py2*0.08+subAnimT*0.7)*80;
-        var b=140+Math.sin((px2+py2)*0.05)*60;
-        ctx.fillStyle='rgb('+Math.floor(r)+','+Math.floor(g)+','+Math.floor(b)+')';
-        ctx.fillRect(x+halfW+10+px2+2,y+py2+4,4,4);
+    ctx.fillText('片段着色 (Fragment Shader)',x+halfW+10+halfW/2,y-2);
+    var sphCX=x+halfW+10+halfW/2,sphCY=y+h/2+4,sphR=Math.min(halfW,h)/2-8;
+    var lx=Math.cos(subAnimT*0.5)*0.7,ly=0.3,lz=Math.sin(subAnimT*0.5)*0.7;
+    var lLen=Math.sqrt(lx*lx+ly*ly+lz*lz);lx/=lLen;ly/=lLen;lz/=lLen;
+    for(var py3=-sphR;py3<sphR;py3+=2){
+      for(var px3=-sphR;px3<sphR;px3+=2){
+        var r2=px3*px3+py3*py3;
+        if(r2>=sphR*sphR)continue;
+        var nz=Math.sqrt(1-r2/(sphR*sphR));
+        var nx=px3/sphR,ny=py3/sphR;
+        var NdotL=Math.max(0,nx*lx+ny*ly+nz*lz);
+        var intensity=0.15+NdotL*0.85;
+        ctx.fillStyle='rgb('+Math.floor(80+100*intensity)+','+Math.floor(120+100*intensity)+','+Math.floor(160+80*intensity)+')';
+        ctx.fillRect(sphCX+px3,sphCY+py3,2,2);
       }
     }
     ctx.strokeStyle=color+'60';ctx.lineWidth=1;ctx.strokeRect(x+halfW+10+2,y+4,halfW-4,h-10);
