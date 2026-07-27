@@ -668,15 +668,26 @@ p code, li code {
   margin: 24px 0;
   overflow: hidden;
   box-shadow: var(--shadow-card);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+}
+.demo-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+  opacity: 0.5;
 }
 
 .demo-card:hover {
-  box-shadow: var(--shadow-glow-blue);
+  box-shadow: var(--shadow-card-hover), 0 0 24px rgba(88,166,255,0.08);
+  border-color: rgba(88,166,255,0.3);
+  transform: translateY(-2px);
 }
 
 .demo-header {
   padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(88,166,255,0.1), rgba(188,140,255,0.05));
+  background: linear-gradient(135deg, rgba(88,166,255,0.12), rgba(188,140,255,0.06));
   border-bottom: 1px solid var(--border-primary);
   display: flex;
   align-items: center;
@@ -695,6 +706,7 @@ p code, li code {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border: 1px solid rgba(88,166,255,0.2);
 }
 
 .demo-header h4 {
@@ -716,11 +728,12 @@ p code, li code {
 }
 
 .demo-canvas-wrapper {
-  background: var(--bg-primary);
-  border-radius: var(--radius-sm);
+  background: radial-gradient(ellipse at 50% 50%, var(--bg-secondary), var(--bg-primary));
+  border-radius: var(--radius-md);
   overflow: hidden;
   position: relative;
   width: 100%;
+  border: 1px solid var(--border-secondary);
 }
 
 .demo-canvas-wrapper canvas {
@@ -748,23 +761,33 @@ p code, li code {
   width: 100%;
   margin-bottom: 12px;
   accent-color: var(--accent-blue);
-  height: 4px;
+  height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: var(--bg-tertiary);
-  border-radius: 2px;
+  background: linear-gradient(90deg, var(--bg-tertiary), var(--border-primary));
+  border-radius: 3px;
   outline: none;
+  cursor: pointer;
 }
 
 .demo-controls input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--accent-blue);
   cursor: pointer;
   border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 0 rgba(88,166,255,0.4), 0 2px 6px rgba(0,0,0,0.3);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.demo-controls input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 6px rgba(88,166,255,0.15), 0 2px 8px rgba(0,0,0,0.4);
+  transform: scale(1.15);
+}
+.demo-controls input[type="range"]::-webkit-slider-thumb:active {
+  box-shadow: 0 0 0 8px rgba(88,166,255,0.2), 0 2px 8px rgba(0,0,0,0.4);
 }
 
 .demo-controls select {
@@ -778,10 +801,12 @@ p code, li code {
   cursor: pointer;
   outline: none;
   margin-bottom: 12px;
+  transition: border-color var(--transition-fast);
 }
 
 .demo-controls select:focus {
   border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(88,166,255,0.1);
 }
 
 .demo-controls .btn {
@@ -796,21 +821,35 @@ p code, li code {
   font-size: 13px;
   font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
   margin-right: 8px;
   margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
 .demo-controls .btn:hover {
   background: var(--accent-blue);
   color: #fff;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(88,166,255,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+}
+.demo-controls .btn:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .demo-controls .btn.active {
   background: var(--accent-blue);
   color: #fff;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 16px rgba(88,166,255,0.4), inset 0 0 8px rgba(255,255,255,0.1);
+  animation: btnPulse 2s ease-in-out infinite;
+}
+
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(88,166,255,0.3), inset 0 0 8px rgba(255,255,255,0.1); }
+  50% { box-shadow: 0 0 24px rgba(88,166,255,0.5), inset 0 0 8px rgba(255,255,255,0.15); }
 }
 
 .demo-controls .control-row {
@@ -831,6 +870,58 @@ p code, li code {
   color: var(--accent-blue);
   min-width: 50px;
   text-align: right;
+  display: inline-block;
+  padding: 1px 6px;
+  background: rgba(88,166,255,0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(88,166,255,0.15);
+  transition: all 0.15s ease;
+}
+.demo-controls .slider-value.updated {
+  background: rgba(88,166,255,0.25);
+  box-shadow: 0 0 8px rgba(88,166,255,0.3);
+}
+
+/* 演示统计面板 */
+.demo-stat-bar {
+  display: flex;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  background: rgba(13,17,23,0.6);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-secondary);
+  font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.demo-stat-bar .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.demo-stat-bar .stat-label {
+  color: var(--text-tertiary);
+}
+.demo-stat-bar .stat-value {
+  color: var(--accent-cyan);
+  font-weight: 500;
+}
+
+/* FPS 计数器 */
+.fps-counter {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  background: rgba(13,17,23,0.8);
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  color: var(--accent-green);
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* 并排演示 */
@@ -4441,7 +4532,7 @@ function _onResize(fn) {
   dirLight.position.set(3, 5, 4);
   scene.add(dirLight);
 
-  var ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+  var ambientLight = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.4);
   scene.add(ambientLight);
 
   // 立方体
@@ -4659,7 +4750,7 @@ function switchCoordSpace(space) {
   demo3Controls = new THREE.OrbitControls(demo3Camera, canvas);
   demo3Controls.enableDamping = true;
 
-  var ambient = new THREE.AmbientLight(0x404040, 0.6);
+  var ambient = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.6);
   demo3Scene.add(ambient);
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
   dirLight.position.set(5, 8, 5);
@@ -5125,7 +5216,7 @@ function resetTransform() {
   demo5Controls = new THREE.OrbitControls(demo5Camera, canvas);
   demo5Controls.enableDamping = true;
 
-  var ambient = new THREE.AmbientLight(0x404040, 0.5);
+  var ambient = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.5);
   demo5Scene.add(ambient);
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
   dirLight.position.set(5, 8, 5);
@@ -5210,7 +5301,7 @@ function createDemo6Objects(scene) {
   scene.add(lines);
 
   // Labels
-  var ambient = new THREE.AmbientLight(0x404040, 0.4);
+  var ambient = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.4);
   scene.add(ambient);
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
   dirLight.position.set(3, 5, 5);
@@ -5359,7 +5450,7 @@ function updateLightIntensity() {
   demo7Controls.enableDamping = true;
 
   // Ambient
-  var ambient = new THREE.AmbientLight(0x202020, 0.3);
+  var ambient = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.3);
   demo7Scene.add(ambient);
 
   // Directional light
@@ -5516,7 +5607,7 @@ function updateLightIntensity() {
   demo8Controls.dampingFactor = 0.08;
 
   // Lights
-  demo8Scene.add(new THREE.AmbientLight(0x404040, 0.5));
+  demo8Scene.add(new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.5));
   var demo8DirLight = new THREE.DirectionalLight(0xffffff, 1.0);
   demo8DirLight.position.set(3, 5, 4);
   demo8Scene.add(demo8DirLight);
@@ -5606,7 +5697,7 @@ function updateLightIntensity() {
   demo9Renderer.shadowMap.type = THREE.PCFShadowMap;
 
   // Lights
-  demo9Scene.add(new THREE.AmbientLight(0x404060, 0.4));
+  demo9Scene.add(new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.4));
 
   var demo9DirLight = new THREE.DirectionalLight(0xffffff, 1.2);
   demo9DirLight.position.set(3, 5, 3);
@@ -5917,8 +6008,8 @@ function updateLightIntensity() {
   demo12Controls.dampingFactor = 0.08;
 
   // Lights
-  var demo12AmbientOn = new THREE.AmbientLight(0xffffff, 0.15);
-  var demo12AmbientOff = new THREE.AmbientLight(0xffffff, 0.5);
+  var demo12AmbientOn = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.15);
+  var demo12AmbientOff = new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.5);
   demo12Scene.add(demo12AmbientOff);
 
   var demo12DirLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -7098,7 +7189,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     spheres.push(mesh);
   });
 
-  demo13Scene.add(new THREE.AmbientLight(0x111122, 0.5));
+  demo13Scene.add(new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.5));
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.3);
   dirLight.position.set(0, 5, 5);
   demo13Scene.add(dirLight);
@@ -7342,7 +7433,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   var demo15Sphere = new THREE.Mesh(sphereGeo, demo15PBRMat);
   demo15Scene.add(demo15Sphere);
 
-  demo15Scene.add(new THREE.AmbientLight(0x222244, 0.4));
+  demo15Scene.add(new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 0.4));
   var demo15DirLight = new THREE.DirectionalLight(0xffffff, 1.0);
   demo15DirLight.position.set(3, 5, 4);
   demo15Scene.add(demo15DirLight);
@@ -7627,7 +7718,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   camera.lookAt(0, 0, 0);
 
   // Ambient light
-  scene.add(new THREE.AmbientLight(0x404040, 2));
+  scene.add(new THREE.HemisphereLight(0x8899bb, 0x3a2a1a, 2));
   var dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
   dirLight.position.set(5, 5, 5);
   scene.add(dirLight);
@@ -9806,10 +9897,58 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
      ========================================== -->
 
 <!-- ==========================================
-     UX 增强：代码复制 + 章节导航 + 键盘快捷键
+     UX 增强：代码复制 + 章节导航 + 键盘快捷键 + 演示精美化
      ========================================== -->
 <script>
 (function() {
+  // ---- 滑块值更新动画 ----
+  document.querySelectorAll('input[type="range"]').forEach(function(slider) {
+    slider.addEventListener('input', function() {
+      // 找到关联的 .slider-value 显示元素
+      var label = slider.closest('label') || slider.parentElement;
+      var valSpan = label ? label.querySelector('.slider-value') : null;
+      if (valSpan) {
+        valSpan.classList.add('updated');
+        clearTimeout(valSpan._timer);
+        valSpan._timer = setTimeout(function() { valSpan.classList.remove('updated'); }, 300);
+      }
+    });
+  });
+
+  // ---- FPS 计数器：给所有 Three.js canvas 添加 ----
+  function createFPSCounter(canvas) {
+    var counter = document.createElement('div');
+    counter.className = 'fps-counter';
+    counter.textContent = 'FPS: --';
+    canvas.parentElement.style.position = canvas.parentElement.style.position || 'relative';
+    canvas.parentElement.appendChild(counter);
+    var frames = 0, lastTime = performance.now();
+    function update() {
+      frames++;
+      var now = performance.now();
+      if (now - lastTime >= 500) {
+        var fps = Math.round(frames * 1000 / (now - lastTime));
+        counter.textContent = 'FPS: ' + fps;
+        counter.style.color = fps >= 50 ? 'var(--accent-green)' : fps >= 30 ? 'var(--accent-orange)' : 'var(--accent-red)';
+        frames = 0;
+        lastTime = now;
+      }
+      if (!counter._stopped) requestAnimationFrame(update);
+    }
+    update();
+    return counter;
+  }
+
+  // 给所有 WebGL canvas 添加 FPS 计数器
+  setTimeout(function() {
+    document.querySelectorAll('canvas').forEach(function(canvas) {
+      try {
+        var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        if (gl) createFPSCounter(canvas);
+      } catch(e) {}
+    });
+  }, 500);
+
   // ---- 代码复制按钮 ----
   document.querySelectorAll('.code-block').forEach(function(block) {
     var header = block.querySelector('.code-block-header');
@@ -9891,6 +10030,38 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     '@media print { .sidebar, .menu-toggle, .theme-toggle, .back-to-top, .reading-progress, .sidebar-overlay, .demo-controls { display: none !important; } .content-wrapper { margin: 0 !important; padding: 0 !important; } body { background: white !important; color: black !important; } }'
   ].join('\n');
   document.head.appendChild(style);
+})();
+</script>
+
+<!-- ==========================================
+     Three.js 画质增强：色调映射 + 环境光照
+     ========================================== -->
+<script>
+(function() {
+  if (typeof THREE === 'undefined') return;
+  // 给所有已创建的 WebGLRenderer 设置色调映射
+  setTimeout(function() {
+    document.querySelectorAll('canvas').forEach(function(canvas) {
+      try {
+        var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        if (!gl) return;
+        // Find the renderer associated with this canvas by checking global vars
+        var names = ['renderer','demo1Renderer','demo3Renderer','demo5Renderer','demo6OrthoRenderer',
+                     'demo6PerspRenderer','demo7Renderer','demo8Renderer','demo9Renderer',
+                     'demo11Renderer','demo12Renderer','demo13Renderer','demo15Renderer'];
+        names.forEach(function(name) {
+          try {
+            var r = eval(name);
+            if (r && r.toneMapping !== undefined) {
+              r.toneMapping = THREE.ACESFilmicToneMapping;
+              r.toneMappingExposure = 1.0;
+              r.outputEncoding = THREE.sRGBEncoding;
+            }
+          } catch(e) {}
+        });
+      } catch(e) {}
+    });
+  }, 100);
 })();
 </script>
 
