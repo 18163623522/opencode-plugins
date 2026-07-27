@@ -1814,20 +1814,23 @@ hr {
     <h4>演示 2：渲染管线流程可视化</h4>
   </div>
   <div class="demo-description">
-    渲染管线的四个阶段以动画形式展示数据流动：<strong>应用阶段(CPU)</strong> → <strong>几何处理(GPU)</strong> → <strong>光栅化(GPU)</strong> → <strong>像素处理(GPU)</strong> → 屏幕。粒子代表数据在管线中流动。点击各个阶段查看详细说明。
+    渲染管线的四个阶段以动画形式展示数据流动，每个阶段内部有<strong>子阶段可视化</strong>：应用阶段(CPU)处理场景数据 → 几何处理(GPU)做顶点变换 → 光栅化(GPU)把三角形拆成像素 → 像素处理(GPU)着色+测试。点击阶段查看详情，拖动速度滑块控制动画。
   </div>
   <div class="demo-body">
     <div class="demo-canvas-wrapper" style="text-align:center;">
-      <canvas id="demo-pipeline-canvas" width="600" height="380" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);cursor:pointer;display:block;margin:0 auto;"></canvas>
+      <canvas id="demo-pipeline-canvas" width="600" height="450" style="width:100%;max-width:600px;border-radius:8px;background:radial-gradient(ellipse at 50% 50%, #161b22, #0d1117);cursor:pointer;display:block;margin:0 auto;"></canvas>
     </div>
   </div>
   <div class="demo-controls">
     <button class="btn" onclick="pipelineTogglePlay()" id="pp-play-btn">&#9654; 播放</button>
     <button class="btn" onclick="pipelineReset()">&#8634; 重置</button>
+    <label>速度: <span class="slider-value" id="pp-speed-val">1.0x</span></label>
+    <input type="range" id="pp-speed" min="0.2" max="3" step="0.1" value="1" oninput="ppUpdateSpeed()">
     <div class="demo-stat-bar">
-      <div class="stat-item"><span class="stat-label">当前阶段:</span><span class="stat-value" id="pp-stage-name">--</span></div>
-      <div class="stat-item"><span class="stat-label">执行者:</span><span class="stat-value" id="pp-executor">--</span></div>
-      <div class="stat-item"><span class="stat-label">数据流:</span><span class="stat-value" id="pp-flow">0 粒子/秒</span></div>
+      <div class="stat-item"><span class="stat-label">阶段:</span><span class="stat-value" id="pp-stage-name">--</span></div>
+      <div class="stat-item"><span class="stat-label">执行:</span><span class="stat-value" id="pp-executor">--</span></div>
+      <div class="stat-item"><span class="stat-label">吞吐:</span><span class="stat-value" id="pp-flow">0 顶点/帧</span></div>
+      <div class="stat-item"><span class="stat-label">耗时:</span><span class="stat-value" id="pp-time">--</span></div>
     </div>
     <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="pp-desc">点击"播放"开始动画，或点击画布上的阶段方块查看详情</p>
   </div>
@@ -4580,39 +4583,47 @@ function _onResize(fn) {
 })();
 
 // ============================================
-// 演示 2：渲染管线流程可视化 (Canvas 2D 动画版)
+// 演示 2：渲染管线流程可视化 (Canvas 2D 增强版)
 // ============================================
 (function(){
   var canvas=document.getElementById('demo-pipeline-canvas');
   if(!canvas)return;
   var ctx=canvas.getContext('2d');
   var W=canvas.width,H=canvas.height;
-  var playing=false,selectedStage=-1,activeStage=0;
+  var playing=false,selectedStage=-1,activeStage=0,speed=1;
   var particles=[];
-  var stageTimer=0;
+  var stageTimer=0,frameCount=0;
+  var subAnimT=0; // 子阶段动画时间
 
   var stages=[
-    {name:'应用阶段',en:'Application',exec:'CPU',color:'#58a6ff',x:30,w:120,
-     desc:'CPU 准备渲染数据：物理模拟、碰撞检测、动画更新、视锥剔除，然后发送 Draw Call 给 GPU',
-     sub:'物理 | 动画 | AI | 剔除 | Draw Call'},
-    {name:'几何处理',en:'Geometry',exec:'GPU',color:'#bc8cff',x:170,w:120,
-     desc:'GPU 顶点着色器做坐标变换（模型→世界→相机→裁剪空间），然后裁剪不可见部分，映射到屏幕',
-     sub:'顶点着色 | 曲面细分 | 裁剪 | 屏幕映射'},
-    {name:'光栅化',en:'Rasterization',exec:'GPU',color:'#d29922',x:310,w:120,
-     desc:'GPU 把三角形"切碎"成像素片段，判断哪些像素在三角形内部，插值顶点属性',
-     sub:'三角形设置 | 三角形遍历 | 属性插值'},
-    {name:'像素处理',en:'Pixel',exec:'GPU',color:'#3fb950',x:450,w:120,
-     desc:'片段着色器计算每个像素颜色（纹理+光照+阴影），然后深度测试、混合，写入帧缓冲',
-     sub:'片段着色 | 深度测试 | 模板测试 | 混合'}
+    {name:'应用阶段',en:'Application',exec:'CPU',color:'#58a6ff',x:20,w:130,time:'~3ms',
+     subStages:['物理/动画','视锥剔除','Draw Call'],
+     desc:'CPU 准备渲染所需的所有数据：更新物理模拟、动画、AI，执行可见性判断（剔除不需要渲染的物体），然后通过图形 API 向 GPU 发送绘制命令（Draw Call）。',
+     detail:'输入: 游戏状态、用户输入\n处理: CPU 通用计算（物理、AI、剔除）\n输出: 渲染命令 + 顶点数据\n瓶颈: Draw Call 数量、CPU 单线程'},
+    {name:'几何处理',en:'Geometry',exec:'GPU',color:'#bc8cff',x:165,w:130,time:'~1ms',
+     subStages:['顶点着色','曲面细分','裁剪'],
+     desc:'GPU 顶点着色器对每个顶点做坐标变换（模型→世界→相机→裁剪空间），可选曲面细分增加细节，然后裁剪掉视锥外的几何体，映射到屏幕坐标。',
+     detail:'输入: 顶点属性（位置、法线、UV）\n处理: MVP 矩阵变换 + 裁剪\n输出: 屏幕空间顶点\n可编程: 顶点着色器（必须）'},
+    {name:'光栅化',en:'Rasterization',exec:'GPU',color:'#d29922',x:310,w:130,time:'~0.5ms',
+     subStages:['三角形设置','三角形遍历','属性插值'],
+     desc:'GPU 固定功能硬件把三角形"切碎"成像素片段。判断每个像素是否在三角形内部，如果是就生成一个片段，并插值顶点属性（法线、UV、颜色等）。',
+     detail:'输入: 屏幕空间三角形\n处理: 覆盖测试 + 属性插值\n输出: 片段（候选像素）\n瓶颈: 像素填充率（Fill Rate）'},
+    {name:'像素处理',en:'Pixel',exec:'GPU',color:'#3fb950',x:455,w:130,time:'~5ms',
+     subStages:['片段着色','深度测试','混合输出'],
+     desc:'片段着色器计算每个像素的最终颜色（纹理采样、光照计算、阴影），然后通过深度测试、模板测试、Alpha 混合等操作决定是否写入帧缓冲。',
+     detail:'输入: 片段 + 插值属性\n处理: 着色 + 深度/模板测试 + 混合\n输出: 最终像素颜色\n可编程: 片段着色器（必须）'}
   ];
-  var stageY=60,stageH=70;
+  var stageY=30,stageH=75;
+  var previewY=125,previewH=180; // 子阶段可视化区域
+  var infoY=320,infoH=115; // 信息面板
 
   function spawnParticle(){
     if(!playing)return;
     particles.push({
-      x:stages[0].x+5,y:stageY+stageH/2+(Math.random()-0.5)*20,
-      vx:1.5+Math.random()*0.5,vy:(Math.random()-0.5)*0.3,
-      stage:0,life:1,color:stages[0].color
+      x:stages[0].x+5,y:stageY+stageH/2+(Math.random()-0.5)*25,
+      vx:1.2*speed+Math.random()*0.4,vy:(Math.random()-0.5)*0.2,
+      stage:0,color:stages[0].color,size:2+Math.random()*1.5,
+      type:Math.random()<0.3?'tri':'dot'
     });
   }
 
@@ -4620,19 +4631,14 @@ function _onResize(fn) {
     for(var i=particles.length-1;i>=0;i--){
       var p=particles[i];
       p.x+=p.vx;p.y+=p.vy;
-      // Check if entered next stage
       var s=stages[p.stage];
       if(p.x>s.x+s.w){
         p.stage++;
-        if(p.stage>=stages.length){
-          // Reached screen
-          particles.splice(i,1);continue;
-        }
+        if(p.stage>=stages.length){particles.splice(i,1);continue;}
         p.color=stages[p.stage].color;
       }
-      // Slight vertical oscillation
-      p.vy+=Math.sin(p.x*0.05)*0.02;
-      p.vy*=0.95;
+      p.vy+=Math.sin(p.x*0.04+frameCount*0.02)*0.015;
+      p.vy*=0.96;
     }
   }
 
@@ -4644,123 +4650,291 @@ function _onResize(fn) {
     ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
   }
 
+  // 子阶段可视化：根据当前阶段绘制不同的内容
+  function drawSubStagePreview(stageIdx){
+    var px=30,pw=W-60,py=previewY,ph=previewH;
+    var s=stages[stageIdx];
+    // 背景面板
+    ctx.fillStyle='rgba(13,17,23,0.5)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
+    roundRect(px,py,pw,ph,8);ctx.fill();ctx.stroke();
+    // 标题
+    ctx.fillStyle=s.color+'80';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+    ctx.fillText('▸ '+s.name+' -- 子阶段可视化',px+12,py+18);
+
+    // 子阶段标签条
+    var subY=py+28;
+    s.subStages.forEach(function(ss,i){
+      var subX=px+12+i*(pw-24)/s.subStages.length;
+      var subW=(pw-24)/s.subStages.length-6;
+      var isCur=Math.floor(subAnimT)%s.subStages.length===i;
+      ctx.fillStyle=isCur?s.color+'20':'#161b22';
+      ctx.strokeStyle=isCur?s.color:'#21262d';ctx.lineWidth=isCur?1.5:1;
+      roundRect(subX,subY,subW,22,4);ctx.fill();ctx.stroke();
+      ctx.fillStyle=isCur?s.color:'#6e7681';ctx.font='bold 9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(ss,subX+subW/2,subY+14);
+    });
+
+    // 根据阶段绘制可视化内容
+    var vizY=py+60,vizH=ph-70;
+    var vizX=px+12,vizW=pw-24;
+
+    if(stageIdx===0){
+      // 应用阶段：场景图/物体剔除可视化
+      drawAppStageViz(vizX,vizY,vizW,vizH,s.color);
+    }else if(stageIdx===1){
+      // 几何处理：顶点变换可视化
+      drawGeoStageViz(vizX,vizY,vizW,vizH,s.color);
+    }else if(stageIdx===2){
+      // 光栅化：三角形→像素
+      drawRastStageViz(vizX,vizY,vizW,vizH,s.color);
+    }else if(stageIdx===3){
+      // 像素处理：着色+深度测试
+      drawPixelStageViz(vizX,vizY,vizW,vizH,s.color);
+    }
+  }
+
+  function drawAppStageViz(x,y,w,h,color){
+    // 画一个俯视图：相机视锥+物体剔除
+    var cx=x+w/2,cy=y+h/2;
+    // 视锥
+    ctx.fillStyle='rgba(88,166,255,0.05)';ctx.strokeStyle='rgba(88,166,255,0.2)';
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx-60,y+h-5);ctx.lineTo(cx+60,y+h-5);ctx.closePath();
+    ctx.fill();ctx.stroke();
+    // 物体
+    for(var i=0;i<8;i++){
+      var ang=i/8*Math.PI*2+subAnimT*0.5;
+      var dist=30+Math.sin(subAnimT+i)*15;
+      var ox=cx+Math.cos(ang)*dist,oy=cy+Math.sin(ang)*dist*0.5+10;
+      var inView=Math.abs(ang-Math.PI/2)<0.6;
+      ctx.beginPath();ctx.arc(ox,oy,4,0,Math.PI*2);
+      ctx.fillStyle=inView?color:'#3a3a3a';ctx.fill();
+      if(!inView){
+        ctx.strokeStyle='rgba(248,81,73,0.4)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(ox-5,oy-5);ctx.lineTo(ox+5,oy+5);
+        ctx.moveTo(ox+5,oy-5);ctx.lineTo(ox-5,oy+5);ctx.stroke();
+      }
+    }
+    ctx.fillStyle='#6e7681';ctx.font='8px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+    ctx.fillText('● 可见  ✕ 已剔除',cx,y+h-2);
+  }
+
+  function drawGeoStageViz(x,y,w,h,color){
+    // 顶点变换：坐标系变换动画
+    var cx=x+w/2,cy=y+h/2;
+    var rot=subAnimT*0.5;
+    // 原始坐标系（灰色）
+    ctx.strokeStyle='rgba(110,118,129,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(cx-30,cy);ctx.lineTo(cx+30,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy-30);ctx.lineTo(cx,cy+30);ctx.stroke();
+    // 变换后的坐标系（彩色，旋转）
+    ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(rot)*30,cy+Math.sin(rot)*30);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(rot+Math.PI/2)*30,cy+Math.sin(rot+Math.PI/2)*30);ctx.stroke();
+    // 顶点
+    for(var i=0;i<5;i++){
+      var a=i/5*Math.PI*2+rot;
+      ctx.beginPath();ctx.arc(cx+Math.cos(a)*20,cy+Math.sin(a)*20,3,0,Math.PI*2);
+      ctx.fillStyle=color;ctx.fill();
+    }
+    ctx.fillStyle='#6e7681';ctx.font='8px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+    ctx.fillText('模型→世界→相机→裁剪空间',cx,y+h-2);
+  }
+
+  function drawRastStageViz(x,y,w,h,color){
+    // 三角形光栅化：三角形+像素网格
+    var cx=x+w/2,cy=y+h/2;
+    var v0={x:cx-30,y:cy+15},v1={x:cx+25,y:cy+10},v2={x:cx-5,y:cy-20};
+    // 像素网格
+    var gridSize=6;
+    var filledCount=0;
+    for(var py=y+2;py<y+h-2;py+=gridSize){
+      for(var px=x+2;px<x+w-2;px+=gridSize){
+        var pxx=px+gridSize/2,pyy=py+gridSize/2;
+        if(pointInTri(pxx,pyy,v0,v1,v2)){
+          var phase=(subAnimT*2-Math.sqrt((pxx-cx)*(pxx-cx)+(pyy-cy)*(pyy-cy))*0.05)%1;
+          if(phase>0&&phase<1){
+            ctx.fillStyle=color;
+            ctx.globalAlpha=phase;
+            ctx.fillRect(px,py,gridSize-1,gridSize-1);
+            ctx.globalAlpha=1;
+            filledCount++;
+          }
+        }
+      }
+    }
+    // 三角形轮廓
+    ctx.strokeStyle=color;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(v0.x,v0.y);ctx.lineTo(v1.x,v1.y);ctx.lineTo(v2.x,v2.y);ctx.closePath();ctx.stroke();
+    // 顶点
+    [v0,v1,v2].forEach(function(v){
+      ctx.beginPath();ctx.arc(v.x,v.y,3,0,Math.PI*2);
+      ctx.fillStyle='#d29922';ctx.fill();
+    });
+    ctx.fillStyle='#6e7681';ctx.font='8px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+    ctx.fillText('三角形 → '+filledCount+' 个像素片段',cx,y+h-2);
+  }
+
+  function pointInTri(px,py,a,b,c){
+    var d1=sign(px,py,a,b),d2=sign(px,py,b,c),d3=sign(px,py,c,a);
+    var hasNeg=(d1<0)||(d2<0)||(d3<0);
+    var hasPos=(d1>0)||(d2>0)||(d3>0);
+    return !(hasNeg&&hasPos);
+  }
+  function sign(px,py,a,b){return (px-b.x)*(a.y-b.y)-(a.x-b.x)*(py-b.y);}
+
+  function drawPixelStageViz(x,y,w,h,color){
+    // 像素着色+深度测试：并排两个小矩形（着色前/着色后）
+    var halfW=(w-10)/2;
+    // 左：深度测试（灰度图）
+    ctx.fillStyle='#6e7681';ctx.font='bold 8px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('深度测试',x+halfW/2,y-2);
+    for(var py=0;py<h-10;py+=4){
+      for(var px=0;px<halfW-4;px+=4){
+        var depth=(Math.sin(px*0.1+subAnimT)*0.5+0.5+Math.cos(py*0.08)*0.3);
+        depth=Math.max(0,Math.min(1,depth));
+        var gray=Math.floor(depth*200)+30;
+        ctx.fillStyle='rgb('+gray+','+gray+','+gray+')';
+        ctx.fillRect(x+px+2,y+py+4,3,3);
+      }
+    }
+    ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.strokeRect(x+2,y+4,halfW-4,h-10);
+    // 右：着色结果（彩色）
+    ctx.fillStyle=color;ctx.font='bold 8px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('片段着色',x+halfW+10+halfW/2,y-2);
+    for(var py2=0;py2<h-10;py2+=4){
+      for(var px2=0;px2<halfW-4;px2+=4){
+        var r=80+Math.sin(px2*0.1+subAnimT)*60;
+        var g=100+Math.cos(py2*0.08+subAnimT*0.7)*80;
+        var b=140+Math.sin((px2+py2)*0.05)*60;
+        ctx.fillStyle='rgb('+Math.floor(r)+','+Math.floor(g)+','+Math.floor(b)+')';
+        ctx.fillRect(x+halfW+10+px2+2,y+py2+4,3,3);
+      }
+    }
+    ctx.strokeStyle=color+'60';ctx.lineWidth=1;ctx.strokeRect(x+halfW+10+2,y+4,halfW-4,h-10);
+  }
+
   function draw(){
     ctx.clearRect(0,0,W,H);
+    frameCount++;
 
     // Draw connection lines between stages
     for(var i=0;i<stages.length-1;i++){
       var s1=stages[i],s2=stages[i+1];
       var x1=s1.x+s1.w,x2=s2.x,y=stageY+stageH/2;
-      ctx.strokeStyle=selectedStage===i||activeStage===i?'rgba(88,166,255,0.4)':'rgba(110,118,129,0.15)';
-      ctx.lineWidth=2;ctx.setLineDash([4,4]);
-      ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();
+      var isActive=(i===activeStage&&playing)||(i===selectedStage)||(selectedStage<0&&i===activeStage);
+      ctx.strokeStyle=isActive?'rgba(88,166,255,0.5)':'rgba(110,118,129,0.12)';
+      ctx.lineWidth=2;ctx.setLineDash([5,4]);
+      ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2-2,y);ctx.stroke();
       ctx.setLineDash([]);
-      // Arrow head
-      ctx.fillStyle=selectedStage===i||activeStage===i?'rgba(88,166,255,0.6)':'rgba(110,118,129,0.3)';
-      ctx.beginPath();ctx.moveTo(x2-1,y);ctx.lineTo(x2-8,y-4);ctx.lineTo(x2-8,y+4);ctx.closePath();ctx.fill();
+      ctx.fillStyle=isActive?'rgba(88,166,255,0.7)':'rgba(110,118,129,0.25)';
+      ctx.beginPath();ctx.moveTo(x2,y);ctx.lineTo(x2-7,y-4);ctx.lineTo(x2-7,y+4);ctx.closePath();ctx.fill();
     }
 
-    // Draw screen output
-    var screenX=stages[3].x+stages[3].w+15;
-    ctx.fillStyle='rgba(63,185,80,0.1)';ctx.strokeStyle='rgba(63,185,80,0.4)';
-    roundRect(screenX,stageY+15,40,40,6);ctx.fill();ctx.stroke();
-    ctx.fillStyle='rgba(63,185,80,0.7)';ctx.font='bold 9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-    ctx.fillText('屏幕',screenX+20,stageY+75);
+    // Screen output icon
+    var screenX=stages[3].x+stages[3].w+8;
+    ctx.fillStyle='rgba(63,185,80,0.08)';ctx.strokeStyle='rgba(63,185,80,0.4)';
+    roundRect(screenX,stageY+18,35,40,5);ctx.fill();ctx.stroke();
+    // Screen content (mini render)
+    for(var sy=0;sy<35;sy+=5){
+      for(var sx=0;sx<30;sx+=5){
+        var c=Math.sin(sx*0.2+sy*0.15+subAnimT)*0.5+0.5;
+        ctx.fillStyle='rgba('+Math.floor(63+c*50)+','+Math.floor(185-c*50)+','+Math.floor(80+c*100)+',0.6)';
+        ctx.fillRect(screenX+sx+2,stageY+20+sy,4,4);
+      }
+    }
+    ctx.fillStyle='rgba(63,185,80,0.7)';ctx.font='bold 8px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('屏幕',screenX+17,stageY+70);
 
-    // Draw stages
+    // Draw stage boxes
     stages.forEach(function(s,i){
       var isActive=(i===activeStage&&playing)||(i===selectedStage);
-      var glow=isActive?15:0;
-      // Glow
-      if(glow>0){
-        ctx.shadowColor=s.color;ctx.shadowBlur=glow;
-      }
-      // Background gradient
+      var glow=isActive?12:0;
+      if(glow>0){ctx.shadowColor=s.color;ctx.shadowBlur=glow;}
       var grad=ctx.createLinearGradient(s.x,stageY,s.x,stageY+stageH);
-      if(isActive){
-        grad.addColorStop(0,s.color+'30');grad.addColorStop(1,s.color+'10');
-      }else{
-        grad.addColorStop(0,'#21262d');grad.addColorStop(1,'#161b22');
-      }
-      ctx.fillStyle=grad;
-      ctx.strokeStyle=isActive?s.color:'#30363d';ctx.lineWidth=isActive?2:1;
+      if(isActive){grad.addColorStop(0,s.color+'25');grad.addColorStop(1,s.color+'08');}
+      else{grad.addColorStop(0,'#1c2128');grad.addColorStop(1,'#161b22');}
+      ctx.fillStyle=grad;ctx.strokeStyle=isActive?s.color:'#30363d';ctx.lineWidth=isActive?2:1;
       roundRect(s.x,stageY,s.w,stageH,10);ctx.fill();ctx.stroke();
       ctx.shadowBlur=0;
       // Text
-      ctx.fillStyle=isActive?s.color:'#e6edf3';ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-      ctx.fillText(s.name,s.x+s.w/2,stageY+28);
-      ctx.fillStyle='rgba(139,148,158,0.7)';ctx.font='10px "JetBrains Mono","Consolas",monospace';
-      ctx.fillText(s.en,s.x+s.w/2,stageY+45);
-      ctx.fillStyle=s.exec==='CPU'?'rgba(88,166,255,0.6)':'rgba(188,140,255,0.6)';ctx.font='bold 9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
-      ctx.fillText(s.exec,s.x+s.w/2,stageY+60);
+      ctx.fillStyle=isActive?s.color:'#e6edf3';ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(s.name,s.x+s.w/2,stageY+22);
+      ctx.fillStyle='rgba(139,148,158,0.6)';ctx.font='9px "JetBrains Mono","Consolas",monospace';
+      ctx.fillText(s.en,s.x+s.w/2,stageY+36);
+      // CPU/GPU badge
+      ctx.fillStyle=s.exec==='CPU'?'rgba(88,166,255,0.5)':'rgba(188,140,255,0.5)';
+      ctx.font='bold 8px "JetBrains Mono","Consolas",monospace';
+      ctx.fillText(s.exec,s.x+s.w/2,stageY+50);
+      // Time
+      ctx.fillStyle='rgba(210,153,34,0.5)';ctx.font='8px "JetBrains Mono","Consolas",monospace';
+      ctx.fillText(s.time,s.x+s.w/2,stageY+64);
     });
 
-    // Draw particles (data flowing through pipeline)
+    // Draw particles
     particles.forEach(function(p){
-      ctx.fillStyle=p.color;
-      ctx.shadowColor=p.color;ctx.shadowBlur=6;
-      ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=5;
+      if(p.type==='tri'){
+        ctx.beginPath();
+        ctx.moveTo(p.x,p.y-3);ctx.lineTo(p.x+3,p.y+2);ctx.lineTo(p.x-3,p.y+2);ctx.closePath();
+        ctx.fill();
+      }else{
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+      }
       ctx.shadowBlur=0;
-      // Trail
-      ctx.strokeStyle=p.color+'40';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(p.x-p.vx*4,p.y-p.vy*4);ctx.lineTo(p.x,p.y);ctx.stroke();
+      ctx.strokeStyle=p.color+'30';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(p.x-p.vx*3,p.y-p.vy*3);ctx.lineTo(p.x,p.y);ctx.stroke();
     });
 
-    // Draw info panel at bottom
-    var infoY=165;
-    ctx.fillStyle='rgba(13,17,23,0.6)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
-    roundRect(15,infoY,W-30,185,8);ctx.fill();ctx.stroke();
-    var showStage=selectedStage>=0?selectedStage:(playing?activeStage:-1);
+    // Sub-stage preview (always show for active or selected stage)
+    var showStage=selectedStage>=0?selectedStage:(playing?activeStage:0);
+    if(showStage>=0)drawSubStagePreview(showStage);
+
+    // Info panel
+    ctx.fillStyle='rgba(13,17,23,0.7)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
+    roundRect(15,infoY,W-30,infoH,8);ctx.fill();ctx.stroke();
     if(showStage>=0){
       var s=stages[showStage];
-      ctx.fillStyle=s.color;ctx.font='bold 14px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
-      ctx.fillText(s.name+' ('+s.en+')',30,infoY+25);
-      ctx.fillStyle='#8b949e';ctx.font='12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
-      // Wrap text
-      var desc=s.desc;var lineLen=0;var line='';var dy=infoY+48;
+      ctx.fillStyle=s.color;ctx.font='bold 13px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+      ctx.fillText('▸ '+s.name+' ('+s.en+')  ['+s.exec+' | '+s.time+']',28,infoY+22);
+      ctx.fillStyle='#8b949e';ctx.font='11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
+      var desc=s.desc;var line='';var lineLen=0;var dy=infoY+42;
       for(var ci=0;ci<desc.length;ci++){
         line+=desc[ci];lineLen++;
-        if(lineLen>32){ctx.fillText(line,30,dy);line='';lineLen=0;dy+=18;}
+        if(lineLen>42){ctx.fillText(line,28,dy);line='';lineLen=0;dy+=16;}
       }
-      if(line)ctx.fillText(line,30,dy);
-      dy+=22;
-      ctx.fillStyle=s.color+'80';ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
-      ctx.fillText('核心任务:',30,dy);dy+=16;
-      ctx.fillStyle='#6e7681';ctx.font='11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
-      ctx.fillText(s.sub,30,dy);
-    }else{
-      ctx.fillStyle='#6e7681';ctx.font='12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-      ctx.fillText('点击"播放"开始动画，或点击画布上的阶段方块查看详情',W/2,infoY+90);
+      if(line)ctx.fillText(line,28,dy);
     }
 
     // Update stats
     var sn=document.getElementById('pp-stage-name');
     var ex=document.getElementById('pp-executor');
     var fl=document.getElementById('pp-flow');
+    var tm=document.getElementById('pp-time');
     var ds=document.getElementById('pp-desc');
     if(showStage>=0){
       if(sn)sn.textContent=stages[showStage].name;
       if(ex)ex.textContent=stages[showStage].exec;
-    }else{
-      if(sn)sn.textContent='--';if(ex)ex.textContent='--';
+      if(tm)tm.textContent=stages[showStage].time;
+      if(ds)ds.textContent=stages[showStage].detail.replace(/\n/g,' | ');
     }
-    if(fl)fl.textContent=particles.length+' 粒子';
-    if(ds&&showStage>=0)ds.textContent=stages[showStage].desc.substring(0,60)+'...';
-    else if(ds)ds.textContent='点击"播放"开始动画，或点击画布上的阶段方块查看详情';
+    if(fl)fl.textContent=particles.length+' 顶点/帧';
   }
 
   function animate(){
     if(playing){
       stageTimer++;
-      if(stageTimer>120){activeStage=(activeStage+1)%4;stageTimer=0;}
-      if(Math.random()<0.3)spawnParticle();
+      subAnimT+=0.02*speed;
+      if(stageTimer>180/speed){activeStage=(activeStage+1)%4;stageTimer=0;}
+      if(Math.random()<0.25*speed)spawnParticle();
       updateParticles();
+    }else{
+      subAnimT+=0.01;
     }
     draw();
     requestAnimationFrame(animate);
   }
 
-  // Click to select stage
   canvas.addEventListener('click',function(e){
     var rect=canvas.getBoundingClientRect();
     var mx=(e.clientX-rect.left)/rect.width*W;
@@ -4769,27 +4943,29 @@ function _onResize(fn) {
       var s=stages[i];
       if(mx>=s.x&&mx<=s.x+s.w&&my>=stageY&&my<=stageY+stageH){
         selectedStage=selectedStage===i?-1:i;
-        playing=false;
-        var btn=document.getElementById('pp-play-btn');
-        if(btn)btn.innerHTML='&#9654; 播放';
-        draw();
+        if(selectedStage>=0){playing=false;
+          var btn=document.getElementById('pp-play-btn');
+          if(btn)btn.innerHTML='&#9654; 播放';
+        }
         return;
       }
     }
   });
 
   window.pipelineTogglePlay=function(){
-    playing=!playing;
-    selectedStage=-1;
+    playing=!playing;selectedStage=-1;
     if(playing){activeStage=0;stageTimer=0;}
     var btn=document.getElementById('pp-play-btn');
     if(btn)btn.innerHTML=playing?'&#9208; 暂停':'&#9654; 播放';
   };
   window.pipelineReset=function(){
-    playing=false;selectedStage=-1;activeStage=0;particles=[];stageTimer=0;
+    playing=false;selectedStage=-1;activeStage=0;particles=[];stageTimer=0;subAnimT=0;
     var btn=document.getElementById('pp-play-btn');
     if(btn)btn.innerHTML='&#9654; 播放';
-    draw();
+  };
+  window.ppUpdateSpeed=function(){
+    speed=parseFloat(document.getElementById('pp-speed').value);
+    document.getElementById('pp-speed-val').textContent=speed.toFixed(1)+'x';
   };
 
   animate();
