@@ -1829,7 +1829,7 @@ hr {
     <div class="demo-stat-bar">
       <div class="stat-item"><span class="stat-label">阶段:</span><span class="stat-value" id="pp-stage-name">--</span></div>
       <div class="stat-item"><span class="stat-label">执行:</span><span class="stat-value" id="pp-executor">--</span></div>
-      <div class="stat-item"><span class="stat-label">吞吐:</span><span class="stat-value" id="pp-flow">0 顶点/帧</span></div>
+      <div class="stat-item"><span class="stat-label">活跃:</span><span class="stat-value" id="pp-flow">0 数据包</span></div>
       <div class="stat-item"><span class="stat-label">耗时:</span><span class="stat-value" id="pp-time">--</span></div>
     </div>
     <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;" id="pp-desc">点击"播放"开始动画，或点击画布上的阶段方块查看详情</p>
@@ -4583,7 +4583,7 @@ function _onResize(fn) {
 })();
 
 // ============================================
-// 演示 2：渲染管线流程可视化 (Canvas 2D 增强版)
+// 演示 2：渲染管线流程可视化 (重构版)
 // ============================================
 (function(){
   var canvas=document.getElementById('demo-pipeline-canvas');
@@ -4593,29 +4593,44 @@ function _onResize(fn) {
   var playing=false,selectedStage=-1,activeStage=0,speed=1;
   var particles=[];
   var stageTimer=0,frameCount=0;
-  var subAnimT=0; // 子阶段动画时间
+  var subAnimT=0;
 
+  // 阶段定义 -- 宽度调整确保屏幕图标不溢出 (Fix A)
   var stages=[
-    {name:'应用阶段',en:'Application',exec:'CPU',color:'#58a6ff',x:25,w:170,time:'~3ms',
+    {name:'应用阶段',en:'Application',exec:'CPU',color:'#58a6ff',x:20,w:160,time:'~3ms',
      subStages:['物理/动画','视锥剔除','Draw Call'],
      desc:'CPU 准备渲染所需的所有数据：更新物理模拟、动画、AI，执行可见性判断（剔除不需要渲染的物体），然后通过图形 API 向 GPU 发送绘制命令（Draw Call）。',
-     detail:'输入: 游戏状态、用户输入\n处理: CPU 通用计算（物理、AI、剔除）\n输出: 渲染命令 + 顶点数据\n瓶颈: Draw Call 数量、CPU 单线程'},
-    {name:'几何处理',en:'Geometry',exec:'GPU',color:'#bc8cff',x:215,w:170,time:'~1ms',
+     detail:['输入: 游戏状态、用户输入','处理: CPU 通用计算（物理、AI、剔除）','输出: 渲染命令 + 顶点数据','瓶颈: Draw Call 数量、CPU 单线程']},
+    {name:'几何处理',en:'Geometry',exec:'GPU',color:'#bc8cff',x:195,w:160,time:'~1ms',
      subStages:['顶点着色','曲面细分','裁剪'],
      desc:'GPU 顶点着色器对每个顶点做坐标变换（模型→世界→相机→裁剪空间），可选曲面细分增加细节，然后裁剪掉视锥外的几何体，映射到屏幕坐标。',
-     detail:'输入: 顶点属性（位置、法线、UV）\n处理: MVP 矩阵变换 + 裁剪\n输出: 屏幕空间顶点\n可编程: 顶点着色器（必须）'},
-    {name:'光栅化',en:'Rasterization',exec:'GPU',color:'#d29922',x:405,w:170,time:'~0.5ms',
+     detail:['输入: 顶点属性（位置、法线、UV）','处理: MVP 矩阵变换 + 裁剪','输出: 屏幕空间顶点','可编程: 顶点着色器（必须）']},
+    {name:'光栅化',en:'Rasterization',exec:'GPU',color:'#d29922',x:370,w:160,time:'~0.5ms',
      subStages:['三角形设置','三角形遍历','属性插值'],
      desc:'GPU 固定功能硬件把三角形"切碎"成像素片段。判断每个像素是否在三角形内部，如果是就生成一个片段，并插值顶点属性（法线、UV、颜色等）。',
-     detail:'输入: 屏幕空间三角形\n处理: 覆盖测试 + 属性插值\n输出: 片段（候选像素）\n瓶颈: 像素填充率（Fill Rate）'},
-    {name:'像素处理',en:'Pixel',exec:'GPU',color:'#3fb950',x:595,w:170,time:'~5ms',
+     detail:['输入: 屏幕空间三角形','处理: 覆盖测试 + 属性插值','输出: 片段（候选像素）','瓶颈: 像素填充率（Fill Rate）']},
+    {name:'像素处理',en:'Pixel',exec:'GPU',color:'#3fb950',x:545,w:160,time:'~5ms',
      subStages:['片段着色','深度测试','混合输出'],
      desc:'片段着色器计算每个像素的最终颜色（纹理采样、光照计算、阴影），然后通过深度测试、模板测试、Alpha 混合等操作决定是否写入帧缓冲。',
-     detail:'输入: 片段 + 插值属性\n处理: 着色 + 深度/模板测试 + 混合\n输出: 最终像素颜色\n可编程: 片段着色器（必须）'}
+     detail:['输入: 片段 + 插值属性','处理: 着色 + 深度/模板测试 + 混合','输出: 最终像素颜色','可编程: 片段着色器（必须）']}
   ];
   var stageY=35,stageH=90;
-  var previewY=150,previewH=230; // 子阶段可视化区域
-  var infoY=400,infoH=135; // 信息面板
+  var previewY=150,previewH=230;
+  var infoY=400,infoH=135;
+
+  // 统一的高亮判断 (Fix L)
+  function isStageActive(i){
+    if(selectedStage>=0)return i===selectedStage;
+    if(playing)return i===activeStage;
+    return i===activeStage; // 暂停时仍显示当前阶段
+  }
+
+  // 像素阶段的深度缓冲预分配 (Fix F)
+  var pixelRects=[
+    {x:8,y:8,w:50,h:50,depth:0.8,r:248,g:81,b:73},
+    {x:25,y:20,w:45,h:45,depth:0.3,r:88,g:166,b:255},
+    {x:15,y:35,w:40,h:35,depth:0.5,r:63,g:185,b:80}
+  ].sort(function(a,b){return b.depth-a.depth;});
 
   function spawnParticle(){
     if(!playing)return;
@@ -4631,8 +4646,8 @@ function _onResize(fn) {
     for(var i=particles.length-1;i>=0;i--){
       var p=particles[i];
       p.x+=p.vx;p.y+=p.vy;
-      var s=stages[p.stage];
-      if(p.x>s.x+s.w){
+      var st=stages[p.stage];
+      if(p.x>st.x+st.w){
         p.stage++;
         if(p.stage>=stages.length){particles.splice(i,1);continue;}
         p.color=stages[p.stage].color;
@@ -4650,77 +4665,50 @@ function _onResize(fn) {
     ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
   }
 
-  // 子阶段可视化：根据当前阶段绘制不同的内容
-  function drawSubStagePreview(stageIdx){
-    var px=30,pw=W-60,py=previewY,ph=previewH;
-    var s=stages[stageIdx];
-    // 背景面板
-    ctx.fillStyle='rgba(13,17,23,0.5)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
-    roundRect(px,py,pw,ph,8);ctx.fill();ctx.stroke();
-    // 标题
-    ctx.fillStyle=s.color+'80';ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
-    ctx.fillText('▸ '+s.name+' -- 子阶段可视化',px+14,py+22);
-
-    // 子阶段标签条
-    var subY=py+34;
-    s.subStages.forEach(function(ss,i){
-      var subX=px+14+i*(pw-28)/s.subStages.length;
-      var subW=(pw-28)/s.subStages.length-8;
-      var isCur=Math.floor(subAnimT)%s.subStages.length===i;
-      ctx.fillStyle=isCur?s.color+'20':'#161b22';
-      ctx.strokeStyle=isCur?s.color:'#21262d';ctx.lineWidth=isCur?1.5:1;
-      roundRect(subX,subY,subW,26,5);ctx.fill();ctx.stroke();
-      ctx.fillStyle=isCur?s.color:'#6e7681';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-      ctx.fillText(ss,subX+subW/2,subY+17);
-    });
-
-    // 根据阶段绘制可视化内容
-    var vizY=py+60,vizH=ph-70;
-    var vizX=px+12,vizW=pw-24;
-
-    if(stageIdx===0){
-      // 应用阶段：场景图/物体剔除可视化
-      drawAppStageViz(vizX,vizY,vizW,vizH,s.color);
-    }else if(stageIdx===1){
-      // 几何处理：顶点变换可视化
-      drawGeoStageViz(vizX,vizY,vizW,vizH,s.color);
-    }else if(stageIdx===2){
-      // 光栅化：三角形→像素
-      drawRastStageViz(vizX,vizY,vizW,vizH,s.color);
-    }else if(stageIdx===3){
-      // 像素处理：着色+深度测试
-      drawPixelStageViz(vizX,vizY,vizW,vizH,s.color);
+  // 像素宽度文字换行 (Fix J)
+  function drawWrappedText(text,x,y,maxWidth,lineHeight){
+    var chars=text.split('');
+    var line='';var dy=y;
+    for(var ci=0;ci<chars.length;ci++){
+      var testLine=line+chars[ci];
+      if(ctx.measureText(testLine).width>maxWidth&&line.length>0){
+        ctx.fillText(line,x,dy);line=chars[ci];dy+=lineHeight;
+      }else{
+        line=testLine;
+      }
     }
+    if(line)ctx.fillText(line,x,dy);
+    return dy;
   }
 
+  // ---- 子阶段可视化 ----
+
   function drawAppStageViz(x,y,w,h,color){
-    // 应用阶段：俯视图 -- 相机视锥 + 物体剔除
-    // 相机在顶部，视锥向下展开
+    // 应用阶段：相机视锥 + 物体剔除，物体真正旋转移动 (Fix B)
     var camX=x+w/2,camY=y+15;
-    var fovHalf=0.35; // 半视场角
+    var fovHalf=0.35;
     var nearY=y+25,farY=y+h-12;
     var nearHalfW=(nearY-camY)*Math.tan(fovHalf);
     var farHalfW=(farY-camY)*Math.tan(fovHalf);
-    // 绘制视锥（梯形）
     ctx.fillStyle='rgba(88,166,255,0.06)';ctx.strokeStyle='rgba(88,166,255,0.25)';ctx.lineWidth=1;
     ctx.beginPath();
     ctx.moveTo(camX-nearHalfW,nearY);ctx.lineTo(camX+nearHalfW,nearY);
     ctx.lineTo(camX+farHalfW,farY);ctx.lineTo(camX-farHalfW,farY);ctx.closePath();
     ctx.fill();ctx.stroke();
-    // 相机标记
     ctx.beginPath();ctx.arc(camX,camY,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
     ctx.fillStyle=color;ctx.font='10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-    ctx.fillText('📷 相机',camX,camY-6);
-    // 物体 -- 用真正的点在视锥内测试
+    ctx.fillText('相机',camX,camY-6);
+    // 物体真正旋转 -- 用 subAnimT 驱动 (Fix B: 删除死代码，物体真正移动)
     var visible=0,culled=0;
     for(var i=0;i<12;i++){
-      var ox=x+20+Math.random()*(w-40); // 用固定种子让位置稳定
-      var oy=nearY+10+((i*37+Math.floor(subAnimT*2))%200)/200*(farY-nearY-20);
-      // 用 i 作为种子生成稳定位置
-      ox=x+15+((i*73)%Math.max(1,w-30));
-      oy=nearY+8+((i*41)%Math.max(1,farY-nearY-16));
-      // 点在视锥内测试：通过插值判断
-      var t=(oy-camY)/(farY-camY); // 0~1
+      var baseAng=i/12*Math.PI*2;
+      var ang=baseAng+subAnimT*0.3; // 缓慢旋转
+      var dist=35+Math.sin(subAnimT*0.5+i)*15;
+      var ox=camX+Math.cos(ang)*dist;
+      var oy=camY+Math.sin(ang)*dist*0.6+20;
+      // 点在视锥内测试
+      var t=(oy-camY)/(farY-camY);
+      t=Math.max(0,Math.min(1,t));
       var halfWAtY=nearHalfW+t*(farHalfW-nearHalfW);
       var inView=Math.abs(ox-camX)<halfWAtY && oy>nearY && oy<farY;
       if(inView){visible++;}else{culled++;}
@@ -4739,106 +4727,48 @@ function _onResize(fn) {
   }
 
   function drawGeoStageViz(x,y,w,h,color){
-    // 几何处理：展示顶点变换链 -- 模型空间→世界空间→相机空间
-    // 画三个小坐标系并排，箭头连接，顶点在变换中移动
-    var step=Math.floor(subAnimT)%3; // 0=模型,1=世界,2=相机
+    // 几何处理：模型→世界→相机 三空间变换
+    var step=Math.floor(subAnimT)%3;
     var labels=['模型空间','世界空间','相机空间'];
-    var colors=['#6e7681','#3fb950',color];
+    var spaceColors=['#6e7681','#3fb950',color];
     var boxW=(w-20)/3;
-    for(var s=0;s<3;s++){
-      var bx=x+10+s*boxW,by=y+15,bw=boxW-10,bh=h-25;
-      var isActive=s===step;
-      // 边框
-      ctx.strokeStyle=isActive?colors[s]:'#21262d';ctx.lineWidth=isActive?2:1;
-      ctx.fillStyle=isActive?colors[s]+'08':'rgba(0,0,0,0)';
+    for(var si=0;si<3;si++){
+      var bx=x+10+si*boxW,by=y+15,bw=boxW-10,bh=h-25;
+      var isActive=si===step;
+      ctx.strokeStyle=isActive?spaceColors[si]:'#21262d';ctx.lineWidth=isActive?2:1;
+      ctx.fillStyle=isActive?spaceColors[si]+'08':'rgba(0,0,0,0)';
       roundRect(bx,by,bw,bh,6);ctx.fill();ctx.stroke();
-      // 标签
-      ctx.fillStyle=isActive?colors[s]:'#6e7681';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-      ctx.fillText(labels[s],bx+bw/2,by+14);
-      // 画一个小立方体（用旋转角度区分各空间）
-      var cx=bx+bw/2,cy=by+bh/2+5;
-      var rot=subAnimT*0.6+s*Math.PI/3;
+      ctx.fillStyle=isActive?spaceColors[si]:'#6e7681';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(labels[si],bx+bw/2,by+14);
+      // 旋转立方体
+      var ccx=bx+bw/2,ccy=by+bh/2+5;
+      var rot=subAnimT*0.6+si*Math.PI/3;
       var size=isActive?22:16;
-      ctx.strokeStyle=isActive?colors[s]:'rgba(110,118,129,0.4)';ctx.lineWidth=isActive?2:1;
-      // 立方体的8条边（简化为旋转的方块+对角线）
+      ctx.strokeStyle=isActive?spaceColors[si]:'rgba(110,118,129,0.4)';ctx.lineWidth=isActive?2:1;
       var pts=[];
-      for(var i=0;i<4;i++){
-        var a=rot+i*Math.PI/2;
-        pts.push({x:cx+Math.cos(a)*size,y:cy+Math.sin(a)*size*0.6});
+      for(var pi=0;pi<4;pi++){
+        var a=rot+pi*Math.PI/2;
+        pts.push({x:ccx+Math.cos(a)*size,y:ccy+Math.sin(a)*size*0.6});
       }
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x,pts[0].y);
-      for(var i=1;i<4;i++)ctx.lineTo(pts[i].x,pts[i].y);
+      ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+      for(var pi2=1;pi2<4;pi2++)ctx.lineTo(pts[pi2].x,pts[pi2].y);
       ctx.closePath();ctx.stroke();
-      // 后方面（偏移）
       var off=isActive?8:5;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x+off,pts[0].y-off);
-      for(var i=1;i<4;i++)ctx.lineTo(pts[i].x+off,pts[i].y-off);
+      ctx.beginPath();ctx.moveTo(pts[0].x+off,pts[0].y-off);
+      for(var pi3=1;pi3<4;pi3++)ctx.lineTo(pts[pi3].x+off,pts[pi3].y-off);
       ctx.closePath();ctx.stroke();
-      // 连接线
-      for(var i=0;i<4;i++){
-        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[i].x+off,pts[i].y-off);ctx.stroke();
+      for(var pi4=0;pi4<4;pi4++){
+        ctx.beginPath();ctx.moveTo(pts[pi4].x,pts[pi4].y);ctx.lineTo(pts[pi4].x+off,pts[pi4].y-off);ctx.stroke();
       }
-      // 顶点
       if(isActive){
         pts.forEach(function(p){
           ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);
-          ctx.fillStyle=colors[s];ctx.fill();
+          ctx.fillStyle=spaceColors[si];ctx.fill();
         });
       }
     }
-    // 变换箭头
     ctx.fillStyle='#6e7681';ctx.font='10px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
     ctx.fillText('× 模型矩阵 → × 视图矩阵',x+w/2,y+h-2);
-  }
-
-  function drawRastStageViz(x,y,w,h,color){
-    // 光栅化：扫描线填充动画
-    // 真实光栅化是逐行扫描，不是从中心扩散
-    var cx=x+w/2,cy=y+h/2;
-    var v0={x:cx-45,y:cy+25},v1={x:cx+38,y:cy+18},v2={x:cx-10,y:cy-30};
-    // 计算三角形的边界
-    var minY=Math.min(v0.y,v1.y,v2.y);
-    var maxY=Math.max(v0.y,v1.y,v2.y);
-    // 扫描线动画：当前扫描到的 y 位置
-    var scanProgress=(subAnimT*0.5)%1;
-    var scanY=minY+scanProgress*(maxY-minY);
-    // 像素网格
-    var gridSize=7;
-    var filledCount=0;
-    for(var py=y+5;py<y+h-5;py+=gridSize){
-      for(var px=x+5;px<x+w-5;px+=gridSize){
-        var pxx=px+gridSize/2,pyy=py+gridSize/2;
-        if(pointInTri(pxx,pyy,v0,v1,v2)){
-          filledCount++;
-          // 只填充扫描线以下的像素
-          if(pyy<=scanY){
-            ctx.fillStyle=color;
-            ctx.fillRect(px,py,gridSize-1,gridSize-1);
-          }else{
-            // 待光栅化区域（暗色）
-            ctx.fillStyle=color+'15';
-            ctx.fillRect(px,py,gridSize-1,gridSize-1);
-          }
-        }
-      }
-    }
-    // 扫描线
-    ctx.strokeStyle='#f85149';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
-    ctx.beginPath();ctx.moveTo(x+5,scanY);ctx.lineTo(x+w-5,scanY);ctx.stroke();
-    ctx.setLineDash([]);
-    // 三角形轮廓
-    ctx.strokeStyle=color;ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(v0.x,v0.y);ctx.lineTo(v1.x,v1.y);ctx.lineTo(v2.x,v2.y);ctx.closePath();ctx.stroke();
-    // 顶点
-    [v0,v1,v2].forEach(function(v){
-      ctx.beginPath();ctx.arc(v.x,v.y,4,0,Math.PI*2);
-      ctx.fillStyle='#d29922';ctx.fill();
-    });
-    ctx.fillStyle='#6e7681';ctx.font='11px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
-    var pct=Math.round(scanProgress*100);
-    ctx.fillText('扫描线 '+pct+'% | '+filledCount+' 像素片段',cx,y+h-2);
   }
 
   function pointInTri(px,py,a,b,c){
@@ -4849,28 +4779,62 @@ function _onResize(fn) {
   }
   function sign(px,py,a,b){return (px-b.x)*(a.y-b.y)-(a.x-b.x)*(py-b.y);}
 
+  function drawRastStageViz(x,y,w,h,color){
+    // 光栅化：扫描线逐行填充
+    var cx=x+w/2,cy=y+h/2;
+    var v0={x:cx-45,y:cy+25},v1={x:cx+38,y:cy+18},v2={x:cx-10,y:cy-30};
+    var minY=Math.min(v0.y,v1.y,v2.y);
+    var maxY=Math.max(v0.y,v1.y,v2.y);
+    var scanProgress=(subAnimT*0.5)%1;
+    var scanY=minY+scanProgress*(maxY-minY);
+    var gridSize=7;
+    var filledCount=0;
+    for(var py=y+5;py<y+h-5;py+=gridSize){
+      for(var px=x+5;px<x+w-5;px+=gridSize){
+        var pxx=px+gridSize/2,pyy=py+gridSize/2;
+        if(pointInTri(pxx,pyy,v0,v1,v2)){
+          filledCount++;
+          if(pyy<=scanY){
+            ctx.fillStyle=color;
+            ctx.fillRect(px,py,gridSize-1,gridSize-1);
+          }else{
+            ctx.fillStyle=color+'15';
+            ctx.fillRect(px,py,gridSize-1,gridSize-1);
+          }
+        }
+      }
+    }
+    ctx.strokeStyle='#f85149';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(x+5,scanY);ctx.lineTo(x+w-5,scanY);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(v0.x,v0.y);ctx.lineTo(v1.x,v1.y);ctx.lineTo(v2.x,v2.y);ctx.closePath();ctx.stroke();
+    [v0,v1,v2].forEach(function(v){
+      ctx.beginPath();ctx.arc(v.x,v.y,4,0,Math.PI*2);
+      ctx.fillStyle='#d29922';ctx.fill();
+    });
+    ctx.fillStyle='#6e7681';ctx.font='11px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
+    var pct=Math.round(scanProgress*100);
+    ctx.fillText('扫描线 '+pct+'% | '+filledCount+' 像素片段',cx,y+h-2);
+  }
+
   function drawPixelStageViz(x,y,w,h,color){
-    // 像素处理：展示深度测试和着色的真实过程
-    // 画3个重叠的矩形（不同深度），展示深度比较
+    // 像素处理：深度测试 + 片段着色 (Fix F: 使用预分配的 depthBuf)
     var halfW=(w-10)/2;
-    // 左侧：深度测试 -- 3个矩形重叠，用Z-Buffer决定可见性
     ctx.fillStyle='#6e7681';ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
     ctx.fillText('深度测试 (Z-Buffer)',x+halfW/2,y-2);
-    var rects=[
-      {x:8,y:8,w:50,h:50,depth:0.8,r:248,g:81,b:73},
-      {x:25,y:20,w:45,h:45,depth:0.3,r:88,g:166,b:255},
-      {x:15,y:35,w:40,h:35,depth:0.5,r:63,g:185,b:80}
-    ];
-    // 按深度排序：远的先画（画家算法可视化），但标注深度值
-    var sorted=rects.slice().sort(function(a,b){return b.depth-a.depth;});
-    var depthBuf=new Float32Array(halfW*h); // 模拟深度缓冲
-    for(var i=0;i<depthBuf.length;i++)depthBuf[i]=1e9;
-    sorted.forEach(function(r){
+    // 用预分配的 depthBuf (Fix F)
+    if(!drawPixelStageViz._depthBuf||drawPixelStageViz._depthBuf.length<halfW*h){
+      drawPixelStageViz._depthBuf=new Float32Array(halfW*h);
+    }
+    var depthBuf=drawPixelStageViz._depthBuf;
+    for(var di=0;di<depthBuf.length;di++)depthBuf[di]=1e9;
+    // 使用预排序的 pixelRects (Fix F)
+    pixelRects.forEach(function(r){
       for(var py2=r.y;py2<r.y+r.h;py2++){
         for(var px2=r.x;px2<r.x+r.w;px2++){
           if(px2<0||px2>=halfW||py2<0||py2>=h)continue;
           var idx=py2*halfW+px2;
-          // 深度测试：只有更近的才写入
           if(r.depth<depthBuf[idx]){
             depthBuf[idx]=r.depth;
             ctx.fillStyle='rgb('+r.r+','+r.g+','+r.b+')';
@@ -4879,15 +4843,12 @@ function _onResize(fn) {
         }
       }
     });
-    // 边框
     ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.strokeRect(x+2,y+4,halfW-4,h-10);
-    // 深度值标注
-    sorted.forEach(function(r){
+    pixelRects.forEach(function(r){
       ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='9px "JetBrains Mono","Consolas",monospace';ctx.textAlign='center';
       ctx.fillText('z='+r.depth.toFixed(1),x+r.x+r.w/2+2,y+r.y-2+4);
     });
-
-    // 右侧：片段着色 -- 一个球体的逐像素着色
+    // 右侧：球体 Lambert 着色
     ctx.fillStyle=color;ctx.font='bold 11px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
     ctx.fillText('片段着色 (Fragment Shader)',x+halfW+10+halfW/2,y-2);
     var sphCX=x+halfW+10+halfW/2,sphCY=y+h/2+4,sphR=Math.min(halfW,h)/2-8;
@@ -4908,64 +4869,87 @@ function _onResize(fn) {
     ctx.strokeStyle=color+'60';ctx.lineWidth=1;ctx.strokeRect(x+halfW+10+2,y+4,halfW-4,h-10);
   }
 
+  function drawSubStagePreview(stageIdx){
+    var px=30,pw=W-60,py=previewY,ph=previewH;
+    var st=stages[stageIdx];
+    ctx.fillStyle='rgba(13,17,23,0.5)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
+    roundRect(px,py,pw,ph,8);ctx.fill();ctx.stroke();
+    ctx.fillStyle=st.color+'80';ctx.font='bold 12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+    ctx.fillText('▸ '+st.name+' -- 子阶段可视化',px+14,py+22);
+    var subY=py+34;
+    st.subStages.forEach(function(ss,i){
+      var subX=px+14+i*(pw-28)/st.subStages.length;
+      var subW=(pw-28)/st.subStages.length-8;
+      var isCur=Math.floor(subAnimT)%st.subStages.length===i;
+      ctx.fillStyle=isCur?st.color+'20':'#161b22';
+      ctx.strokeStyle=isCur?st.color:'#21262d';ctx.lineWidth=isCur?1.5:1;
+      roundRect(subX,subY,subW,26,5);ctx.fill();ctx.stroke();
+      ctx.fillStyle=isCur?st.color:'#6e7681';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(ss,subX+subW/2,subY+17);
+    });
+    var vizY=py+60,vizH=ph-70;
+    var vizX=px+12,vizW=pw-24;
+    if(stageIdx===0)drawAppStageViz(vizX,vizY,vizW,vizH,st.color);
+    else if(stageIdx===1)drawGeoStageViz(vizX,vizY,vizW,vizH,st.color);
+    else if(stageIdx===2)drawRastStageViz(vizX,vizY,vizW,vizH,st.color);
+    else drawPixelStageViz(vizX,vizY,vizW,vizH,st.color);
+  }
+
   function draw(){
     ctx.clearRect(0,0,W,H);
     frameCount++;
 
-    // Draw connection lines between stages
+    // 连接线 -- 使用统一 isStageActive (Fix L)
     for(var i=0;i<stages.length-1;i++){
       var s1=stages[i],s2=stages[i+1];
       var x1=s1.x+s1.w,x2=s2.x,y=stageY+stageH/2;
-      var isActive=(i===activeStage&&playing)||(i===selectedStage)||(selectedStage<0&&i===activeStage);
-      ctx.strokeStyle=isActive?'rgba(88,166,255,0.5)':'rgba(110,118,129,0.12)';
+      var active=isStageActive(i)||isStageActive(i+1);
+      ctx.strokeStyle=active?'rgba(88,166,255,0.5)':'rgba(110,118,129,0.12)';
       ctx.lineWidth=2;ctx.setLineDash([5,4]);
       ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2-2,y);ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle=isActive?'rgba(88,166,255,0.7)':'rgba(110,118,129,0.25)';
+      ctx.fillStyle=active?'rgba(88,166,255,0.7)':'rgba(110,118,129,0.25)';
       ctx.beginPath();ctx.moveTo(x2,y);ctx.lineTo(x2-7,y-4);ctx.lineTo(x2-7,y+4);ctx.closePath();ctx.fill();
     }
 
-    // Screen output icon
-    var screenX=stages[3].x+stages[3].w+12;
+    // 屏幕图标 -- 确保在画布内 (Fix A: stages宽160, 屏幕在765+8=773, 宽35, 右边缘808<800... 需调小)
+    var screenX=stages[stages.length-1].x+stages[stages.length-1].w+8;
+    var screenW=24; // 缩小屏幕图标
     ctx.fillStyle='rgba(63,185,80,0.08)';ctx.strokeStyle='rgba(63,185,80,0.4)';
-    roundRect(screenX,stageY+22,42,48,5);ctx.fill();ctx.stroke();
-    // Screen content (mini render)
-    for(var sy=0;sy<42;sy+=5){
-      for(var sx=0;sx<37;sx+=5){
-        var c=Math.sin(sx*0.2+sy*0.15+subAnimT)*0.5+0.5;
-        ctx.fillStyle='rgba('+Math.floor(63+c*50)+','+Math.floor(185-c*50)+','+Math.floor(80+c*100)+',0.6)';
-        ctx.fillRect(screenX+sx+2,stageY+24+sy,4,4);
+    roundRect(screenX,stageY+25,screenW,40,4);ctx.fill();ctx.stroke();
+    for(var sy=0;sy<35;sy+=4){
+      for(var sx=0;sx<20;sx+=4){
+        var sc=Math.sin(sx*0.3+sy*0.2+subAnimT)*0.5+0.5;
+        ctx.fillStyle='rgba('+Math.floor(63+sc*50)+','+Math.floor(185-sc*50)+','+Math.floor(80+sc*100)+',0.6)';
+        ctx.fillRect(screenX+sx+2,stageY+27+sy,3,3);
       }
     }
-    ctx.fillStyle='rgba(63,185,80,0.7)';ctx.font='bold 10px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-    ctx.fillText('屏幕',screenX+21,stageY+82);
+    ctx.fillStyle='rgba(63,185,80,0.7)';ctx.font='bold 9px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('屏幕',screenX+screenW/2,stageY+78);
 
-    // Draw stage boxes
-    stages.forEach(function(s,i){
-      var isActive=(i===activeStage&&playing)||(i===selectedStage);
-      var glow=isActive?12:0;
-      if(glow>0){ctx.shadowColor=s.color;ctx.shadowBlur=glow;}
-      var grad=ctx.createLinearGradient(s.x,stageY,s.x,stageY+stageH);
-      if(isActive){grad.addColorStop(0,s.color+'25');grad.addColorStop(1,s.color+'08');}
+    // 阶段方块 -- 使用统一 isStageActive (Fix L)
+    stages.forEach(function(st,i){
+      var active=isStageActive(i);
+      var glow=active?12:0;
+      if(glow>0){ctx.shadowColor=st.color;ctx.shadowBlur=glow;}
+      var grad=ctx.createLinearGradient(st.x,stageY,st.x,stageY+stageH);
+      if(active){grad.addColorStop(0,st.color+'25');grad.addColorStop(1,st.color+'08');}
       else{grad.addColorStop(0,'#1c2128');grad.addColorStop(1,'#161b22');}
-      ctx.fillStyle=grad;ctx.strokeStyle=isActive?s.color:'#30363d';ctx.lineWidth=isActive?2:1;
-      roundRect(s.x,stageY,s.w,stageH,10);ctx.fill();ctx.stroke();
+      ctx.fillStyle=grad;ctx.strokeStyle=active?st.color:'#30363d';ctx.lineWidth=active?2:1;
+      roundRect(st.x,stageY,st.w,stageH,10);ctx.fill();ctx.stroke();
       ctx.shadowBlur=0;
-      // Text
-      ctx.fillStyle=isActive?s.color:'#e6edf3';ctx.font='bold 15px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
-      ctx.fillText(s.name,s.x+s.w/2,stageY+28);
+      ctx.fillStyle=active?st.color:'#e6edf3';ctx.font='bold 15px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='center';
+      ctx.fillText(st.name,st.x+st.w/2,stageY+28);
       ctx.fillStyle='rgba(139,148,158,0.6)';ctx.font='11px "JetBrains Mono","Consolas",monospace';
-      ctx.fillText(s.en,s.x+s.w/2,stageY+46);
-      // CPU/GPU badge
-      ctx.fillStyle=s.exec==='CPU'?'rgba(88,166,255,0.5)':'rgba(188,140,255,0.5)';
+      ctx.fillText(st.en,st.x+st.w/2,stageY+46);
+      ctx.fillStyle=st.exec==='CPU'?'rgba(88,166,255,0.5)':'rgba(188,140,255,0.5)';
       ctx.font='bold 10px "JetBrains Mono","Consolas",monospace';
-      ctx.fillText(s.exec,s.x+s.w/2,stageY+64);
-      // Time
+      ctx.fillText(st.exec,st.x+st.w/2,stageY+64);
       ctx.fillStyle='rgba(210,153,34,0.5)';ctx.font='10px "JetBrains Mono","Consolas",monospace';
-      ctx.fillText(s.time,s.x+s.w/2,stageY+80);
+      ctx.fillText(st.time,st.x+st.w/2,stageY+80);
     });
 
-    // Draw particles
+    // 粒子
     particles.forEach(function(p){
       ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=5;
       if(p.type==='tri'){
@@ -4980,27 +4964,27 @@ function _onResize(fn) {
       ctx.beginPath();ctx.moveTo(p.x-p.vx*3,p.y-p.vy*3);ctx.lineTo(p.x,p.y);ctx.stroke();
     });
 
-    // Sub-stage preview (always show for active or selected stage)
-    var showStage=selectedStage>=0?selectedStage:(playing?activeStage:0);
+    // 子阶段可视化
+    var showStage=selectedStage>=0?selectedStage:activeStage;
     if(showStage>=0)drawSubStagePreview(showStage);
 
-    // Info panel
+    // 信息面板 -- 用 drawWrappedText 和 detail 数组 (Fix D, Fix J)
     ctx.fillStyle='rgba(13,17,23,0.7)';ctx.strokeStyle='#21262d';ctx.lineWidth=1;
     roundRect(15,infoY,W-30,infoH,8);ctx.fill();ctx.stroke();
     if(showStage>=0){
-      var s=stages[showStage];
-      ctx.fillStyle=s.color;ctx.font='bold 15px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
-      ctx.fillText('▸ '+s.name+' ('+s.en+')  ['+s.exec+' | '+s.time+']',28,infoY+26);
+      var st=stages[showStage];
+      ctx.fillStyle=st.color;ctx.font='bold 15px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';ctx.textAlign='left';
+      ctx.fillText('▸ '+st.name+' ('+st.en+')  ['+st.exec+' | '+st.time+']',28,infoY+26);
       ctx.fillStyle='#8b949e';ctx.font='12px "Noto Sans SC","Microsoft YaHei",system-ui,sans-serif';
-      var desc=s.desc;var line='';var lineLen=0;var dy=infoY+50;
-      for(var ci=0;ci<desc.length;ci++){
-        line+=desc[ci];lineLen++;
-        if(lineLen>48){ctx.fillText(line,28,dy);line='';lineLen=0;dy+=18;}
-      }
-      if(line)ctx.fillText(line,28,dy);
+      var endY=drawWrappedText(st.desc,28,infoY+50,W-60,18);
+      // detail 分行显示 (Fix D)
+      ctx.fillStyle='#6e7681';ctx.font='11px "JetBrains Mono","Consolas",monospace';
+      st.detail.forEach(function(line,idx){
+        ctx.fillText(line,28,infoY+infoH-8-(st.detail.length-1-idx)*14);
+      });
     }
 
-    // Update stats
+    // 统计 (Fix D: 改为"活跃数据"而非"顶点/帧")
     var sn=document.getElementById('pp-stage-name');
     var ex=document.getElementById('pp-executor');
     var fl=document.getElementById('pp-flow');
@@ -5010,40 +4994,46 @@ function _onResize(fn) {
       if(sn)sn.textContent=stages[showStage].name;
       if(ex)ex.textContent=stages[showStage].exec;
       if(tm)tm.textContent=stages[showStage].time;
-      if(ds)ds.textContent=stages[showStage].detail.replace(/\n/g,' | ');
+      if(ds)ds.textContent=stages[showStage].detail[0]; // 只显示第一行
     }
-    if(fl)fl.textContent=particles.length+' 顶点/帧';
+    if(fl)fl.textContent=particles.length+' 数据包';
   }
 
   function animate(){
     if(playing){
       stageTimer++;
       subAnimT+=0.02*speed;
-      if(stageTimer>180/speed){activeStage=(activeStage+1)%4;stageTimer=0;}
+      if(stageTimer>180/speed){activeStage=(activeStage+1)%stages.length;stageTimer=0;} // Fix G: %stages.length
       if(Math.random()<0.25*speed)spawnParticle();
       updateParticles();
-    }else{
-      subAnimT+=0.01;
     }
+    // Fix C: 暂停时 subAnimT 不再递增
+    // Fix K: subAnimT 防溢出
+    if(subAnimT>100000)subAnimT=0;
     draw();
     requestAnimationFrame(animate);
   }
 
+  // 点击 -- 支持空白处取消选择 (Fix H)
   canvas.addEventListener('click',function(e){
     var rect=canvas.getBoundingClientRect();
     var mx=(e.clientX-rect.left)/rect.width*W;
     var my=(e.clientY-rect.top)/rect.height*H;
+    var clicked=false;
     for(var i=0;i<stages.length;i++){
-      var s=stages[i];
-      if(mx>=s.x&&mx<=s.x+s.w&&my>=stageY&&my<=stageY+stageH){
+      var st=stages[i];
+      if(mx>=st.x&&mx<=st.x+st.w&&my>=stageY&&my<=stageY+stageH){
         selectedStage=selectedStage===i?-1:i;
-        if(selectedStage>=0){playing=false;
+        if(selectedStage>=0){
+          playing=false;
           var btn=document.getElementById('pp-play-btn');
           if(btn)btn.innerHTML='&#9654; 播放';
         }
-        return;
+        clicked=true;
+        break;
       }
     }
+    if(!clicked){selectedStage=-1;} // Fix H: 点击空白取消选择
   });
 
   window.pipelineTogglePlay=function(){
@@ -5057,9 +5047,12 @@ function _onResize(fn) {
     var btn=document.getElementById('pp-play-btn');
     if(btn)btn.innerHTML='&#9654; 播放';
   };
-  window.ppUpdateSpeed=function(){
-    speed=parseFloat(document.getElementById('pp-speed').value);
-    document.getElementById('pp-speed-val').textContent=speed.toFixed(1)+'x';
+  window.ppUpdateSpeed=function(){ // Fix M: 加 null 检查
+    var slider=document.getElementById('pp-speed');
+    var val=document.getElementById('pp-speed-val');
+    if(!slider||!val)return;
+    speed=parseFloat(slider.value);
+    val.textContent=speed.toFixed(1)+'x';
   };
 
   animate();
