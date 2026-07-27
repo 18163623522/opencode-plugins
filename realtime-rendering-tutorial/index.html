@@ -572,6 +572,16 @@ li::marker {
   color: var(--accent-purple);
 }
 
+.callout-keypoint {
+  background: rgba(57,210,192,0.08);
+  border-left-color: var(--accent-cyan);
+  color: var(--text-secondary);
+}
+
+.callout-keypoint strong {
+  color: var(--accent-cyan);
+}
+
 /* ============================================
    代码块
    ============================================ */
@@ -2990,6 +3000,98 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
   </table>
 </div>
 
+<div class="section-header"><h3>5.3 实战：GLSL 着色器代码</h3></div>
+
+<p>下面是一个完整的 <strong>Blinn-Phong 着色器</strong>的 GLSL 代码，这是游戏引擎中最常用的基础光照着色器之一。它包含顶点着色器和片段着色器两部分：</p>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="lang">GLSL -- 顶点着色器</span></div>
+  <pre><code>#version 330 core
+// 顶点着色器：负责坐标变换和传递数据到片段着色器
+
+layout(location = 0) in vec3 aPosition;  // 模型空间顶点位置
+layout(location = 1) in vec3 aNormal;    // 顶点法线
+layout(location = 2) in vec2 aTexCoord;  // 纹理坐标
+
+uniform mat4 uModelMatrix;      // 模型矩阵 M
+uniform mat4 uViewMatrix;       // 视图矩阵 V
+uniform mat4 uProjectionMatrix; // 投影矩阵 P
+uniform mat3 uNormalMatrix;     // 法线矩阵 (M⁻¹)ᵀ
+
+out vec3 vWorldPos;    // 传递到片段着色器的世界空间位置
+out vec3 vWorldNormal; // 传递到片段着色器的世界空间法线
+out vec2 vTexCoord;
+
+void main() {
+    // 1. 变换到世界空间
+    vec4 worldPos = uModelMatrix * vec4(aPosition, 1.0);
+    vWorldPos = worldPos.xyz;
+
+    // 2. 变换法线（注意：用法线矩阵，不是模型矩阵！）
+    vWorldNormal = normalize(uNormalMatrix * aNormal);
+
+    // 3. 传递纹理坐标
+    vTexCoord = aTexCoord;
+
+    // 4. 计算裁剪空间位置：gl_Position = P * V * M * position
+    gl_Position = uProjectionMatrix * uViewMatrix * worldPos;
+}</code></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="lang">GLSL -- 片段着色器 (Blinn-Phong)</span></div>
+  <pre><code>#version 330 core
+// 片段着色器：计算每个像素的最终颜色
+
+in vec3 vWorldPos;    // 从顶点着色器插值而来的世界位置
+in vec3 vWorldNormal; // 插值后的世界法线（需要重新归一化！）
+in vec2 vTexCoord;
+
+uniform vec3  uLightPos;      // 点光源位置
+uniform vec3  uLightColor;    // 光源颜色 (rgb)
+uniform float uLightIntensity;// 光源强度
+uniform vec3  uViewPos;       // 相机位置
+uniform vec3  uBaseColor;     // 材质基础色
+uniform float uShininess;     // 高光指数
+
+out vec4 FragColor;
+
+void main() {
+    // 1. 归一化插值后的法线（插值会改变长度）
+    vec3 N = normalize(vWorldNormal);
+
+    // 2. 计算光照方向和距离
+    vec3 lightVec = uLightPos - vWorldPos;
+    float dist = length(lightVec);
+    vec3 L = lightVec / dist;  // 归一化光照方向
+
+    // 3. 距离衰减（物理近似：1/d²）
+    float attenuation = 1.0 / (dist * dist);
+    vec3 radiance = uLightColor * uLightIntensity * attenuation;
+
+    // 4. 漫反射 (Lambert)
+    float NdotL = max(dot(N, L), 0.0);
+    vec3 diffuse = uBaseColor * radiance * NdotL;
+
+    // 5. 高光 (Blinn-Phong)
+    vec3 V = normalize(uViewPos - vWorldPos);  // 视线方向
+    vec3 H = normalize(L + V);                  // 半程向量
+    float NdotH = max(dot(N, H), 0.0);
+    float spec = pow(NdotH, uShininess);
+    vec3 specular = radiance * spec * 0.5;     // 假设高光色为白色
+
+    // 6. 环境光（简单近似）
+    vec3 ambient = uBaseColor * 0.1;
+
+    // 7. 最终颜色
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
+}</code></pre>
+</div>
+
+<div class="callout callout-tip">
+  <strong>关键细节：</strong>注意片段着色器中法线必须<strong>重新归一化</strong>（`normalize(vWorldNormal)`）。因为顶点着色器输出的法线在光栅化阶段会被<strong>重心插值</strong>，插值后向量长度会改变（特别是在三角形变形大的区域），不归一化会导致光照错误。
+</div>
+
 <!-- ======== 交互式演示 7：光源类型切换 ======== -->
 <div class="demo-card">
   <div class="demo-header">
@@ -3158,6 +3260,51 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
   <li><strong>视差遮蔽映射（Parallax Occlusion Mapping, POM）：</strong>通过射线步进（Ray Marching）更精确地计算 UV 偏移，能产生自遮挡效果</li>
   <li><strong>浮雕映射（Relief Mapping）：</strong>使用二分搜索 + 射线步进，精度更高但开销也更大</li>
 </ul>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="lang">GLSL -- 法线映射着色器</span></div>
+  <pre><code>#version 330 core
+// 片段着色器：切线空间法线映射
+
+in vec2 vTexCoord;
+in vec3 vWorldPos;
+in mat3 vTBN;  // 切线空间->世界空间的变换矩阵（由顶点着色器构建）
+
+uniform sampler2D uDiffuseMap;  // 漫反射贴图
+uniform sampler2D uNormalMap;   // 法线贴图
+uniform vec3 uLightPos;
+uniform vec3 uViewPos;
+
+out vec4 FragColor;
+
+void main() {
+    // 1. 采样漫反射颜色
+    vec3 albedo = texture(uDiffuseMap, vTexCoord).rgb;
+
+    // 2. 采样法线贴图并解码
+    //    RGB [0,1] -> 法线 [-1,1]
+    vec3 tangentNormal = texture(uNormalMap, vTexCoord).rgb * 2.0 - 1.0;
+    tangentNormal = normalize(tangentNormal);
+
+    // 3. 将切线空间法线变换到世界空间
+    vec3 N = normalize(vTBN * tangentNormal);
+
+    // 4. 光照计算（Blinn-Phong）
+    vec3 L = normalize(uLightPos - vWorldPos);
+    vec3 V = normalize(uViewPos - vWorldPos);
+    vec3 H = normalize(L + V);
+
+    float diffuse = max(dot(N, L), 0.0);
+    float specular = pow(max(dot(N, H), 0.0), 32.0);
+
+    vec3 result = albedo * (0.1 + diffuse) + vec3(specular) * 0.5;
+    FragColor = vec4(result, 1.0);
+}</code></pre>
+</div>
+
+<div class="callout callout-info">
+  <strong>TBN 矩阵：</strong>法线贴图存储在<strong>切线空间</strong>中（以顶点法线为 Z 轴、切线为 X 轴、副切线为 Y 轴的局部坐标系）。使用时需要用 TBN 矩阵将切线空间法线变换到世界空间。TBN 矩阵由顶点的 Tangent、Bitangent、Normal 三个向量构成，在顶点着色器中计算并传递到片段着色器。
+</div>
 
 <div class="callout callout-analogy">
   <strong>通俗比喻：</strong>法线映射就像在纸上画凹凸的"阴影"——从正面看有效，但改变视角时不会有变化。视差映射则像在纸面上挖了真正的"坑"——当你倾斜纸面看时，坑里的图案会偏移位置，产生真正的深度感。
@@ -3541,6 +3688,109 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
 
 <div class="callout callout-info">
   <strong>GGX vs Beckmann：</strong>GGX 分布的"尾巴"更长（long-tail falloff），意味着即使偏离高光中心较远的方向，仍有少量反射光。这让 GGX 的高光看起来更自然，比 Beckmann 分布更适合实时渲染。
+</div>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="lang">GLSL -- PBR 着色器 (Cook-Torrance BRDF)</span></div>
+  <pre><code>#version 330 core
+// 基于物理的着色 -- Cook-Torrance BRDF
+// 参考：Epic Games UE4 PBR 实现
+
+in vec3 vWorldPos;
+in vec3 vWorldNormal;
+in vec2 vTexCoord;
+
+uniform sampler2D uAlbedoMap;
+uniform sampler2D uMetallicMap;
+uniform sampler2D uRoughnessMap;
+uniform sampler2D uNormalMap;
+
+uniform vec3  uLightPos;
+uniform vec3  uLightColor;
+uniform vec3  uViewPos;
+uniform mat3  uTBN;
+
+out vec4 FragColor;
+
+const float PI = 3.14159265359;
+
+// ---- GGX 法线分布函数 (Trowbridge-Reitz) ----
+float DistributionGGX(vec3 N, vec3 H, float roughness) {
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+    float denom = NdotH2 * (a2 - 1.0) + 1.0;
+    denom = PI * denom * denom;
+    return a2 / max(denom, 0.0001);
+}
+
+// ---- Schlick 几何遮蔽 (Smith + Schlick-GGX) ----
+float GeometrySchlickGGX(float NdotV, float roughness) {
+    float r = roughness + 1.0;
+    float k = (r * r) / 8.0;
+    return NdotV / (NdotV * (1.0 - k) + k);
+}
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    return GeometrySchlickGGX(NdotV, roughness) * GeometrySchlickGGX(NdotL, roughness);
+}
+
+// ---- Fresnel (Schlick 近似) ----
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+void main() {
+    // 1. 采样材质参数
+    vec3  albedo    = pow(texture(uAlbedoMap, vTexCoord).rgb, vec3(2.2)); // sRGB->linear
+    float metallic  = texture(uMetallicMap, vTexCoord).r;
+    float roughness = texture(uRoughnessMap, vTexCoord).r;
+
+    // 2. 法线（切线空间->世界空间）
+    vec3 N = normalize(vTBN * (texture(uNormalMap, vTexCoord).rgb * 2.0 - 1.0));
+
+    // 3. F0: 非金属为 0.04，金属为 albedo
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+
+    // 4. 光照计算
+    vec3 V = normalize(uViewPos - vWorldPos);
+    vec3 L = normalize(uLightPos - vWorldPos);
+    vec3 H = normalize(V + L);
+
+    vec3 radiance = uLightColor * 50.0; // 光源辐射度
+
+    // Cook-Torrance BRDF
+    float NDF = DistributionGGX(N, H, roughness);
+    float G   = GeometrySmith(N, V, L, roughness);
+    vec3  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 numerator   = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    // 漫反射项：金属没有漫反射
+    vec3 kS = F;
+    vec3 kD = (1.0 - kS) * (1.0 - metallic);
+    float NdotL = max(dot(N, L), 0.0);
+
+    // 最终结果 = (漫反射 + 镜面反射) × 辐射度 × N·L
+    vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
+
+    // 环境光（简单近似，正式版应用 IBL）
+    vec3 ambient = vec3(0.03) * albedo;
+
+    FragColor = vec4(ambient + Lo, 1.0);
+}</code></pre>
+</div>
+
+<div class="callout callout-tip">
+  <strong>PBR 的三个核心函数：</strong>
+  <br><strong>D（法线分布函数）</strong>：控制高光的形状和大小 -- GGX 分布
+  <br><strong>G（几何遮蔽函数）</strong>：模拟微表面的自遮挡 -- Smith + Schlick-GGX
+  <br><strong>F（菲涅尔项）</strong>：掠射角时反射增强 -- Schlick 近似
+  <br>最终 BRDF = (D × G × F) / (4 × (N·V) × (N·L))，这就是 Cook-Torrance 模型。
 </div>
 
 <!-- ======== 交互式演示 11：PBR 材质编辑器 ======== -->
@@ -9453,8 +9703,71 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
     <tr><td>GPGPU</td><td>General Purpose GPU</td><td>用 GPU 做通用计算（非渲染）</td></tr>
     <tr><td>Draw Call</td><td>Draw Call</td><td>CPU 向 GPU 提交的一次渲染命令</td></tr>
     <tr><td>帧率</td><td>Frame Rate (FPS)</td><td>每秒渲染的帧数</td></tr>
+    <tr><td>视锥体</td><td>View Frustum</td><td>相机可见的截头锥形空间</td></tr>
+    <tr><td>深度缓冲</td><td>Depth Buffer / Z-Buffer</td><td>记录每个像素深度值，解决遮挡</td></tr>
+    <tr><td>模板缓冲</td><td>Stencil Buffer</td><td>用于遮罩和特殊效果的逐像素标记</td></tr>
+    <tr><td>帧缓冲</td><td>Framebuffer</td><td>渲染输出的最终目标缓冲区</td></tr>
+    <tr><td>顶点着色器</td><td>Vertex Shader</td><td>处理顶点坐标变换的可编程阶段</td></tr>
+    <tr><td>片段着色器</td><td>Fragment / Pixel Shader</td><td>计算像素颜色的可编程阶段</td></tr>
+    <tr><td>BRDF</td><td>Bidirectional Reflectance Distribution Function</td><td>描述光线如何从表面反射的函数</td></tr>
+    <tr><td>菲涅尔效应</td><td>Fresnel Effect</td><td>掠射角时反射率增大的现象</td></tr>
+    <tr><td>微表面理论</td><td>Microfacet Theory</td><td>用微观粗糙面统计模型解释宏观反射</td></tr>
+    <tr><td>四元数</td><td>Quaternion</td><td>用4个数表示3D旋转，避免万向锁</td></tr>
+    <tr><td>万向锁</td><td>Gimbal Lock</td><td>欧拉角旋转丢失一个自由度的问题</td></tr>
+    <tr><td>场景图</td><td>Scene Graph</td><td>父子层级的场景组织结构</td></tr>
+    <tr><td>实例化</td><td>Instancing</td><td>一次 Draw Call 渲染多个相同物体</td></tr>
+    <tr><td>批处理</td><td>Batching</td><td>合并多个物体的渲染命令减少 Draw Call</td></tr>
+    <tr><td>Warp</td><td>Warp / Wavefront</td><td>GPU 中同时执行的 32/64 个线程组</td></tr>
+    <tr><td>占用率</td><td>Occupancy</td><td>活跃 Warp 数占最大容量的比例</td></tr>
+    <tr><td>延迟隐藏</td><td>Latency Hiding</td><td>通过切换 Warp 掩盖内存访问延迟</td></tr>
+    <tr><td>IBL</td><td>Image-Based Lighting</td><td>用环境贴图提供间接光照</td></tr>
+    <tr><td>SSS</td><td>Subsurface Scattering</td><td>光线在半透明材质内部散射的现象</td></tr>
+    <tr><td>焦散</td><td>Caustics</td><td>折射/反射光线汇聚形成的光斑</td></tr>
+    <tr><td>NPR</td><td>Non-Photorealistic Rendering</td><td>非真实感渲染（卡通、水墨等风格）</td></tr>
+    <tr><td>NDC</td><td>Normalized Device Coordinates</td><td>归一化设备坐标，范围为 [-1,1]</td></tr>
+    <tr><td>MVP</td><td>Model-View-Projection</td><td>顶点变换的三矩阵组合</td></tr>
+    <tr><td>过draw</td><td>Overdraw</td><td>同一像素被多次绘制导致的浪费</td></tr>
+    <tr><td>曲面细分</td><td>Tessellation</td><td>GPU 运行时自适应增加几何细节</td></tr>
+    <tr><td>计算着色器</td><td>Compute Shader</td><td>不经过渲染管线的 GPU 通用计算</td></tr>
+    <tr><td>光线步进</td><td>Ray Marching</td><td>沿射线逐步采样体积数据的方法</td></tr>
+    <tr><td>降噪</td><td>Denoising</td><td>消除光线追踪产生的噪点</td></tr>
+    <tr><td>RT Core</td><td>Ray Tracing Core</td><td>GPU 中加速光线追踪的专用硬件</td></tr>
+    <tr><td>Tensor Core</td><td>Tensor Core</td><td>GPU 中加速 AI 矩阵运算的硬件</td></tr>
   </tbody>
 </table>
+
+<div class="section-header"><h3>参考文献与推荐资源</h3></div>
+
+<div class="card">
+  <div class="card-title"><span class="icon">&#128218;</span> 核心参考书目</div>
+  <table>
+    <thead><tr><th>书名</th><th>作者</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>Real-Time Rendering, 4th Edition</td><td>Tomas Akenine-Möller, Eric Haines, Naty Hoffman</td><td>本指南的核心参考，实时渲染领域圣经</td></tr>
+      <tr><td>Physically Based Rendering: From Theory to Implementation</td><td>Matt Pharr, Wenzel Jakob, Greg Humphreys</td><td>PBR 理论与实现的权威著作（免费在线版）</td></tr>
+      <tr><td>Computer Graphics: Principles and Practice</td><td>John Hughes et al.</td><td>计算机图形学经典教材</td></tr>
+      <tr><td>OpenGL Superbible</td><td>Graham Sellers et al.</td><td>OpenGL 实战编程指南</td></tr>
+      <tr><td>Foundations of Game Engine Development, Vol 1-4</td><td>Eric Lengyel</td><td>游戏引擎开发基础系列</td></tr>
+      <tr><td>The Book of Shaders</td><td>Patricio Gonzalez Vivo</td><td>着色器编程入门（在线交互式）</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="icon">&#128279;</span> 在线资源</div>
+  <ul>
+    <li><strong>Real-Time Rendering 官网</strong> (realtimerendering.com) -- 勘误、补充资料、参考文献</li>
+    <li><strong>LearnOpenGL</strong> (learnopengl.com) -- 最优秀的 OpenGL/WebGL 实战教程</li>
+    <li><strong>Three.js 文档</strong> (threejs.org) -- 本指南 3D 演示所用库的官方文档</li>
+    <li><strong>Khronos Group</strong> (khronos.org) -- OpenGL/Vulkan/GLSL 规范制定方</li>
+    <li><strong>GPUOpen</strong> (gpuopen.com) -- AMD 图形技术文章和开源项目</li>
+    <li><strong>NVIDIA Developer</strong> (developer.nvidia.com) -- NVIDIA 技术博客和 SDK</li>
+    <li><strong>SIGGRAPH Courses</strong> -- 每年前沿技术课程（通常免费公开）</li>
+    <li><strong>Disney BRDF</strong> (2012 SIGGRAPH) -- PBR 微表面模型的奠基论文</li>
+    <li><strong>Epic Games UE4 PBR Notes</strong> -- 实时 PBR 实现的工业标准参考</li>
+    <li><strong>ScratchAPixel</strong> (scratchapixel.com) -- 从零学习光线追踪和渲染</li>
+  </ul>
+</div>
 
 <div class="callout callout-analogy" style="margin-top:30px;">
   <strong>最后的寄语：</strong>
