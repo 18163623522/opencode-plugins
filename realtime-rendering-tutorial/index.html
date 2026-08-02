@@ -4762,10 +4762,15 @@ function _onResize(fn) {
   var uView_L  = gl.getUniformLocation(lineProg, 'uView');
   var uModel_L = gl.getUniformLocation(lineProg, 'uModel');
 
-  // ---- 最小 OrbitControls（球坐标 + damping + 滚轮 + 触摸）----
+  // ---- 最小 OrbitControls（球坐标 + damping + 滚轮 + 右键平移 + 触摸双指）----
+  // 参数尽量对齐 Three.js OrbitControls 默认手感
+  var ROTATE_SPEED = 1.0;   // 旋转灵敏度系数
+  var DAMP_FACTOR  = 0.08;  // 阻尼：每帧朝目标值靠拢 8%（越小越顺滑）
+  var ZOOM_FACTOR  = 0.001; // 滚轮缩放系数
   var target = [0, 0, 0];
   var orbit = { theta: Math.PI * 0.25, phi: Math.PI * 0.32, radius: 5.8 };
   var damp  = { theta: orbit.theta, phi: orbit.phi, radius: orbit.radius };
+  var targetVel = [0, 0, 0]; // 平移阻尼速度
   function orbitPos(out, t, p, r) {
     var sp = Math.sin(p);
     out[0] = target[0] + r * sp * Math.sin(t);
@@ -4773,39 +4778,116 @@ function _onResize(fn) {
     out[2] = target[2] + r * sp * Math.cos(t);
     return out;
   }
-  var dragging = false, lastX = 0, lastY = 0;
+  var MIN_PHI = 0.01, MAX_PHI = Math.PI - 0.01;
+  var MIN_DIST = 2, MAX_DIST = 20;
+
+  // 鼠标：左键旋转、右键平移、滚轮缩放
+  var mode = null; // 'rotate' | 'pan' | null
+  var lastX = 0, lastY = 0;
+  canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   canvas.addEventListener('mousedown', function(e) {
-    if (e.button !== 0) return;
-    dragging = true; lastX = e.clientX; lastY = e.clientY;
-    canvas.style.cursor = 'grabbing';
+    lastX = e.clientX; lastY = e.clientY;
+    if (e.button === 0) { mode = 'rotate'; canvas.style.cursor = 'grabbing'; }
+    else if (e.button === 2) { mode = 'pan'; canvas.style.cursor = 'move'; }
   });
-  window.addEventListener('mouseup', function() { dragging = false; canvas.style.cursor = 'grab'; });
+  window.addEventListener('mouseup', function() { mode = null; canvas.style.cursor = 'grab'; });
   window.addEventListener('mousemove', function(e) {
-    if (!dragging) return;
+    if (!mode) return;
     var dx = e.clientX - lastX, dy = e.clientY - lastY;
     lastX = e.clientX; lastY = e.clientY;
-    orbit.theta -= dx * 0.005;
-    orbit.phi   -= dy * 0.005;
-    orbit.phi = Math.max(0.01, Math.min(Math.PI - 0.01, orbit.phi));
+    if (mode === 'rotate') {
+      // 旋转：dx*ROTATE_SPEED 缩放到弧度量级
+      orbit.theta -= dx * 0.005 * ROTATE_SPEED;
+      orbit.phi   -= dy * 0.005 * ROTATE_SPEED;
+      orbit.phi = Math.max(MIN_PHI, Math.min(MAX_PHI, orbit.phi));
+    } else if (mode === 'pan') {
+      // 平移：屏幕位移 → 世界位移（基于当前相机 right/up 向量）
+      panByScreenDelta(dx, dy);
+    }
   });
   canvas.addEventListener('wheel', function(e) {
     e.preventDefault();
-    orbit.radius *= (e.deltaY > 0) ? 1.1 : 0.9;
-    orbit.radius = Math.max(2, Math.min(20, orbit.radius));
+    // 指数缩放，手感接近 Three.js dolly
+    var factor = Math.exp(-e.deltaY * ZOOM_FACTOR);
+    orbit.radius *= factor;
+    orbit.radius = Math.max(MIN_DIST, Math.min(MAX_DIST, orbit.radius));
   }, { passive: false });
+
+  // 触摸：单指旋转、双指 pinch 缩放 + 平移
+  var touchMode = null, lastPinchDist = 0, lastPanX = 0, lastPanY = 0;
   canvas.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 1) { dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }
+    if (e.touches.length === 1) {
+      touchMode = 'rotate'; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      touchMode = 'pinch';
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastPinchDist = Math.sqrt(dx*dx + dy*dy);
+      lastPanX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      lastPanY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    }
   }, { passive: true });
   canvas.addEventListener('touchmove', function(e) {
-    if (!dragging || e.touches.length !== 1) return;
-    var dx = e.touches[0].clientX - lastX, dy = e.touches[0].clientY - lastY;
-    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    orbit.theta -= dx * 0.005;
-    orbit.phi   -= dy * 0.005;
-    orbit.phi = Math.max(0.01, Math.min(Math.PI - 0.01, orbit.phi));
+    if (!touchMode) return;
+    if (touchMode === 'rotate' && e.touches.length === 1) {
+      var dx = e.touches[0].clientX - lastX, dy = e.touches[0].clientY - lastY;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      orbit.theta -= dx * 0.005 * ROTATE_SPEED;
+      orbit.phi   -= dy * 0.005 * ROTATE_SPEED;
+      orbit.phi = Math.max(MIN_PHI, Math.min(MAX_PHI, orbit.phi));
+    } else if (touchMode === 'pinch' && e.touches.length === 2) {
+      var t0 = e.touches[0], t1 = e.touches[1];
+      var ddx = t0.clientX - t1.clientX, ddy = t0.clientY - t1.clientY;
+      var dist = Math.sqrt(ddx*ddx + ddy*ddy);
+      if (lastPinchDist > 0) {
+        var ratio = lastPinchDist / dist;
+        orbit.radius *= ratio;
+        orbit.radius = Math.max(MIN_DIST, Math.min(MAX_DIST, orbit.radius));
+      }
+      lastPinchDist = dist;
+      // 双指中点平移
+      var midX = (t0.clientX + t1.clientX) / 2;
+      var midY = (t0.clientY + t1.clientY) / 2;
+      panByScreenDelta(midX - lastPanX, midY - lastPanY);
+      lastPanX = midX; lastPanY = midY;
+    }
   }, { passive: true });
-  canvas.addEventListener('touchend', function() { dragging = false; });
+  canvas.addEventListener('touchend', function() {
+    if (e && e.touches && e.touches.length === 0) touchMode = null;
+  });
   canvas.style.cursor = 'grab';
+
+  // 屏幕位移 → target 世界位移（平移）。需要相机 right/up，从 damp 状态算。
+  // right/up 用 viewMatrix 的逆的列；这里用球坐标近似（足够教学场景精度）。
+  var camRight = [1,0,0], camUp = [0,1,0];
+  function updateCamBasis() {
+    // 相机 forward（从相机指向 target）
+    var fx = target[0] - eye[0], fy = target[1] - eye[1], fz = target[2] - eye[2];
+    var fl = Math.sqrt(fx*fx + fy*fy + fz*fz) || 1;
+    fx/=fl; fy/=fl; fz/=fl;
+    // right = forward × up(0,1,0)
+    camRight[0] = fz*0 - fy*0;       // 用 (0,1,0)：r = f × (0,1,0)
+    camRight[1] = fx*0 - fz*1;
+    camRight[2] = fy*1 - fx*0;
+    // 标准化 right
+    var rl = Math.sqrt(camRight[0]*camRight[0]+camRight[1]*camRight[1]+camRight[2]*camRight[2]) || 1;
+    camRight[0]/=rl; camRight[1]/=rl; camRight[2]/=rl;
+    // up = right × forward
+    camUp[0] = camRight[1]*fz - camRight[2]*fy;
+    camUp[1] = camRight[2]*fx - camRight[0]*fz;
+    camUp[2] = camRight[0]*fy - camRight[1]*fx;
+  }
+  function panByScreenDelta(dx, dy) {
+    updateCamBasis();
+    // 屏幕像素 → 世界单位：按当前距离缩放（远看得慢、近看得快，符合直觉）
+    var worldPerPx = damp.radius * 0.0015;
+    target[0] -= camRight[0] * dx * worldPerPx;
+    target[1] -= camRight[1] * dx * worldPerPx;
+    target[2] -= camRight[2] * dx * worldPerPx;
+    target[0] += camUp[0] * dy * worldPerPx;
+    target[1] += camUp[1] * dy * worldPerPx;
+    target[2] += camUp[2] * dy * worldPerPx;
+  }
 
   // ---- 矩阵 / 状态 ----
   var projM = mat4.create(), viewM = mat4.create(), modelM = mat4.create();
@@ -4836,9 +4918,9 @@ function _onResize(fn) {
 
   // ---- 渲染一帧 ----
   function render() {
-    damp.theta  += (orbit.theta  - damp.theta)  * 0.1;
-    damp.phi    += (orbit.phi    - damp.phi)    * 0.1;
-    damp.radius += (orbit.radius - damp.radius) * 0.15;
+    damp.theta  += (orbit.theta  - damp.theta)  * DAMP_FACTOR;
+    damp.phi    += (orbit.phi    - damp.phi)    * DAMP_FACTOR;
+    damp.radius += (orbit.radius - damp.radius) * (DAMP_FACTOR * 1.5);
 
     var w = canvas.clientWidth, h = canvas.clientHeight;
     if (w === 0 || h === 0) return;
