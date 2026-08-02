@@ -1722,7 +1722,7 @@ hr {
     <h4>演示 1：相机 + 物体 + 光源 = 图像</h4>
   </div>
   <div class="demo-description">
-    下面是一个最简单的 Three.js 场景：一个<strong>旋转的立方体</strong>（物体），一个<strong>方向光</strong>（光源），和一个<strong>透视相机</strong>（相机）。你可以用鼠标拖拽旋转视角来观察。注意立方体不同面的明暗变化 -- 那就是光照的效果。
+    下面是一个最简单的<strong>原生 WebGL</strong> 场景：一个<strong>旋转的立方体</strong>（物体），一个<strong>方向光</strong>（光源），和一个<strong>透视相机</strong>（相机）。你可以用鼠标拖拽旋转视角来观察。注意立方体不同面的明暗变化 -- 那就是光照的效果。
   </div>
   <div class="demo-body">
     <div class="demo-canvas-wrapper">
@@ -4394,6 +4394,9 @@ function applyThemeToThreeScenes() {
   // demo1 是原生 WebGL 重写（无 THREE 依赖），优先用其 setBackground 接口
   if (typeof demo1Scene !== 'undefined' && demo1Scene && typeof demo1Scene.setBackground === 'function') {
     demo1Scene.setBackground(bgStr);
+    if (typeof demo1Scene.setGridColors === 'function') {
+      demo1Scene.setGridColors(gridMajorStr, gridMinorStr);
+    }
   }
   // 以下为 Three.js 场景，需 THREE 可用
   if (typeof THREE === 'undefined') return;
@@ -4528,6 +4531,16 @@ function _onResize(fn) {
   var canvas = document.getElementById('demo1-canvas');
   if (!canvas) return;
   var { mat4, vec3 } = glMatrix;
+
+  // hex 字符串 → [r,g,b]（0~1），用于读 CSS 颜色变量
+  function hexToRgb(hexStr) {
+    var v = parseInt((hexStr || '').replace('#', ''), 16);
+    if (isNaN(v)) return [0, 0, 0];
+    return [((v>>16)&0xff)/255, ((v>>8)&0xff)/255, (v&0xff)/255];
+  }
+  function cssVar(name, fallback) {
+    return hexToRgb(getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
+  }
 
   // ---- 创建 WebGL 上下文（优先 WebGL2，回退 WebGL1）----
   var gl = canvas.getContext('webgl2', { antialias: true, alpha: false })
@@ -4677,19 +4690,26 @@ function _onResize(fn) {
     return { vbo: vbo, cbo: cbo, count: positions.length / 3 };
   }
 
-  // 地面网格（GridHelper 10x10 等价）：中心线偏亮
+  // 地面网格（GridHelper 10x10 等价）：颜色从 CSS 变量读取，跟随主题
   var gridY = -1.2, gridSize = 5, gridDiv = 10, step = (gridSize * 2) / gridDiv;
-  var gridPts = [], gridCols = [];
-  var colMajor = [0x21/255, 0x26/255, 0x2d/255]; // 0x21262d
-  var colMinor = [0x16/255, 0x1b/255, 0x22/255]; // 0x161b22
+  var gridPts = [];
   for (var i = 0; i <= gridDiv; i++) {
     var p = -gridSize + i * step;
-    var c = (i === gridDiv/2) ? colMajor : colMinor;
     gridPts.push(-gridSize, gridY, p,  gridSize, gridY, p);
     gridPts.push(p, gridY, -gridSize,  p, gridY, gridSize);
-    gridCols.push(c[0],c[1],c[2], c[0],c[1],c[2], c[0],c[1],c[2], c[0],c[1],c[2]);
   }
-  var gridSet = makeLineSet(gridPts, gridCols);
+  // 生成网格颜色数组（中心线用 major，其余 minor）
+  function buildGridColors(majorRgb, minorRgb) {
+    var cols = [];
+    for (var i = 0; i <= gridDiv; i++) {
+      var c = (i === gridDiv/2) ? majorRgb : minorRgb;
+      for (var k = 0; k < 4; k++) cols.push(c[0], c[1], c[2]);
+    }
+    return cols;
+  }
+  var gridMajorRgb = cssVar('--scene-grid-major', '21262d');
+  var gridMinorRgb = cssVar('--scene-grid-minor', '161b22');
+  var gridSet = makeLineSet(gridPts, buildGridColors(gridMajorRgb, gridMinorRgb));
 
   // 坐标轴（AxesHelper 1.5）：X 红 / Y 绿 / Z 蓝
   var axesY = -1.19, axesLen = 1.5;
@@ -4797,16 +4817,19 @@ function _onResize(fn) {
   var dirLightDir = [3, 5, 4];
   vec3.normalize(dirLightDir, dirLightDir);
 
-  // 场景背景状态（暴露给主题切换；原 demo1 的 scene 是局部变量无法被 applyThemeToThreeScenes 改）
-  function hexToRgb(hexStr) {
-    var v = parseInt(hexStr.replace('#', ''), 16);
-    if (isNaN(v)) return [0x0d/255, 0x11/255, 0x17/255];
-    return [((v>>16)&0xff)/255, ((v>>8)&0xff)/255, (v&0xff)/255];
-  }
+  // 场景状态（暴露给主题切换；原 demo1 的 scene 是局部变量无法被 applyThemeToThreeScenes 改）
   var sceneState = {
-    bgColor: hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--scene-bg').trim() || '0d1117'),
+    bgColor: cssVar('--scene-bg', '0d1117'),
     setBackground: function(hexStr) {
       sceneState.bgColor = hexToRgb(hexStr);
+    },
+    // 主题切换时重建网格颜色缓冲（中心线 major / 其余 minor）
+    setGridColors: function(majorHex, minorHex) {
+      gridMajorRgb = hexToRgb(majorHex);
+      gridMinorRgb = hexToRgb(minorHex);
+      var newCols = buildGridColors(gridMajorRgb, gridMinorRgb);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gridSet.cbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newCols), gl.STATIC_DRAW);
     }
   };
   window.demo1Scene = sceneState;
@@ -10689,12 +10712,15 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   }
 
   // 给所有 WebGL canvas 添加 FPS 计数器
+  // 注意：不能用 canvas.getContext('webgl') 探测——那会副作用地创建新上下文，
+  // 触发浏览器「WebGL 上下文数量超限」，导致最旧的真实上下文被销毁，
+  // 进而导致 2D demo 的 ctx 失效（fillStyle 崩溃）。只遍历已知的 WebGL canvas id。
+  var WEBGL_CANVAS_IDS = ['demo1-canvas','demo3-canvas','demo5-canvas','demo6-ortho','demo6-persp',
+                          'demo7-canvas','demo8-canvas','demo9-canvas','demo11-canvas','demo12-canvas','demo13-canvas'];
   setTimeout(function() {
-    document.querySelectorAll('canvas').forEach(function(canvas) {
-      try {
-        var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-        if (gl) createFPSCounter(canvas);
-      } catch(e) {}
+    WEBGL_CANVAS_IDS.forEach(function(id) {
+      var canvas = document.getElementById(id);
+      if (canvas) createFPSCounter(canvas);
     });
   }, 500);
 
@@ -10789,25 +10815,22 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 (function() {
   if (typeof THREE === 'undefined') return;
   // 给所有已创建的 WebGLRenderer 设置色调映射
+  // 注意：不要遍历 document.querySelectorAll('canvas') 再 getContext('webgl')——
+  // 那会副作用创建大量无用 WebGL 上下文，触发「上下文超限」警告并丢失真实上下文。
+  // 直接遍历 renderer 全局变量名即可。
   setTimeout(function() {
-    document.querySelectorAll('canvas').forEach(function(canvas) {
+    var names = ['demo3Renderer','demo5Renderer','demo6OrthoRenderer',
+                 'demo6PerspRenderer','demo7Renderer','demo8Renderer','demo9Renderer',
+                 'demo11Renderer','demo12Renderer','demo13Renderer','demo15Renderer'];
+    // demo1 已是原生 WebGL（无 THREE renderer），不在此列
+    names.forEach(function(name) {
       try {
-        var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-        if (!gl) return;
-        // Find the renderer associated with this canvas by checking global vars
-        var names = ['renderer','demo1Renderer','demo3Renderer','demo5Renderer','demo6OrthoRenderer',
-                     'demo6PerspRenderer','demo7Renderer','demo8Renderer','demo9Renderer',
-                     'demo11Renderer','demo12Renderer','demo13Renderer','demo15Renderer'];
-        names.forEach(function(name) {
-          try {
-            var r = eval(name);
-            if (r && r.toneMapping !== undefined) {
-              r.toneMapping = THREE.ACESFilmicToneMapping;
-              r.toneMappingExposure = 1.0;
-              r.outputEncoding = THREE.sRGBEncoding;
-            }
-          } catch(e) {}
-        });
+        var r = eval(name);
+        if (r && r.toneMapping !== undefined) {
+          r.toneMapping = THREE.ACESFilmicToneMapping;
+          r.toneMappingExposure = 1.0;
+          r.outputEncoding = THREE.sRGBEncoding;
+        }
       } catch(e) {}
     });
   }, 100);
