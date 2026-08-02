@@ -563,6 +563,48 @@ li::marker {
   color: var(--accent-red);
 }
 
+/* 数据表格（概念导航表等） */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.data-table th,
+.data-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-secondary);
+}
+.data-table thead th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table tbody tr:hover {
+  background: var(--bg-card-hover);
+}
+.data-table td:first-child {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.data-table td:nth-child(2) {
+  color: var(--accent-blue);
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+}
+.data-table td:last-child {
+  color: var(--text-secondary);
+}
+
 .callout-analogy {
   background: rgba(188,140,255,0.08);
   border-left-color: var(--accent-purple);
@@ -1757,6 +1799,72 @@ hr {
       &#128161; 操作提示：左键旋转 | 右键平移 | 滚轮/双指缩放
     </p>
   </div>
+</div>
+
+<!-- ======== demo1 后的通俗解读（融入 learnopgl + Unity Shader 入门精要 入门概念）======== -->
+
+<div class="section-header"><h3>1.4 看懂这个演示：三种视角</h3></div>
+
+<p>上面的演示提供了三种切换模式，它们各自揭示了渲染的不同侧面。学会"用不同视角看同一个物体"，是理解渲染的第一步。</p>
+
+<div class="card">
+  <div class="card-title"><span class="icon">&#128065;</span> 三种渲染模式各看到什么</div>
+  <ul class="term-list">
+    <li class="term-item"><strong>实体光照（Lit）</strong> -- 默认模式。你能看到立方体表面的明暗变化：朝光的面亮，背光的面暗，过渡处有高光。这是最接近现实的"最终成品"，也是大多数游戏画面呈现给你的样子。</li>
+    <li class="term-item"><strong>仅线框（Wireframe）</strong> -- 把立方体拆成 12 条边、8 个顶点。你会突然意识到：表面光滑的物体，本质上是无数三角形拼出来的"骨架"。这是 <strong>learnopgl</strong> 在讲图元装配时反复强调的视角——渲染的第一步就是把模型拆成 GPU 能处理的三角形。</li>
+    <li class="term-item"><strong>仅法线（Normal）</strong> -- 每个面染上一种颜色，对应它"朝哪个方向"。红色面朝 +X，绿色面朝 +Y，蓝色面朝 +Z。法线是光照计算的灵魂：漫反射强弱取决于"法线与光线方向的夹角"。这个视角让你提前看到 <strong>Unity Shader 入门精要</strong> 里光照模型的核心输入。</li>
+  </ul>
+</div>
+
+<div class="callout callout-analogy">
+  <strong>关键直觉：</strong>同一组顶点数据，经过不同的"着色器"处理后，呈现出完全不同的画面。<strong>着色器（Shader）</strong>就是运行在 GPU 上的小程序，决定每个像素最终显示什么颜色——是渲染管线上最自由、最有创造力的一环。第5章会带你亲手写出第一个 GLSL 着色器。
+</div>
+
+<div class="section-header"><h3>1.5 明暗从哪来：光照的直觉</h3></div>
+
+<p>回到实体光照模式，注意立方体不同面的明暗差异。这个效果不是"画"上去的，而是 GPU 实时算出来的。计算的核心思路来自一个简单的物理观察：</p>
+
+<div class="callout callout-info">
+  <strong>漫反射（Diffuse）定律：</strong>一个面越正对光源，它接收到的光就越多，看起来就越亮；越侧着，接收的光越少，越暗。<br><br>
+  GPU 要做的，就是比较"这个面朝哪个方向"（法线）和"光从哪个方向来"（光线方向）的夹角。夹角越小越亮——这就是你看到的明暗梯度的来源。
+</div>
+
+<p>但仅靠漫反射还不够真实：背光的面会变成全黑（没有光到达）。现实里，光会在环境中反弹、散射，给阴影区域补上一点柔和的亮——这就是<strong>环境光（Ambient）</strong>。演示里的半球环境光就是在模拟这种"天空和地面反射的微光"，让暗部不至于死黑。</p>
+
+<div class="callout callout-analogy">
+  <strong>三种光的分工：</strong>环境光管"别让暗部太死"，漫反射管"明暗梯度"，高光（Specular，立方体亮面上的小亮点）管"金属感/光泽感"。这三者合起来就是经典的 <strong>Phong 光照模型</strong>，几乎所有实时渲染的入门都从它开始。第5章和第10章会给出完整的数学公式和 PBR 升级版。
+</div>
+
+<div class="section-header"><h3>1.6 看不见却关键：深度缓冲</h3></div>
+
+<p>这个演示只有一个立方体，看不出"谁挡谁"的问题。但想象一下：如果场景里有前后两个立方体重叠，GPU 怎么知道该画前面那个、而不是后面那个盖住前面？答案是一个你看不见的"距离记录本"——<strong>深度缓冲（Depth Buffer / Z-Buffer）</strong>。</p>
+
+<div class="callout callout-info">
+  <strong>它的工作方式：</strong>屏幕上每个像素，除了存颜色，还额外存一个"深度值"（这个像素离相机有多远）。每当 GPU 要画一个新像素时，先比较深度：如果新像素更近，就覆盖（颜色和深度都更新）；如果更远，就丢弃。这样无论绘制顺序如何，最终留下的都是"最近的那个"。
+</div>
+
+<p>这个机制看似简单，却是实时渲染的基石。它衍生出一系列进阶技术：半透明物体为什么必须<strong>从后往前</strong>画、深度测试如何用 <code>glDepthFunc</code> 调节、模板缓冲（Stencil Buffer）如何做轮廓描边……这些都会在第2章的合并阶段、以及第14章半透明渲染里展开。</p>
+
+<div class="section-header"><h3>1.7 接下来你会学到</h3></div>
+
+<p>这个演示只是一个起点。下面这张表告诉你，本指南接下来会在哪里深入展开每一个被点到的概念：</p>
+
+<table class="data-table">
+  <thead>
+    <tr><th>概念</th><th>在哪里深入</th><th>会学到什么</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>渲染管线全流程</td><td>第2章</td><td>从顶点到屏幕的完整阶段，含可编程阶段图解</td></tr>
+    <tr><td>变换矩阵与坐标系</td><td>第4章</td><td>局部→世界→相机→裁剪→屏幕的转换链</td></tr>
+    <tr><td>GLSL 着色器编程</td><td>第5章</td><td>亲手写顶点/片元着色器，光源类型实战</td></tr>
+    <tr><td>Phong / Blinn-Phong 光照</td><td>第5章 / 第10章</td><td>完整公式 + 多光源 + PBR 物理升级</td></tr>
+    <tr><td>深度测试与模板缓冲</td><td>第2章合并阶段</td><td>Z-Buffer 原理、深度冲突、轮廓描边技巧</td></tr>
+    <tr><td>透明混合（Alpha Blend）vs 测试</td><td>第14章</td><td>半透明排序、渲染队列、Unity ShaderLab 实战</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-tip">
+  <strong>学习建议：</strong>如果是第一次接触实时渲染，建议按章节顺序读，每章都配有可交互的演示（就像上面这个）。如果想跳读某个具体技术，用上面的表定位到对应章节即可。<strong>learnopgl</strong>（OpenGL 系）和 <strong>Unity Shader 入门精要</strong>（冯乐乐著）是本指南的两条主要参考线，前者偏底层 API、后者偏引擎实践，互为补充。
 </div>
 
 </section>
