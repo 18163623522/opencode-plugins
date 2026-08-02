@@ -1730,8 +1730,31 @@ hr {
     </div>
   </div>
   <div class="demo-controls">
-    <p style="font-size:12px;color:var(--text-tertiary);margin:0;">
-      &#128161; 操作提示：鼠标左键拖拽旋转 | 右键平移 | 滚轮缩放
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+      <button class="btn" id="demo1-pause-btn">&#9208; 暂停自转</button>
+      <button class="btn" id="demo1-reset-btn">&#8634; 重置视角</button>
+      <span style="flex:1;"></span>
+      <span style="font-size:12px;color:var(--text-tertiary);font-family:monospace;" id="demo1-fps">FPS: --</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="btn active" id="demo1-mode-lit">&#9728; 实体光照</button>
+      <button class="btn" id="demo1-mode-wire">&#9638; 仅线框</button>
+      <button class="btn" id="demo1-mode-normal">&#10148; 仅法线</button>
+    </div>
+    <div class="control-row">
+      <label>平行光强度：<span class="slider-value" id="demo1-light-val">1.0</span></label>
+      <input type="range" min="0" max="2" step="0.05" value="1" id="demo1-light">
+    </div>
+    <div class="control-row">
+      <label>自转速度：<span class="slider-value" id="demo1-speed-val">1.0x</span></label>
+      <input type="range" min="0" max="3" step="0.1" value="1" id="demo1-speed">
+    </div>
+    <div class="control-row">
+      <label>相机距离：<span class="slider-value" id="demo1-dist-val">5.8</span></label>
+      <input type="range" min="2" max="20" step="0.1" value="5.8" id="demo1-dist" disabled>
+    </div>
+    <p style="font-size:12px;color:var(--text-tertiary);margin:8px 0 0;">
+      &#128161; 操作提示：左键旋转 | 右键平移 | 滚轮/双指缩放
     </p>
   </div>
 </div>
@@ -4578,11 +4601,18 @@ function _onResize(fn) {
     'uniform float uShininess;',
     'uniform vec3 uDirLightDir;   // 指向光源（已归一化）',
     'uniform vec3 uDirLightColor;',
+    'uniform float uLightIntensity; // 平行光强度（滑块控制）',
     'uniform vec3 uHemiSky;',
     'uniform vec3 uHemiGround;',
     'uniform float uHemiIntensity;',
+    'uniform int uRenderMode;       // 0=lit, 2=normal（线框走 line shader）',
     'void main() {',
     '  vec3 N = normalize(vNormal);',
+    '  if (uRenderMode == 2) {',
+    '    // 仅法线：把法线映射成可视颜色（-1~1 → 0~1）',
+    '    gl_FragColor = vec4(N * 0.5 + 0.5, 1.0);',
+    '    return;',
+    '  }',
     '  vec3 V = normalize(uViewPos - vWorldPos);',
     '  float hemiMix = 0.5 * N.y + 0.5;',
     '  vec3 ambient = mix(uHemiGround, uHemiSky, hemiMix) * uHemiIntensity * uBaseColor;',
@@ -4590,9 +4620,9 @@ function _onResize(fn) {
     '  float diff = max(dot(N, L), 0.0);',
     '  vec3 H = normalize(L + V);',
     '  float spec = pow(max(dot(N, H), 0.0), uShininess) * step(0.0, diff);',
-    '  vec3 lit = ambient',
-    '          + uBaseColor * uDirLightColor * diff',
-    '          + uSpecular * uDirLightColor * spec;',
+    '  vec3 dirContrib = uBaseColor * uDirLightColor * diff * uLightIntensity',
+    '                 + uSpecular * uDirLightColor * spec * uLightIntensity;',
+    '  vec3 lit = ambient + dirContrib;',
     '  gl_FragColor = vec4(lit, 1.0);',
     '}'
   ].join('\n');
@@ -4739,6 +4769,23 @@ function _onResize(fn) {
   var lightCols = [lightColArr[0],lightColArr[1],lightColArr[2], lightColArr[0],lightColArr[1],lightColArr[2]];
   var lightSet = makeLineSet(lightPts, lightCols);
 
+  // 立方体边线（线框模式用，跟随立方体自转）—— 12 条边，青色
+  var wireCol = [0x39/255, 0xd2/255, 0xc0/255]; // 0x39d2c0 主题青绿
+  var wirePts = [
+    // 底面 4 边（y=-S）
+    -S,-S,-S,  S,-S,-S,   S,-S,-S,  S,-S, S,
+     S,-S, S, -S,-S, S,  -S,-S, S, -S,-S,-S,
+    // 顶面 4 边（y=+S）
+    -S, S,-S,  S, S,-S,   S, S,-S,  S, S, S,
+     S, S, S, -S, S, S,  -S, S, S, -S, S,-S,
+    // 4 竖边
+    -S,-S,-S, -S, S,-S,   S,-S,-S,  S, S,-S,
+     S,-S, S,  S, S, S,  -S,-S, S, -S, S, S
+  ];
+  var wireCols = [];
+  for (var wi = 0; wi < wirePts.length / 3; wi++) wireCols.push(wireCol[0], wireCol[1], wireCol[2]);
+  var cubeWireSet = makeLineSet(wirePts, wireCols);
+
   // ---- attribute / uniform 定位 ----
   var aPos_P = gl.getAttribLocation(phongProg, 'aPosition');
   var aNor_P = gl.getAttribLocation(phongProg, 'aNormal');
@@ -4755,6 +4802,8 @@ function _onResize(fn) {
   var uHemiSky_P = gl.getUniformLocation(phongProg, 'uHemiSky');
   var uHemiGrd_P = gl.getUniformLocation(phongProg, 'uHemiGround');
   var uHemiInt_P = gl.getUniformLocation(phongProg, 'uHemiIntensity');
+  var uLightInt_P = gl.getUniformLocation(phongProg, 'uLightIntensity');
+  var uRenderMode_P = gl.getUniformLocation(phongProg, 'uRenderMode');
 
   var aPos_L = gl.getAttribLocation(lineProg, 'aPosition');
   var aCol_L = gl.getAttribLocation(lineProg, 'aColor');
@@ -4894,6 +4943,13 @@ function _onResize(fn) {
   var normalM = mat4.create();
   var eye = vec3.create(), up = [0, 1, 0];
   var rotX = 0, rotY = 0;
+  // 交互控件状态
+  var state = {
+    paused: false,
+    rotateSpeedMul: 1.0,  // 自转速度倍率
+    lightIntensity: 1.0,  // 平行光强度
+    renderMode: 0         // 0=lit, 1=wireframe, 2=normal
+  };
 
   // 平行光方向（指向光源）
   var dirLightDir = [3, 5, 4];
@@ -4960,24 +5016,28 @@ function _onResize(fn) {
     gl.uniform3f(uHemiSky_P, 0x88/255, 0x99/255, 0xbb/255); // 0x8899bb
     gl.uniform3f(uHemiGrd_P, 0x3a/255, 0x2a/255, 0x1a/255); // 0x3a2a1a
     gl.uniform1f(uHemiInt_P, 0.4);
+    gl.uniform1f(uLightInt_P, state.lightIntensity);
+    gl.uniform1i(uRenderMode_P, state.renderMode);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVBO);
-    var stride = 6 * 4;
-    gl.enableVertexAttribArray(aPos_P);
-    gl.vertexAttribPointer(aPos_P, 3, gl.FLOAT, false, stride, 0);
-    gl.enableVertexAttribArray(aNor_P);
-    gl.vertexAttribPointer(aNor_P, 3, gl.FLOAT, false, stride, 3 * 4);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIBO);
-    gl.drawElements(gl.TRIANGLES, cubeIdx.length, gl.UNSIGNED_SHORT, 0);
+    // 实体/法线模式：绘制三角形（线框模式跳过，改用下方 line 程序画边）
+    if (state.renderMode !== 1) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeVBO);
+      var stride = 6 * 4;
+      gl.enableVertexAttribArray(aPos_P);
+      gl.vertexAttribPointer(aPos_P, 3, gl.FLOAT, false, stride, 0);
+      gl.enableVertexAttribArray(aNor_P);
+      gl.vertexAttribPointer(aNor_P, 3, gl.FLOAT, false, stride, 3 * 4);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIBO);
+      gl.drawElements(gl.TRIANGLES, cubeIdx.length, gl.UNSIGNED_SHORT, 0);
+    }
 
-    // ---- 线段（网格 / 坐标轴 / 光源线）----
+    // ---- 线段（网格 / 坐标轴 / 光源线 / 立方体边线）----
     gl.useProgram(lineProg);
     gl.uniformMatrix4fv(uProj_L, false, projM);
     gl.uniformMatrix4fv(uView_L, false, viewM);
-    mat4.identity(modelM);
-    gl.uniformMatrix4fv(uModel_L, false, modelM);
 
-    function drawLines(set) {
+    function drawLines(set, modelMatrix) {
+      gl.uniformMatrix4fv(uModel_L, false, modelMatrix);
       gl.bindBuffer(gl.ARRAY_BUFFER, set.vbo);
       gl.enableVertexAttribArray(aPos_L);
       gl.vertexAttribPointer(aPos_L, 3, gl.FLOAT, false, 0, 0);
@@ -4986,21 +5046,51 @@ function _onResize(fn) {
       gl.vertexAttribPointer(aCol_L, 3, gl.FLOAT, false, 0, 0);
       gl.drawArrays(gl.LINES, 0, set.count);
     }
-    drawLines(gridSet);
-    drawLines(axesSet);
-    drawLines(lightSet);
+    // 网格/坐标轴/光源线用 identity（世界空间）
+    var identityM = mat4.identity(mat4.create());
+    drawLines(gridSet, identityM);
+    drawLines(axesSet, identityM);
+    drawLines(lightSet, identityM);
+    // 立方体边线跟随立方体自转（线框模式或叠加显示）
+    // 线框模式才画立方体边线；实体/法线模式不画避免视觉杂乱
+    if (state.renderMode === 1) {
+      drawLines(cubeWireSet, modelM);
+    }
 
     // 清掉 line 程序的 color attribute，避免污染下一帧 phong 程序的同槽位
     gl.disableVertexAttribArray(aCol_L);
   }
 
   // ---- 动画循环 ----
+  var fpsFrames = 0, fpsLastTime = performance.now();
+  var fpsEl = document.getElementById('demo1-fps');
+  var distEl = document.getElementById('demo1-dist');
+  var distValEl = document.getElementById('demo1-dist-val');
   function animate() {
     requestAnimationFrame(animate);
     if (canvas._paused) return;
-    rotX += 0.005;
-    rotY += 0.008;
+    if (!state.paused) {
+      rotX += 0.005 * state.rotateSpeedMul;
+      rotY += 0.008 * state.rotateSpeedMul;
+    }
     render();
+    // FPS 计数（每 500ms 更新）
+    fpsFrames++;
+    var now = performance.now();
+    if (now - fpsLastTime >= 500) {
+      var fps = Math.round(fpsFrames * 1000 / (now - fpsLastTime));
+      if (fpsEl) {
+        fpsEl.textContent = 'FPS: ' + fps;
+        fpsEl.style.color = fps >= 50 ? 'var(--accent-green)' : fps >= 30 ? 'var(--accent-orange)' : 'var(--accent-red)';
+      }
+      fpsFrames = 0;
+      fpsLastTime = now;
+    }
+    // 相机距离同步到滑块（用户拖拽/滚轮改变时反映）
+    if (distEl && Math.abs(parseFloat(distEl.value) - damp.radius) > 0.05) {
+      distEl.value = damp.radius.toFixed(2);
+      if (distValEl) distValEl.textContent = damp.radius.toFixed(1);
+    }
   }
   animate();
 
@@ -5013,6 +5103,69 @@ function _onResize(fn) {
     canvas.style.height = h + 'px';
     // viewport / canvas.width 由 render 按 dpr 实时同步
   });
+
+  // ---- 交互控件事件绑定 ----
+  // 暂停/继续自转
+  var pauseBtn = document.getElementById('demo1-pause-btn');
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', function() {
+      state.paused = !state.paused;
+      pauseBtn.innerHTML = state.paused ? '&#9654; 继续自转' : '&#9208; 暂停自转';
+      pauseBtn.classList.toggle('active', state.paused);
+    });
+  }
+  // 重置视角
+  var resetBtn = document.getElementById('demo1-reset-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+      orbit.theta = Math.PI * 0.25;
+      orbit.phi = Math.PI * 0.32;
+      orbit.radius = 5.8;
+      target[0] = target[1] = target[2] = 0;
+      rotX = 0; rotY = 0;
+    });
+  }
+  // 渲染模式切换
+  var modeBtns = {
+    0: document.getElementById('demo1-mode-lit'),
+    1: document.getElementById('demo1-mode-wire'),
+    2: document.getElementById('demo1-mode-normal')
+  };
+  Object.keys(modeBtns).forEach(function(m) {
+    var btn = modeBtns[m];
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      state.renderMode = parseInt(m, 10);
+      Object.keys(modeBtns).forEach(function(k) {
+        if (modeBtns[k]) modeBtns[k].classList.toggle('active', k === m);
+      });
+    });
+  });
+  // 平行光强度
+  var lightSlider = document.getElementById('demo1-light');
+  var lightVal = document.getElementById('demo1-light-val');
+  if (lightSlider) {
+    lightSlider.addEventListener('input', function() {
+      state.lightIntensity = parseFloat(this.value);
+      if (lightVal) lightVal.textContent = state.lightIntensity.toFixed(2);
+    });
+  }
+  // 自转速度
+  var speedSlider = document.getElementById('demo1-speed');
+  var speedVal = document.getElementById('demo1-speed-val');
+  if (speedSlider) {
+    speedSlider.addEventListener('input', function() {
+      state.rotateSpeedMul = parseFloat(this.value);
+      if (speedVal) speedVal.textContent = state.rotateSpeedMul.toFixed(1) + 'x';
+    });
+  }
+  // 相机距离滑块（用户主动拖动时改 radius）
+  var distSlider = document.getElementById('demo1-dist');
+  if (distSlider) {
+    distSlider.addEventListener('input', function() {
+      orbit.radius = parseFloat(this.value);
+    });
+  }
 })();
 
 // ============================================
