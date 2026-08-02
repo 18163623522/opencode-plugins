@@ -4714,12 +4714,16 @@ function _onResize(fn) {
     'attribute vec3 aPosition;',
     'attribute vec3 aNormal;',
     'uniform mat4 uProjection, uView, uModel, uNormalMatrix;',
+    'uniform vec3 uViewPos;',
     'varying vec3 vWorldPos;',
     'varying vec3 vNormal;',
+    'varying vec3 vReflect;     // 反射向量（环境反射用）',
     'void main() {',
     '  vec4 wp = uModel * vec4(aPosition, 1.0);',
     '  vWorldPos = wp.xyz;',
     '  vNormal = normalize((uNormalMatrix * vec4(aNormal, 0.0)).xyz);',
+    '  vec3 viewDir = normalize(uViewPos - vWorldPos);',
+    '  vReflect = reflect(-viewDir, vNormal);',
     '  gl_Position = uProjection * uView * wp;',
     '}'
   ].join('\n');
@@ -4728,6 +4732,7 @@ function _onResize(fn) {
     'precision highp float;',
     'varying vec3 vWorldPos;',
     'varying vec3 vNormal;',
+    'varying vec3 vReflect;',
     'uniform vec3 uViewPos;',
     'uniform vec3 uBaseColor;',
     'uniform vec3 uSpecular;',
@@ -4744,6 +4749,8 @@ function _onResize(fn) {
     'uniform vec3 uPointLightColor[NUM_POINT_LIGHTS];',
     'uniform float uPointLightIntensity;',
     'uniform float uPointLightEnabled;',
+    'uniform samplerCube uEnvMap;     // 程序化天空 cube map',
+    'uniform float uReflectivity;     // 反射强度（金属高，哑光低）',
     '// 距离衰减（learnopgl 标准公式）',
     'float attenuation(float d) { return 1.0 / (1.0 + 0.7*d + 1.8*d*d); }',
     'void main() {',
@@ -4771,6 +4778,11 @@ function _onResize(fn) {
     '    totalLight += (uBaseColor * pdiff + uSpecular * pspec) * uPointLightColor[i] * atten;',
     '  }',
     '  vec3 lit = totalLight + uEmissive;',
+    '  // 环境反射（金属物体反射天空）',
+    '  if (uReflectivity > 0.0) {',
+    '    vec3 envColor = textureCube(uEnvMap, vReflect).rgb;',
+    '    lit = mix(lit, envColor * (uBaseColor + vec3(0.3)), uReflectivity);',
+    '  }',
     '  gl_FragColor = vec4(lit, 1.0);',
     '}'
   ].join('\n');
@@ -4951,6 +4963,68 @@ function _onResize(fn) {
     lightPos[0] + lightDirRaw[0]*2.5, lightPos[1] + lightDirRaw[1]*2.5, lightPos[2] + lightDirRaw[2]*2.5
   ], [lightColArr[0],lightColArr[1],lightColArr[2], lightColArr[0],lightColArr[1],lightColArr[2]]);
 
+  // ---- 程序化天空 cube map（反射用，无外部资源）----
+  // 用 canvas 2D 离屏画 6 个面：顶部深空→地平线青绿，加一个明亮"太阳"光斑
+  function makeProceduralEnvMap() {
+    var size = 256;
+    var envMap = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, envMap);
+    // 太阳方向（与平行光一致，从 +X/+Y 方向）
+    var sunDir = [0.5, 0.65, 0.4];
+    // 6 个面的方向定义：顺序必须是 +X,-X,+Y,-Y,+Z,-Z
+    var faceDirs = [
+      [1,0,0], [-1,0,0], [0,1,0], [0,-1,0], [0,0,1], [0,0,-1]
+    ];
+    var faceUps = [
+      [0,1,0], [0,1,0], [0,0,-1], [0,0,1], [0,1,0], [0,1,0]
+    ];
+    for (var face = 0; face < 6; face++) {
+      var c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      var cx2d = c.getContext('2d');
+      // 基础渐变：顶部深蓝紫 → 底部青绿
+      var grad = cx2d.createLinearGradient(0, 0, 0, size);
+      grad.addColorStop(0, '#0a0820');
+      grad.addColorStop(0.4, '#1a1535');
+      grad.addColorStop(0.6, '#2a1845');
+      grad.addColorStop(1, '#1a3540');
+      cx2d.fillStyle = grad;
+      cx2d.fillRect(0, 0, size, size);
+      // 计算太阳在该面的投影位置
+      var dir = faceDirs[face], up = faceUps[face];
+      var right = [up[2]*dir[1]-up[1]*dir[2], up[0]*dir[2]-up[2]*dir[0], up[1]*dir[0]-up[0]*dir[1]];
+      var su = sunDir[0]*right[0] + sunDir[1]*right[1] + sunDir[2]*right[2];
+      var sv = sunDir[0]*up[0] + sunDir[1]*up[1] + sunDir[2]*up[2];
+      var sd = sunDir[0]*dir[0] + sunDir[1]*dir[1] + sunDir[2]*dir[2];
+      if (sd > -0.1) {
+        var sunX = (su/sd + 1) * 0.5 * size;
+        var sunY = (-sv/sd + 1) * 0.5 * size;
+        // 太阳光晕（多层径向渐变）
+        for (var r = size*0.25; r > 4; r *= 0.6) {
+          var intensity = Math.max(0, sd + 0.3);
+          var rg = cx2d.createRadialGradient(sunX, sunY, 0, sunX, sunY, r);
+          rg.addColorStop(0, 'rgba(255,240,200,' + (0.9*intensity) + ')');
+          rg.addColorStop(0.3, 'rgba(255,200,120,' + (0.5*intensity) + ')');
+          rg.addColorStop(1, 'rgba(255,180,80,0)');
+          cx2d.fillStyle = rg;
+          cx2d.fillRect(0, 0, size, size);
+        }
+        // 太阳核心
+        cx2d.fillStyle = 'rgba(255,250,230,' + Math.max(0, sd) + ')';
+        cx2d.beginPath();
+        cx2d.arc(sunX, sunY, size*0.03, 0, Math.PI*2);
+        cx2d.fill();
+      }
+      gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+    }
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return envMap;
+  }
+  var envMap = makeProceduralEnvMap();
+
   // ---- uniform 定位 ----
   var aPos_P = gl.getAttribLocation(phongProg, 'aPosition');
   var aNor_P = gl.getAttribLocation(phongProg, 'aNormal');
@@ -4974,6 +5048,8 @@ function _onResize(fn) {
   var uPLcol_P = gl.getUniformLocation(phongProg, 'uPointLightColor[0]');
   var uPLint_P = gl.getUniformLocation(phongProg, 'uPointLightIntensity');
   var uPLen_P = gl.getUniformLocation(phongProg, 'uPointLightEnabled');
+  var uEnvMap_P = gl.getUniformLocation(phongProg, 'uEnvMap');
+  var uRefl_P = gl.getUniformLocation(phongProg, 'uReflectivity');
 
   var aPos_L = gl.getAttribLocation(lineProg, 'aPosition');
   var aCol_L = gl.getAttribLocation(lineProg, 'aColor');
@@ -5080,7 +5156,8 @@ function _onResize(fn) {
     lightIntensity: 1.0,
     renderMode: 0,
     pointLightsOn: true,
-    pointLightIntensity: 1.2
+    pointLightIntensity: 1.2,
+    reflectivityMul: 1.0
   };
 
   var dirLightDir = [3, 5, 4];
@@ -5109,7 +5186,7 @@ function _onResize(fn) {
   var objects = [
     {
       geo: cubeGeo,
-      material: { baseColor: [0.35, 0.65, 0.88], specular: [0.3, 0.3, 0.3], shininess: 32, emissive: [0,0,0] },
+      material: { baseColor: [0.35, 0.65, 0.88], specular: [0.3, 0.3, 0.3], shininess: 32, emissive: [0,0,0], reflectivity: 0.15 },
       pos: [-1.7, -0.45, 0],
       getModelM: function(t, out) {
         mat4.identity(out);
@@ -5121,7 +5198,7 @@ function _onResize(fn) {
     },
     {
       geo: sphereGeo,
-      material: { baseColor: [0.85, 0.78, 0.45], specular: [0.95, 0.9, 0.7], shininess: 128, emissive: [0,0,0] },
+      material: { baseColor: [0.85, 0.78, 0.45], specular: [0.95, 0.9, 0.7], shininess: 128, emissive: [0,0,0], reflectivity: 0.7 },
       pos: [0, -0.3, 0],
       getModelM: function(t, out) {
         mat4.identity(out);
@@ -5131,7 +5208,7 @@ function _onResize(fn) {
     },
     {
       geo: torusGeo,
-      material: { baseColor: [0.55, 0.4, 0.85], specular: [0.7, 0.7, 0.9], shininess: 64, emissive: [0,0,0] },
+      material: { baseColor: [0.55, 0.4, 0.85], specular: [0.7, 0.7, 0.9], shininess: 64, emissive: [0,0,0], reflectivity: 0.4 },
       pos: [1.8, -0.6, 0],
       getModelM: function(t, out) {
         mat4.identity(out);
@@ -5143,7 +5220,7 @@ function _onResize(fn) {
     },
     {
       geo: groundGeo,
-      material: { baseColor: [0.13, 0.14, 0.19], specular: [0.15, 0.15, 0.18], shininess: 16, emissive: [0,0,0] },
+      material: { baseColor: [0.13, 0.14, 0.19], specular: [0.15, 0.15, 0.18], shininess: 16, emissive: [0,0,0], reflectivity: 0.05 },
       pos: [0, 0, 0],
       getModelM: function(t, out) {
         mat4.identity(out);
@@ -5208,6 +5285,10 @@ function _onResize(fn) {
     gl.uniform1f(uPLen_P, state.pointLightsOn ? 1.0 : 0.0);
 
     if (state.renderMode !== 1) {
+      // 绑定环境贴图到纹理单元 0（cube map 采样）
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, envMap);
+      gl.uniform1i(uEnvMap_P, 0);
       for (var oi = 0; oi < objects.length; oi++) {
         var obj = objects[oi];
         obj.getModelM(t, modelM);
@@ -5219,6 +5300,7 @@ function _onResize(fn) {
         gl.uniform3fv(uSpec_P, obj.material.specular);
         gl.uniform1f(uShin_P, obj.material.shininess);
         gl.uniform3fv(uEmis_P, obj.material.emissive);
+        gl.uniform1f(uRefl_P, obj.material.reflectivity * state.reflectivityMul);
         gl.bindBuffer(gl.ARRAY_BUFFER, obj.geo.vbo);
         var stride = 6 * 4;
         gl.enableVertexAttribArray(aPos_P);
