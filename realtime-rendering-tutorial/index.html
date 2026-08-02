@@ -4714,16 +4714,19 @@ function _onResize(fn) {
     'attribute vec3 aPosition;',
     'attribute vec3 aNormal;',
     'uniform mat4 uProjection, uView, uModel, uNormalMatrix;',
+    'uniform mat4 uLightSpaceMatrix;',
     'uniform vec3 uViewPos;',
     'varying vec3 vWorldPos;',
     'varying vec3 vNormal;',
-    'varying vec3 vReflect;     // 反射向量（环境反射用）',
+    'varying vec3 vReflect;',
+    'varying vec4 vLightSpacePos;  // 阴影采样用',
     'void main() {',
     '  vec4 wp = uModel * vec4(aPosition, 1.0);',
     '  vWorldPos = wp.xyz;',
     '  vNormal = normalize((uNormalMatrix * vec4(aNormal, 0.0)).xyz);',
     '  vec3 viewDir = normalize(uViewPos - vWorldPos);',
     '  vReflect = reflect(-viewDir, vNormal);',
+    '  vLightSpacePos = uLightSpaceMatrix * wp;',
     '  gl_Position = uProjection * uView * wp;',
     '}'
   ].join('\n');
@@ -4751,6 +4754,25 @@ function _onResize(fn) {
     'uniform float uPointLightEnabled;',
     'uniform samplerCube uEnvMap;     // 程序化天空 cube map',
     'uniform float uReflectivity;     // 反射强度（金属高，哑光低）',
+    'uniform sampler2D uShadowMap;    // 阴影贴图',
+    'uniform float uShadowEnabled;    // 阴影开关',
+    'varying vec4 vLightSpacePos;',
+    '// PCF 3x3 软阴影采样',
+    'float calcShadow(vec4 lsp, sampler2D shadowMap) {',
+    '  vec3 proj = lsp.xyz / lsp.w;',
+    '  proj = proj * 0.5 + 0.5;',  // NDC 0~1
+    '  if (proj.z > 1.0 || proj.x < 0.0 || proj.x > 1.0 || proj.y < 0.0 || proj.y > 1.0) return 1.0;',
+    '  float bias = 0.003;',
+    '  float shadow = 0.0;',
+    '  vec2 texelSize = vec2(1.0 / 1024.0, 1.0 / 1024.0);',
+    '  for (int x = -1; x <= 1; x++) {',
+    '    for (int y = -1; y <= 1; y++) {',
+    '      float depth = texture2D(shadowMap, proj.xy + vec2(x, y) * texelSize).r;',
+    '      shadow += (proj.z - bias > depth) ? 0.0 : 1.0;',
+    '    }',
+    '  }',
+    '  return shadow / 9.0;',
+    '}',
     '// 距离衰减（learnopgl 标准公式）',
     'float attenuation(float d) { return 1.0 / (1.0 + 0.7*d + 1.8*d*d); }',
     'void main() {',
@@ -4760,12 +4782,13 @@ function _onResize(fn) {
     '  float hemiMix = 0.5 * N.y + 0.5;',
     '  vec3 ambient = mix(uHemiGround, uHemiSky, hemiMix) * uHemiIntensity * uBaseColor;',
     '  vec3 totalLight = ambient;',
-    '  // 平行光（主光）',
+    '  // 平行光（主光，受阴影调制）',
+    '  float shadow = mix(1.0, calcShadow(vLightSpacePos, uShadowMap), uShadowEnabled);',
     '  vec3 L = normalize(uDirLightDir);',
     '  float diff = max(dot(N, L), 0.0);',
     '  vec3 H = normalize(L + V);',
     '  float spec = pow(max(dot(N, H), 0.0), uShininess) * step(0.0, diff);',
-    '  totalLight += (uBaseColor * diff + uSpecular * spec) * uDirLightColor * uLightIntensity;',
+    '  totalLight += (uBaseColor * diff + uSpecular * spec) * uDirLightColor * uLightIntensity * shadow;',
     '  // 点光源（带衰减）',
     '  for (int i = 0; i < NUM_POINT_LIGHTS; i++) {',
     '    vec3 toLight = uPointLightPos[i] - vWorldPos;',
@@ -4798,6 +4821,16 @@ function _onResize(fn) {
     'varying vec3 vColor;',
     'void main() { gl_FragColor = vec4(vColor, 1.0); }'
   ].join('\n');
+  // 深度 shader（shadow map pass 用）：只输出 gl_Position，深度自动写入
+  var depthVS = [
+    'attribute vec3 aPosition;',
+    'uniform mat4 uLightSpaceMatrix, uModel;',
+    'void main() { gl_Position = uLightSpaceMatrix * uModel * vec4(aPosition, 1.0); }'
+  ].join('\n');
+  var depthFS = [
+    'precision highp float;',
+    'void main() { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); }' // 实际深度由 depth buffer 记录
+  ].join('\n');
 
   // ---- 编译/链接 ----
   function compile(type, src) {
@@ -4821,7 +4854,12 @@ function _onResize(fn) {
   }
   var phongProg = link(phongVS, phongFS);
   var lineProg = link(lineVS, lineFS);
+  var depthProg = link(depthVS, depthFS);
   if (!phongProg || !lineProg) return;
+  // 检测深度纹理支持（WebGL2 原生；WebGL1 需 WEBGL_depth_texture 扩展）
+  var isWebGL2 = (canvas.getContext('webgl2') === gl);
+  var depthTexSupported = isWebGL2 || !!gl.getExtension('WEBGL_depth_texture');
+  var SHADOW_SIZE = 1024;
 
   // ---- 几何辅助：交错布局（pos.xyz, nor.xyz）→ {vbo, ibo, count} ----
   function makeGeometry(interleaved, indices) {
@@ -5025,6 +5063,27 @@ function _onResize(fn) {
   }
   var envMap = makeProceduralEnvMap();
 
+  // ---- 阴影 FBO（shadow map 深度纹理 + framebuffer）----
+  var shadowFBO = null, shadowTex = null;
+  if (depthTexSupported && depthProg) {
+    shadowTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, shadowTex);
+    // WebGL2 用 DEPTH_COMPONENT24，WebGL1 用 DEPTH_COMPONENT + 扩展
+    var depthInternal = isWebGL2 ? gl.DEPTH_COMPONENT24 : gl.DEPTH_COMPONENT;
+    var depthFormat = gl.DEPTH_COMPONENT;
+    var depthType = isWebGL2 ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT;
+    gl.texImage2D(gl.TEXTURE_2D, 0, depthInternal, SHADOW_SIZE, SHADOW_SIZE, 0, depthFormat, depthType, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    shadowFBO = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFBO);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, shadowTex, 0);
+    if (gl.drawBuffers) gl.drawBuffers([gl.NONE]); // 无颜色输出
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
   // ---- uniform 定位 ----
   var aPos_P = gl.getAttribLocation(phongProg, 'aPosition');
   var aNor_P = gl.getAttribLocation(phongProg, 'aNormal');
@@ -5050,6 +5109,13 @@ function _onResize(fn) {
   var uPLen_P = gl.getUniformLocation(phongProg, 'uPointLightEnabled');
   var uEnvMap_P = gl.getUniformLocation(phongProg, 'uEnvMap');
   var uRefl_P = gl.getUniformLocation(phongProg, 'uReflectivity');
+  var uLightSpace_P = gl.getUniformLocation(phongProg, 'uLightSpaceMatrix');
+  var uShadowMap_P = gl.getUniformLocation(phongProg, 'uShadowMap');
+  var uShadowEn_P = gl.getUniformLocation(phongProg, 'uShadowEnabled');
+  // depth 程序的 location（阴影 pass 用）
+  var aPos_D = depthProg ? gl.getAttribLocation(depthProg, 'aPosition') : -1;
+  var uLightSpace_D = depthProg ? gl.getUniformLocation(depthProg, 'uLightSpaceMatrix') : null;
+  var uModel_D = depthProg ? gl.getUniformLocation(depthProg, 'uModel') : null;
 
   var aPos_L = gl.getAttribLocation(lineProg, 'aPosition');
   var aCol_L = gl.getAttribLocation(lineProg, 'aColor');
@@ -5149,6 +5215,8 @@ function _onResize(fn) {
 
   // ---- 矩阵 / 状态 ----
   var projM = mat4.create(), viewM = mat4.create(), modelM = mat4.create(), normalM = mat4.create();
+  var lightProjM = mat4.create(), lightViewM = mat4.create(), lightSpaceM = mat4.create();
+  var shadowEye = [3, 5, 4], shadowTarget = [0,0,0];
   var eye = vec3.create(), up = [0, 1, 0];
   var state = {
     paused: false,
@@ -5157,7 +5225,8 @@ function _onResize(fn) {
     renderMode: 0,
     pointLightsOn: true,
     pointLightIntensity: 1.2,
-    reflectivityMul: 1.0
+    reflectivityMul: 1.0,
+    shadowsOn: true
   };
 
   var dirLightDir = [3, 5, 4];
@@ -5251,6 +5320,35 @@ function _onResize(fn) {
     orbitPos(eye, damp.theta, damp.phi, damp.radius);
     mat4.lookAt(viewM, eye, target, up);
 
+    // ---- 阴影 pass：从光源视角渲染深度到 shadowFBO ----
+    if (shadowFBO && depthProg) {
+      // 光空间矩阵：正交投影（场景范围约 -5~5）
+      mat4.ortho(lightProjM, -5, 5, -5, 5, 0.5, 25);
+      mat4.lookAt(lightViewM, shadowEye, shadowTarget, up);
+      mat4.multiply(lightSpaceM, lightProjM, lightViewM);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFBO);
+      gl.viewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);
+      gl.useProgram(depthProg);
+      gl.uniformMatrix4fv(uLightSpace_D, false, lightSpaceM);
+      gl.enableVertexAttribArray(aPos_D);
+      // 只渲染会投影的物体（立方体/球体/圆环，不含地面——地面接收阴影但不投影）
+      for (var si = 0; si < 3; si++) {
+        var sobj = objects[si];
+        sobj.getModelM(t, modelM);
+        gl.uniformMatrix4fv(uModel_D, false, modelM);
+        gl.bindBuffer(gl.ARRAY_BUFFER, sobj.geo.vbo);
+        gl.vertexAttribPointer(aPos_D, 3, gl.FLOAT, false, 24, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sobj.geo.ibo);
+        gl.drawElements(gl.TRIANGLES, sobj.geo.count, gl.UNSIGNED_SHORT, 0);
+      }
+      gl.disableVertexAttribArray(aPos_D);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
     // 更新点光源位置（绕场景缓慢旋转）
     var t = performance.now() * 0.001;
     pointLights[0].pos[0] = Math.cos(t * 0.5) * 3.0;
@@ -5283,6 +5381,16 @@ function _onResize(fn) {
     gl.uniform3fv(uPLcol_P, plColFlat);
     gl.uniform1f(uPLint_P, state.pointLightIntensity);
     gl.uniform1f(uPLen_P, state.pointLightsOn ? 1.0 : 0.0);
+    // 阴影：光空间矩阵 + 绑定 shadow map 到纹理单元 1
+    gl.uniformMatrix4fv(uLightSpace_P, false, lightSpaceM);
+    if (shadowTex) {
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, shadowTex);
+      gl.uniform1i(uShadowMap_P, 1);
+      gl.uniform1f(uShadowEn_P, state.shadowsOn ? 1.0 : 0.0);
+    } else {
+      gl.uniform1f(uShadowEn_P, 0.0);
+    }
 
     if (state.renderMode !== 1) {
       // 绑定环境贴图到纹理单元 0（cube map 采样）
