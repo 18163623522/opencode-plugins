@@ -30,3 +30,6 @@ UE4_Source_Guide/*
 
 !realtime-rendering-tutorial/
 !realtime-rendering-tutorial/**
+
+!linear-algebra-tutorial/
+!linear-algebra-tutorial/**
