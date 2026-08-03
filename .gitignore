@@ -33,3 +33,6 @@ UE4_Source_Guide/*
 
 !linear-algebra-tutorial/
 !linear-algebra-tutorial/**
+
+!vision-bridge-mcp/
+!vision-bridge-mcp/**

@@ -1,0 +1,30 @@
+{
+  "_comment": "视觉能力桥接 MCP 配置示例。复制为 .mcp.json 并填入真实 API Key。",
+  "_usage": "把 mcpServers.vision-bridge 合并到你已有的 .mcp.json：用户级 ~/.zcode/.mcp.json（全局）或项目根 .mcp.json（项目级）。",
+  "_providers": {
+    "glm":  "智谱 GLM —— open.bigmodel.cn，OpenAI 协议。glm-4.6v-flash 有免费档",
+    "kimi": "Kimi K3 —— platform.kimi.com，Anthropic 协议（sk-kimi- 前缀 Key，端点 api.kimi.com/coding）",
+    "mimo": "小米 MiMo —— platform.xiaomimimo.com，OpenAI 协议。tp- 前缀 Key 是 Token Plan，需用专属 base_url"
+  },
+
+  "mcpServers": {
+    "vision-bridge": {
+      "command": "python",
+      "args": [
+        "D:/001_Archive/AI/vision-bridge-mcp/server.py"
+      ],
+      "env": {
+        "GLM_API_KEY": "在此填智谱 Key（open.bigmodel.cn）",
+        "KIMI_API_KEY": "在此填 Kimi Key（platform.kimi.com，sk-kimi- 前缀）",
+        "MIMO_API_KEY": "在此填 MiMo Key（platform.xiaomimimo.com）",
+
+        "VISION_DEFAULT_PROVIDER": "auto",
+        "VISION_DEFAULT_MODEL_GLM": "glm-4.6v",
+        "VISION_DEFAULT_MODEL_KIMI": "kimi-k3",
+        "VISION_DEFAULT_MODEL_MIMO": "mimo-v2.5",
+        "VISION_MAX_IMAGE_EDGE": "1568",
+        "VISION_REQUEST_TIMEOUT": "120"
+      }
+    }
+  }
+}

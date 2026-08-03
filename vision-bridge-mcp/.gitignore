@@ -1,0 +1,17 @@
+# API Key 永远不入库
+.mcp.json
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# 调试 / IDE
+.vscode/
+.idea/
+*.log
