@@ -2144,7 +2144,7 @@ hr {
 <p>裁剪之后，顶点坐标被变换到<strong>屏幕空间</strong>。屏幕空间是一个二维坐标系，x 和 y 对应屏幕上的像素位置。</p>
 
 <div class="callout callout-info">
-  <strong>细节：</strong>裁剪空间的坐标范围是 [-1, 1]（也叫做 NDC，Normalized Device Coordinates）。屏幕映射就是把 [-1, 1] 映射到 [0, 屏幕宽度] 和 [0, 屏幕高度]。比如 NDC 中的 (0, 0) 映射到屏幕正中间，(1, 1) 映射到屏幕右上角。
+  <strong>细节：</strong>投影之后、<strong>透视除法之前</strong>，顶点处于齐次的<strong>裁剪空间</strong>（裁剪就发生在这一阶段）；GPU 执行透视除法（各分量除以 w）之后才得到 <strong>NDC</strong>，x/y 范围是 [-1, 1]（z 范围因 API 而异：OpenGL [-1,1]、DirectX [0,1]）。屏幕映射把 NDC 的 [-1, 1] 映射到 [0, 屏幕宽度] 和 [0, 屏幕高度]。比如 NDC 中的 (0, 0) 映射到屏幕正中间，(1, 1) 映射到屏幕右上角。
 </div>
 
 <div class="section-header"><h3>2.4 光栅化阶段（Rasterization）</h3></div>
@@ -2773,7 +2773,7 @@ vec4 data = texelFetch(buffer, gl_InstanceID * 7, 0);</code></pre>
 <p>欧拉角直观易懂，但有一个著名的缺陷：<strong>万向锁（Gimbal Lock）</strong>。当中间轴（通常是 Yaw）旋转到 ±90° 时，第一轴和第三轴会对齐，导致丢失一个旋转自由度。此时无论旋转 Pitch 还是 Roll，物体都会绕同一个轴旋转。</p>
 
 <div class="callout callout-info">
-  <strong>万向锁的数学本质：</strong>欧拉角旋转矩阵为 R = Rz(roll) × Ry(yaw) × Rx(pitch)。当 yaw = 90° 时，经数学推导可得 R = Ry(90°) × Rz(roll + pitch)，即 roll 和 pitch 合并为一个轴的旋转，三个自由度退化为两个。这就是万向锁。
+  <strong>万向锁的数学本质：</strong>以组合序 R = Rz(roll)·Ry(yaw)·Rx(pitch) 为例：当 yaw = 90° 时可推出 R = Rz(roll − pitch)·Ry(90°)——三个角度只剩 roll−pitch 一个有效自由度，第一轴与第三轴的旋转落到同一根轴上。两点补充：①锁死条件取决于所选欧拉角顺序（24 种组合各有自己的中间轴，教材常用 pitch 作中间轴）；②万向锁不是某个公式的特例，而是任何三参数定向参数化必然存在奇点。
 </div>
 
 <div class="callout callout-tip">
@@ -3120,7 +3120,7 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
 
 <div class="book-quote">
   <p>我们首先会讨论材质和光源的定义，以及它们如何用于实现所需要的表面外观，无论这个表面是写实的还是风格化的。该章节还会介绍其他与外观表现相关的话题，例如使用抗锯齿、透明度和伽马矫正来获得更高的图像质量。</p>
-  <div class="attribution">RTR4 §1.1 — 第5章概述</div>
+  <div class="attribution">RTR4 · 第5章概述</div>
 </div>
 
 <p>着色（Shading）是决定物体"看起来是什么样"的过程。没有着色，3D 场景只是一堆灰扑扑的几何体。着色赋予了物体颜色、质感、光影效果，让虚拟世界变得栩栩如生。</p>
@@ -3133,7 +3133,7 @@ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0)
 
 <ul>
   <li><strong>Lambert 着色（漫反射）</strong>：最简单的光照模型，只考虑光线照射到表面的均匀散射。表面亮度只取决于光线方向和表面法线的夹角。</li>
-  <li><strong>Phong 着色</strong>：在 Lambert 基础上增加了高光（Specular Highlight）效果。能模拟光滑表面的反光。</li>
+  <li><strong>Phong 光照模型</strong>：在 Lambert 漫反射基础上增加高光（Specular Highlight）项，模拟光滑表面反光。（术语辨析：老文献里 "Phong shading" 另有所指——与 Gouraud shading 相对，指逐像素而非逐顶点的着色频率；今天逐像素已是默认，该义项已退役。）</li>
   <li><strong>Blinn-Phong 着色</strong>：Phong 的一种变体，用半程向量（Half Vector）替代反射向量，计算更高效，效果也更稳定。</li>
   <li><strong>基于物理的着色（PBR）</strong>：更现代的方法，基于物理原理计算光照。这是目前游戏和电影工业的主流方法。第 9 章会详细介绍。</li>
 </ul>
@@ -3274,7 +3274,9 @@ void main() {
     vec3 L = lightVec / dist;  // 归一化光照方向
 
     // 3. 距离衰减（物理近似：1/d²）
-    float attenuation = 1.0 / (dist * dist);
+     // RTR4 §5.2.2 警示：d→0 时数值无界增长。工程实现应在分母加 ε
+     // 或设最小半径，并在光源 range 处用窗函数淡出。
+    float attenuation = 1.0 / max(dist * dist, 0.0001);
     vec3 radiance = uLightColor * uLightIntensity * attenuation;
 
     // 4. 漫反射 (Lambert)
@@ -3348,7 +3350,7 @@ void main() {
 
 <div class="book-quote">
   <p>实时渲染中最强大的工具之一，就是能够快速访问图像，并将其显示在表面上。这个过程叫做纹理化，有各种各样来实现它的方法。</p>
-  <div class="attribution">RTR4 §1.1 — 第6章概述</div>
+  <div class="attribution">RTR4 · 第6章概述</div>
 </div>
 
 <div class="book-quote">
@@ -3375,7 +3377,7 @@ void main() {
 </ol>
 
 <div class="callout callout-info">
-  <strong>UV 坐标：</strong>每个顶点除了位置、法线外，还有一组 2D 坐标 (u, v)，范围通常是 [0, 1]。这组坐标告诉渲染器"应该从纹理图片的哪个位置取颜色"。(0, 0) 是纹理左下角，(1, 1) 是右上角。三角形内部的像素通过插值得到自己的 UV 坐标。
+  <strong>UV 坐标：</strong>每个顶点除了位置、法线外，还有一组 2D 坐标 (u, v)，范围通常是 [0, 1]。这组坐标告诉渲染器"应该从纹理图片的哪个位置取颜色"。(0, 0) 在哪个角依 API 而定：OpenGL 中纹理左下角是 (0,0)，DirectX 中则是左上角（两者恰为 y 轴翻转关系）——跨 API 处理图像时常因这个差异拿到上下颠倒的图。(1, 1) 总是对角。三角形内部的像素通过插值得到自己的 UV 坐标。
 </div>
 
 <div class="section-header"><h3>6.2 图像纹理</h3></div>
@@ -3399,7 +3401,7 @@ void main() {
   <strong>金字塔比喻：</strong>Mipmap 就是一组预先准备好的、不同分辨率的纹理副本，像金字塔一样逐层缩小。原图在最底层（最大），往上每层分辨率减半——256x256、128x128、64x64... 直到 1x1。当物体远离相机需要缩小纹理时，GPU 直接使用对应层级的 Mipmap，而不是实时计算，这样既快又避免了视觉闪烁（摩尔纹）。
 </div>
 
-<p>Mipmap 需要额外的 33% 显存开销（所有层级大小之和约为原图的 1/3），但带来的好处远超成本：</p>
+<p>Mipmap 需要额外约 33% 显存：每层面积减半，所有层级之和是原图的 4/3 倍（1 + 1/4 + 1/16 + …），多出来的正是那 1/3，但带来的好处远超成本：</p>
 <ul>
   <li>大幅减少远处纹理的锯齿和闪烁</li>
   <li>提高缓存命中率（因为远处像素访问的是较小的纹理）</li>
@@ -3564,7 +3566,7 @@ void main() {
 
 <div class="book-quote">
   <p>在场景中添加阴影效果可以增强画面的真实感和表现力。我们会在这个章节中介绍几种目前比较流行的、能够快速计算阴影的方法。</p>
-  <div class="attribution">RTR4 §1.1 — 第7章概述</div>
+  <div class="attribution">RTR4 · 第7章概述</div>
 </div>
 
 <div class="book-quote">
@@ -3697,7 +3699,7 @@ void main() {
 
 <div class="book-quote">
   <p>在我们实现基于物理的渲染之前，我们首先需要了解如何对光和颜色进行量化建模。并且在我们执行基于物理的渲染之后，我们还需要将最终结果转换为可以显示的数值，并考虑屏幕属性和观察环境对它的影响。</p>
-  <div class="attribution">RTR4 §1.1 — 第8章概述</div>
+  <div class="attribution">RTR4 · 第8章概述</div>
 </div>
 
 <div class="book-quote">
@@ -3742,7 +3744,7 @@ void main() {
 <p><strong>HDR（高动态范围，High Dynamic Range）</strong>是指图像能表示的亮度范围远超普通显示器。</p>
 
 <ul>
-  <li><strong>现实世界的亮度范围：</strong>从星夜（约 0.001 cd/m&sup2;）到正午阳光（约 100,000 cd/m&sup2;），跨超过 8 个数量级（10^8 倍）</li>
+  <li><strong>现实世界的亮度范围：</strong>从星夜（约 0.001 cd/m&sup2;）到地平线上的太阳（书中数值约 600,000 cd/m&sup2;；作为参照：白天天空约 8,000、HDR 显示器约 500–1,000），横跨约 9 个数量级</li>
   <li><strong>LDR 显示器的范围：</strong>普通 8-bit 显示器，每通道 0-255，最亮与最暗的比值约 256:1</li>
   <li><strong>HDR 渲染：</strong>在着色器中使用浮点数（通常 16-bit 或 32-bit）存储中间结果，保留完整的亮度信息</li>
 </ul>
@@ -3760,7 +3762,7 @@ void main() {
   <li><strong>线性映射（Linear）：</strong>简单截断，超过 1.0 的值直接设为 1.0。结果生硬，丢失高亮细节。</li>
   <li><strong>Reinhard：</strong>经典算法，L_out = L_in / (1 + L_in)。平滑地将 HDR 映射到 [0, 1]，但会让整体偏灰。</li>
   <li><strong>ACES（Academy Color Encoding System）：</strong>电影行业标准，由奥斯卡科技委员会开发。保留了更好的对比度和色彩。</li>
-  <li><strong>Uncharted 2 / Filmic：</strong>Uncharted 2 游戏中开发的算法，电影感强烈，高光有漂亮的橙色调。</li>
+  <li><strong>Uncharted 2 / Filmic：</strong>曲线源自 Duiker 对柯达胶片响应曲线的拟合，后经 Hable 修改并用于《神秘海域 2》，电影感强烈、实现廉价。</li>
 </ul>
 
 <h4>颜色分级（Color Grading）</h4>
@@ -3838,7 +3840,7 @@ void main() {
 
 <div class="book-quote">
   <p>我们将从头开始建立起对基于物理的着色模型的理解。在本章节中，我们首先会从潜在的物理现象开始，介绍一系列包含各种渲染材质的着色模型，最后介绍这些材质的混合方法和过滤方法，从而避免材质出现瑕疵（aliasing）并保持表面外观。</p>
-  <div class="attribution">RTR4 §1.1 — 第9章概述</div>
+  <div class="attribution">RTR4 · 第9章概述</div>
 </div>
 
 <div class="book-quote">
@@ -3906,7 +3908,7 @@ void main() {
 <p>其中 F<sub>0</sub> 是正入射（&theta;=0）时的反射率，由材质的折射率（IOR）决定。</p>
 
 <ul>
-  <li>非金属（电介质）：F<sub>0</sub> 通常很小（0.02-0.05），正入射时几乎不反射</li>
+  <li>非金属（电介质）：F<sub>0</sub> 很低且不超过 0.06，未知材质的合理默认值是 0.04；除特殊抗反射涂层外没有任何材料的 F<sub>0</sub> 低于 0.02。正入射时几乎不反射，且高光不带颜色</li>
   <li>金属（导体）：F<sub>0</sub> 通常很大（0.5-1.0），即使是正入射也有明显反射</li>
 </ul>
 
@@ -3932,7 +3934,7 @@ void main() {
 <ul>
   <li><strong>基础颜色（Base Color / Albedo）：</strong>材质的"本色"。对于金属，它决定了反射的颜色；对于非金属，它决定了漫反射的颜色。</li>
   <li><strong>金属度（Metalness）：</strong>0 或 1 的值（中间值很少见）。金属没有漫反射，只有带颜色的镜面反射；非金属有白色的高光和有颜色的漫反射。</li>
-  <li><strong>粗糙度（Roughness）：</strong>0 到 1 的值。0 = 完全光滑（完美镜面反射），1 = 完全粗糙（漫反射）。它控制 NDF 中法线的分布范围。</li>
+  <li><strong>粗糙度（Roughness）：</strong>0 到 1 的值。0 = 完全光滑（完美镜面），1 = 极粗糙（镜面波瓣很宽）。注意粗糙度只作用于<strong>镜面项</strong>：拉到 1 也不会"变成漫反射"——漫反射的物理来源是光进入表面内部的次表面散射，与微表面的粗糙度无关。它控制 NDF 中法线的分布范围。</li>
 </ul>
 
 <h4>法线分布函数（NDF）</h4>
@@ -4089,7 +4091,7 @@ void main() {
 
 <div class="book-quote">
   <p>本章节研究了刻画（portray）复杂光源的算法。我们在进行表面着色的时候，需要考虑到这些光线是从某些物理对象中发射出来的，这些物体具有独特的形状。</p>
-  <div class="attribution">RTR4 §1.1 — 第10章概述</div>
+  <div class="attribution">RTR4 · 第10章概述</div>
 </div>
 
 <div class="book-quote">
@@ -4209,7 +4211,7 @@ void main() {
 
 <div class="book-quote">
   <p>本章节研究了模拟光线和场景多次相交的算法，这可以大大增强图像的真实感。我们还会研究环境光遮蔽（ambient occlusion）和定向遮蔽（directional occlusion），介绍在漫反射表面和镜面表面上渲染全局光照效果的方法，以及一些很有前景的统一方法。</p>
-  <div class="attribution">RTR4 §1.1 — 第11章概述</div>
+  <div class="attribution">RTR4 · 第11章概述</div>
 </div>
 
 <p>全局光照（GI）是渲染技术的"圣杯"——它模拟光在场景中多次弹射的完整行为，包括漫反射间接光、焦散（Caustics）、颜色渗透（Color Bleeding）等效果。全局光照让渲染结果真正接近真实照片。</p>
@@ -4252,7 +4254,7 @@ void main() {
   <li><strong>预计算 AO（Baked AO）：</strong>在建模阶段预计算，生成 AO 纹理贴图。质量最高但只适用于静态场景。</li>
   <li><strong>SSAO（Screen-Space Ambient Occlusion）：</strong>在屏幕空间中估计每个像素的"遮蔽程度"。采样周围深度缓冲中的点，判断有多少被几何体遮挡。</li>
   <li><strong>HBAO（Horizon-Based Ambient Occlusion）：</strong>SSAO 的改进版本，沿水平方向采样，更准确地估计遮蔽。</li>
-  <li><strong>GTAO（Ground Truth Ambient Occlusion）：</strong>基于轨迹追踪（Ray Tracing）思想的方法，质量更高。</li>
+  <li><strong>GTAO（Ground Truth AO，Jimenez 等/Square Enix）：</strong>以"与光线追踪结果对齐"为目标设计的水平视角方法，补回余弦项后质量显著提升；提出者是 Square Enix 团队而非显卡厂商。</li>
   <li><strong>RTAO（Ray-Traced Ambient Occlusion）：</strong>使用硬件光线追踪来精确计算 AO，质量最高但需要 RTX 级 GPU。</li>
 </ul>
 
@@ -4260,7 +4262,7 @@ void main() {
 
 <p>SSAO 的核心思想：</p>
 <ol>
-  <li>对屏幕上每个像素，在以该像素为中心的半球内随机采样若干个点</li>
+  <li>对屏幕上每个像素，在其周围随机采样若干个点（史实注：Crytek 2007 原始 SSAO 实际用的是<strong>球形</strong>采样，把表面以下的无效样本也计入因而结果偏暗——书里把它列为该方法的主要缺陷；带余弦加权的半球采样是后来 HBAO/GTAO 一系改进的方向）</li>
   <li>将这些点转换到视图空间，比较它们的深度与深度缓冲中的值</li>
   <li>如果采样点的深度比深度缓冲中大（被挡住了），说明这个方向有遮蔽</li>
   <li>统计所有采样点中被遮蔽的比例，作为该像素的 AO 系数</li>
@@ -7477,7 +7479,7 @@ function updateLightIntensity() {
 
 <div class="book-quote">
   <p>图形硬件擅长进行高速的图像处理。在本章节中，我们首先会讨论图像过滤技术和重投影（reprojection）技术，然后我们将会介绍几种常见的后处理特效：镜头光晕（lens flare），动态模糊（motion blur）和景深（depth of field）。</p>
-  <div class="attribution">RTR4 §1.1 — 第12章概述</div>
+  <div class="attribution">RTR4 · 第12章概述</div>
 </div>
 
 <p>在前面的章节里，我们讨论的都是"在 3D 空间中计算光照"的方法。但有时候，最震撼的视觉效果并不在 3D 世界里完成，而是在<strong>图像已经渲染到屏幕之后</strong>，对整张图像进行再加工。这就是<strong>后处理（Post-processing）</strong>。</p>
@@ -7570,7 +7572,7 @@ outputToScreen(buffer);           // 最终输出到屏幕</code></pre>
     <h4>演示 13：后处理效果展示（Bloom / 景深）</h4>
   </div>
   <div class="demo-description">
-    下面场景中有几个发光球体。你可以切换<strong>无后处理 / Bloom（泛光）/ 景深模糊</strong>三种模式，直观对比后处理效果的差异。Bloom 会让发光球体产生光晕；景深模式中离中心越远越模糊。使用鼠标拖拽旋转视角。
+    下面场景中有几个发光球体。你可以切换<strong>无后处理 / Bloom（泛光）/ 景深模糊</strong>三种模式，直观对比后处理效果的差异。Bloom 会让发光球体产生光晕；景深模式中偏离焦平面越远的物体越模糊（聚焦面两侧的近处与远处都会虚化，与画面中心无关）。使用鼠标拖拽旋转视角。
   </div>
   <div class="demo-body">
     <div class="demo-canvas-wrapper">
@@ -7644,7 +7646,7 @@ outputToScreen(buffer);           // 最终输出到屏幕</code></pre>
 
 <div class="book-quote">
   <p>对于描述物体形状而言，三角形并不总是速度最快或者效果最逼真的方法，一些诸如基于图像、点云（point cloud）、体素（voxel）或者其他样本集合的替代方法，都有着各自的独特优势。</p>
-  <div class="attribution">RTR4 §1.1 — 第13章概述</div>
+  <div class="attribution">RTR4 · 第13章概述</div>
 </div>
 
 <p>到目前为止，我们讨论的渲染对象几乎都是多边形网格（Polygonal Meshes）。但真实世界中有许多事物无法单纯用多边形来表现 -- 天空、树木、火焰、雨雪……本章介绍一些"超越多边形"的渲染技术。</p>
@@ -7774,7 +7776,7 @@ outputToScreen(buffer);           // 最终输出到屏幕</code></pre>
 
 <div class="book-quote">
   <p>本章节的重点是体积材质的表示方法，以及体积材质与光线相互作用的理论与实践。它可以模拟的现象有很多，大到大范围的大气效果，小到毛发纤维的光线散射等。</p>
-  <div class="attribution">RTR4 §1.1 — 第14章概述</div>
+  <div class="attribution">RTR4 · 第14章概述</div>
 </div>
 
 <p>现实世界中有大量"半透明"和"体积"现象：天空、云雾、皮肤、玻璃、牛奶、玉石……这些材质无法用简单的"表面反射"来描述。本章讨论处理这些复杂材质的渲染技术。</p>
@@ -7919,7 +7921,7 @@ finalColor = mix(fogColor, objectColor, fogFactor);
 
 <div class="book-quote">
   <p>尝试将一个场景渲染得更加逼真，只是众多渲染方式中的一种，除此之外还有很多其他风格，比如卡通渲染和水彩效果等。同时我们还会对直线和文本生成技术进行讨论。</p>
-  <div class="attribution">RTR4 §1.1 — 第15章概述</div>
+  <div class="attribution">RTR4 · 第15章概述</div>
 </div>
 
 <div class="callout callout-analogy">
@@ -8038,7 +8040,7 @@ float toonShade = floor(normalShade * levels) / levels;  // 只有几个离散�
 
 <div class="book-quote">
   <p>几何数据的来源有很多，有时候我们需要对其进行修正，才能更好更快的进行渲染。本章节讨论了有关多边形数据表示和多边形数据压缩的相关内容。</p>
-  <div class="attribution">RTR4 §1.1 — 第16章概述</div>
+  <div class="attribution">RTR4 · 第16章概述</div>
 </div>
 
 <p>多边形网格是实时渲染中最基本的几何表示方式。本章讨论与多边形网格相关的各种优化和处理技术。</p>
@@ -8249,14 +8251,14 @@ float toonShade = floor(normalShade * levels) / levels;  // 只有几个离散�
 
 <div class="book-quote">
   <p>使用一些更加复杂的表面表达方式可以提供很多优势，例如可以在渲染质量和渲染速度之间进行权衡，可以具有更加紧凑的表示以及可以生成更加平滑的表面。</p>
-  <div class="attribution">RTR4 §1.1 — 第17章概述</div>
+  <div class="attribution">RTR4 · 第17章概述</div>
 </div>
 
 <p>直线和三角形只是最简单的几何图元。现实世界充满了曲线 -- 汽车的外壳、飞机的机身、字体轮廓、动画路径。本章介绍描述和渲染曲线与曲面的数学工具。</p>
 
 <div class="section-header"><h3>17.1 贝塞尔曲线（Bezier Curve）</h3></div>
 
-<p><strong>贝塞尔曲线</strong>是计算机图形学中最重要的曲线表示方法之一。它由法国工程师 Pierre Bezier 在 1960 年代为汽车车身设计而发明，至今仍广泛应用于字体、矢量图形、动画路径、UI 设计等领域。</p>
+<p><strong>贝塞尔曲线</strong>是计算机图形学中最重要的曲线表示方法之一。它由 Paul de Casteljau（雪铁龙）与 Pierre Bézier（雷诺）各自独立开发、应用于法国汽车工业，因 Bézier 先公开发表而得名。至今仍广泛应用于字体、矢量图形、动画路径、UI 设计等领域。</p>
 
 <div class="subsection-header"><h4>基本概念</h4></div>
 
@@ -8373,7 +8375,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="book-quote">
   <p>对于一个已经使用了高效算法，并且正在运行的应用程序，我们还可以使用各种优化技术来进一步提高它的运行效率。本章节讨论了如何找应用程序的性能瓶颈（bottleneck）并对其进行处理，以及多线程优化等问题。</p>
-  <div class="attribution">RTR4 §1.1 — 第18章概述</div>
+  <div class="attribution">RTR4 · 第18章概述</div>
 </div>
 
 <p>实时渲染的核心约束是<strong>必须在有限的时间内（通常是 16.7 毫秒 = 60 FPS）完成一帧的所有计算</strong>。当帧率掉下来时，你需要知道瓶颈在哪里，然后对症下药。</p>
@@ -8933,7 +8935,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="book-quote">
   <p>当我们让一个程序成功运行起来之后，下一步就是让它运行得更快。本章节讨论了各种各样的剔除技术（culling），以及层次细节（level of detail，LOD）等技术。</p>
-  <div class="attribution">RTR4 §1.1 — 第19章概述</div>
+  <div class="attribution">RTR4 · 第19章概述</div>
 </div>
 
 <p>在实时渲染中，场景可能包含数百万个三角形。如果对每一个像素都逐一检测所有三角形是否相交，计算量将大得无法想象。<strong>加速算法</strong>就是让渲染器"聪明地跳过大量无关计算"的技术。</p>
@@ -9005,7 +9007,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 </ul>
 
 <div class="callout callout-tip">
-  <strong>通俗理解：</strong>想象你在看一个不透明的箱子，你看不到它的背面，所以完全不需要去计算和绘制背面的那些面。通常能剔除约 50% 的三角形！
+  <strong>通俗理解：</strong>想象你在看一个不透明的箱子，你看不到它的背面，所以完全不需要去计算和绘制背面的那些面。"大约省一半"只对封闭凸体（箱子外表面之类）成立；室内墙面、地形这类面向相机的面占主导的模型几乎没有收益——实际收益高度依赖模型类型，别当成普遍结论。
 </div>
 
 <div class="subsection-header"><h4>19.4 视锥体剔除（Frustum Culling）</h4></div>
@@ -9018,7 +9020,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 </ul>
 
 <div class="callout callout-info">
-  <strong>实际效果：</strong>在一个典型的开放世界游戏中，视锥体剔除通常能减少 60-80% 的物体渲染量。
+  <strong>实际效果：</strong>大型世界的任意时刻通常只有一小部分物体可见，视锥体剔除因此是一切加速的地基；但具体剔除比例随场景构成浮动极大，不存在普适百分比。
 </div>
 
 <div class="subsection-header"><h4>19.7 遮挡剔除（Occlusion Culling）</h4></div>
@@ -9334,7 +9336,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="book-quote">
   <p>场景中的大量光源会严重降低性能表现；在无法确定一个片元最终是否可见之前对其进行着色计算，也是重要的性能开销来源（过度绘制overdraw）。</p>
-  <div class="attribution">RTR4 §1.1 — 第20章概述（意译）</div>
+  <div class="attribution">RTR4 · 第20章概述（意译）</div>
 </div>
 
 <p>着色（Shading）是计算每个像素颜色的过程，也是 GPU 最繁重的工作之一。<strong>高效着色</strong>的目标是在保证视觉质量的前提下，尽量减少每个像素的计算量。</p>
@@ -9690,7 +9692,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="book-quote">
   <p>这些领域有着特殊的挑战和技术，例如：如何以一个较高且稳定的帧率，来高效生成逼真的图像。</p>
-  <div class="attribution">RTR4 §1.1 — 第21章概述</div>
+  <div class="attribution">RTR4 · 第21章概述</div>
 </div>
 
 <p>虚拟现实（VR）和增强现实（AR）是实时渲染技术的前沿应用领域。它们对图形渲染提出了<strong>远超传统屏幕显示</strong>的严苛要求。</p>
@@ -9725,7 +9727,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="subsection-header"><h4>畸变校正（Distortion Correction）</h4></div>
 <ul>
-  <li>VR 头显的透镜会产生桶形畸变，渲染后必须进行反向畸变校正。</li>
+  <li>VR 头显的透镜让画面呈现<strong>枕形畸变</strong>，所以渲染时对图像预先施加<strong>桶形畸变</strong>去抵消（两者方向相反，成本共担于光学与软件）。</li>
   <li>畸变校正会增加边缘区域的像素密度（需要 supersampling）。</li>
 </ul>
 
@@ -9734,7 +9736,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
   <table>
     <thead><tr><th>技术</th><th>效果</th></tr></thead>
     <tbody>
-      <tr><td>固定注视点渲染（Foveated Rendering）</td><td>只在眼睛注视区域全分辨率渲染，边缘降低分辨率，节省 30-50% 像素</td></tr>
+      <tr><td>固定注视点渲染（Fixed Foveated Rendering）</td><td>无需眼动追踪，按光学中心圆+外围环降分辨率（真正的注视点渲染需要毫秒级眼动追踪硬件）。参考量级：隐藏区域网格约省 17% 填充率、索尼 2×2 抖动方案约省 25%</td></tr>
       <tr><td>异步时间扭曲（ATW）</td><td>在帧未就绪时，用上一帧+最新头部姿态重新投影，降低延迟感</td></tr>
       <tr><td>单通道立体渲染</td><td>一次 Draw Call 渲染双眼，减少 CPU 开销</td></tr>
       <tr><td>多分辨率渲染</td><td>配合固定注视点，不同区域使用不同分辨率</td></tr>
@@ -9901,7 +9903,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="book-quote">
   <p>相交测试对于渲染，用户交互和碰撞检测而言十分重要。在本章节中，我们介绍了许多用于几何相交测试的高效算法，并对其进行了深入讨论。</p>
-  <div class="attribution">RTR4 §1.1 — 第22章概述</div>
+  <div class="attribution">RTR4 · 第22章概述</div>
 </div>
 
 <p><strong>相交测试</strong>是判断两个几何体是否"碰到"的基本运算。它在光线追踪、碰撞检测、拾取（Picking）和物理模拟中无处不在。</p>
@@ -9917,7 +9919,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 <p>判断一个点 P 是否在三角形 ABC 内。最常用的方法是<strong>重心坐标法</strong>：计算 P 相对于三角形三个顶点的重心坐标 (u, v, w)，如果 0 &lt;= u,v,w &lt;= 1 且 u+v+w=1，则 P 在三角形内。</p>
 
 <div class="subsection-header"><h4>射线与三角形（Ray-Triangle Test）</h4></div>
-<p>这是光线追踪中最常用的测试。经典算法是 <strong>Moller-Trumbore 算法</strong>（1997年），通过求解射线方程与三角形平面的交点，再检查交点是否在三角形内部。</p>
+<p>这是光线追踪中最常用的测试。经典算法是 <strong>Möller–Trumbore 算法</strong>（1997年）。它的要点恰恰是<strong>不需要先求射线与三角形平面的交点</strong>：把射线方程直接代入三角形的重心坐标参数式，用 Cramer 法则一步解出 (t, u, v)——t 给命中距离，u/v 判断是否在三角形内。</p>
 
 <div class="subsection-header"><h4>射线与球体（Ray-Sphere Test）</h4></div>
 <p>射线方程为 <strong>P(t) = O + t * D</strong>，其中 O 是射线起点，D 是射线方向。球心为 C，半径为 r。</p>
@@ -10157,7 +10159,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 
 <div class="book-quote">
   <p>本章节对一些硬件组件进行了重点关注，例如颜色缓冲、深度缓冲、帧缓冲以及其他基本结构类型等。同时提供了一个具有代表性的GPU案例学习。</p>
-  <div class="attribution">RTR4 §1.1 — 第23章概述</div>
+  <div class="attribution">RTR4 · 第23章概述</div>
 </div>
 
 <p>了解图形硬件（GPU）是理解实时渲染性能特性的关键。<strong>硬件决定了什么是可行的、什么是高效的</strong>。</p>
@@ -10406,11 +10408,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 <div class="knowledge-box">
   <div class="kb-title">碰撞检测与相交测试的关系</div>
   <p>碰撞检测和第22章讨论的相交测试方法密切相关，但侧重点不同：相交测试关注"两个几何体是否相交"的精确数学判定，而碰撞检测更关注"大量物体中哪些可能碰撞"的<strong>高效筛选</strong>。</p>
-  <p>典型的碰撞检测流程分为两个阶段：</p>
-  <ul>
-    <li><strong>宽阶段（Broad Phase）：</strong>使用空间划分结构（BVH、四叉树、网格）快速排除不可能碰撞的物体对</li>
-    <li><strong>窄阶段（Narrow Phase）：</strong>对剩余的候选物体对进行精确的几何相交测试</li>
-  </ul>
+  <p>典型的碰撞检测流程分为三个阶段：</p><ul><li><strong>宽阶段（Broad Phase）：</strong>用扫描剪枝（SAP）、均匀网格或 BVH 快速排除不可能碰撞的物体对</li><li><strong>中阶段（Middle Phase）：</strong>在宽阶段的候选对内下探到图元层级，找重叠的叶节点/凸包部分</li><li><strong>窄阶段（Narrow Phase）：</strong>对最终候选做精确几何相交或距离查询（如 GJK）</li></ul>
 </div>
 
 <div class="callout callout-analogy">
@@ -10752,7 +10750,7 @@ S(u,v) = &Sigma; &Sigma; Bi(u) * Bj(v) * Pij
 <p>DXR（DirectX Raytracing）在传统渲染管线中插入了<strong>光线追踪管线</strong>：</p>
 <ol>
   <li><strong>Acceleration Structure：</strong>在 CPU 或 GPU 上构建 BVH。</li>
-  <li><strong>Ray Generation Shader：</strong>生成初始光线（可以从像素着色器、计算着色器等发起）。</li>
+  <li><strong>Ray Generation Shader：</strong>管线起点，负责生成初始光线（DXR 规定只有 Ray Generation / Closest-Hit / Miss 三类着色器可以调用 TraceRay() 再发射新光线）。</li>
   <li><strong>Intersection Shader：</strong>自定义相交测试（用于非三角形图元，如球体、曲面）。</li>
   <li><strong>Closest-Hit / Any-Hit Shader：</strong>找到最近交点或任意交点时执行。</li>
   <li><strong>Miss Shader：</strong>光线未命中任何物体时执行（可以采样环境贴图）。</li>

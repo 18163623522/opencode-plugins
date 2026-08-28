@@ -173,7 +173,7 @@
 
 <div class="knowledge-box">
   <div class="knowledge-box-title">&#128218; 知识扩展：法线贴图 vs 凹凸贴图</div>
-  <p>法线贴图相比凹凸贴图有两大优势：</p>
+  <p><strong>先修正一个常见说法（对照 RTR4 原书）：</strong>法线贴图与 Blinn 1978 年的凹凸贴图在数学上<strong>等价</strong>，差别只在存储格式与像素着色器中的计算操作，不存在原理性的精度差。下面两条是工程实践中的取舍：</p>
   <ol>
     <li><strong>更精确的法线计算：</strong>直接存储法线方向，而非通过高度差的差分近似，避免了数值微分的不稳定性。</li>
     <li><strong>可以表示任意方向的法线：</strong>凹凸贴图只能沿高度方向偏移，而法线贴图可以表示任意方向的扰动，能够表现更复杂的表面细节。</li>
@@ -740,10 +740,7 @@
   Smith-GGX 几何函数：
   G1(v) = (n . v) / ((n . v) * (1 - k) + k)
 
-  G_Smith(l, v) = G1(l) * G1(v)
-
-  其中 k = roughness&sup2; / 2  (对于 IBL/点光源的直接光照)
-  或者 k = (roughness + 1)&sup2; / 8  (对于 UE4 的 remapping)
+  分离形式 G_Smith(l,v) = G1(l) · G1(v)<br>Karis 重映射（UE4，<strong>实时直接光照</strong>）：k = (roughness + 1)&sup2; / 8<br>IBL 预过滤：k = roughness&sup2; / 2<br><br><strong>RTR4 提醒：</strong>实践中最广为采用的是 Heitz 推荐的<strong>高度相关</strong>Smith 形式（G2(l,v,h) 同时考虑 l、v 的相关性）；上述"两式简单相乘"的可分离假设会导致 BRDF 过暗。
 </div>
 
 <div class="section-header"><h3>9.8 金属度-粗糙度工作流 (Metalness-Roughness Workflow)</h3></p>
