@@ -1,0 +1,4669 @@
+Ìc;µ:få
+„Ñ˘C§åÖGò;≤¥¿¥
+:˛K™%¸,;
+)ƒŒˆú◊}‚;Ò‡ËBì[„zÕrå
+ÚŒ‚à;Ö•§eå
+eLŒXïΩD$≥kaiô-Õ«‘Ÿ¿;å
+£es;¢+¸D≥üw:Uâ¶o¨
+£es;¢+¸D≥üw:Uâ¶o´
+0ò«;5ﬁH¨MT¯çyJ
+‚L´‹:¢;mç1M
+Uè›;‘]ÍO∂/ˇg
+óH∫úÏ;
+Æ◊;XBä∏≈
+VJl∑;M
+íÊ";íQ
+‘}(^;ñaHµì
+;Ëà˛~xíC≥!fõÊ$ﬂHå
+ËπÓ÷';ÿFÜ
+Ωg\ñŸ˜axVÁ˙è;
+CÓHs›Õ˜M°˛Lu2Ë{;å
+º∫¸ñM©;fW
+Bò %Ã#ÛÜé;
+G¢^>i;I±
+oG<eÛÏ;K©P<i£†ùÑà
+≤2xFî(B;˜NÔjà
+⁄Uw;=q
+;=õÒI∞ï&¢S-‹9à
+4Œ˛ÔK¶;⁄tÇ
+ﬁJΩu&ÑkU„;Ø
+ﬁJΩu&ÑkU„;Ç
+—Ì7;GΩ
+ﬁJΩu&ÑkU„;ó
+ﬁJΩu&ÑkU„;í
+‡gYßÖ¯Hê");rÆ◊\º
+‡gYßÖ¯Hê");rÆ◊\Ç
+‡gYßÖ¯Hê");rÆ◊\ò
+‡gYßÖ¯Hê");rÆ◊\å
+ﬁJΩu&ÑkU„;ù
+‡gYßÖ¯Hê");rÆ◊\û
+float Total = 0;
+for (int i = 0; i <= Radius; ++i)
+    float Val = 1. - 1. * i/(Radius+1);
+    Total += Val;
+    KernelArray.SetArrayElem(false, i, .5*Val / Total);
+ÔF´¯t)ê;0
+float Sigma = (Radius - 1.) / 6.;
+float TwoSigmaSquared = 2. * Sigma * Sigma;
+float Coeff = 1./(sqrt(2 * 3.141569) * Sigma);
+float Total = 0.0;
+    Total += Coeff * exp(-1. * (1.*i/Radius) / (TwoSigmaSquared)); 
+    float Val = Coeff * exp(-1. * (1.*i/Radius) / (TwoSigmaSquared)); 
+    KernelArray.SetArrayElem(false, i, .5*Val/Total);
+float BoxVal = 1./(2.0 * Radius + 1.0);
+    KernelArray.SetArrayElem(false, i, BoxVal);
+int IGNORE = 0;
+Grid.SetGridValue(IndexX, IndexY, IndexZ, AttributeIndex, Value.x, IGNORE);
+Grid.SetGridValue(IndexX, IndexY, IndexZ, AttributeIndex+1, Value.y, IGNORE);
+Grid.SetGridValue(IndexX, IndexY, IndexZ, AttributeIndex+2, Value.z, IGNORE);
+BlurredValue = 0;
+float Width = Radius * 2. + 1;
+float TotalKernel = 0;
+int3 CurrCell = int3(IndexX, IndexY, IndexZ);
+int3 MaxCells = int3(NumCellsX, NumCellsY, NumCellsZ)  - 1;
+for (int xx = -Radius; xx <= Radius; ++xx) {
+for (int yy = -Radius; yy <= Radius; ++yy) {
+for (int zz = -Radius; zz <= Radius; ++zz) {
+  int3 SampleVec = int3(xx,yy,zz);
+  int3 SampelCell = clamp(CurrCell + SampleVec, int3(0,0,0), MaxCells);
+  float Sample;
+  Grid.GetFloatGridValue(SampelCell.x, SampelCell.y, SampelCell.z, Sample);
+  float KernelValue = Coeff * exp(-1. * length2(SampleVec) / (TwoSigmaSquared)); 
+  TotalKernel += KernelValue;
+  BlurredValue += Sample * KernelValue;
+BlurredValue /= TotalKernel;
+;W/Ë¿]
+float S_right;
+Grid.GetFloatGridValue(IndexX+1, IndexY, IndexZ, S_right);
+float S_left;
+Grid.GetFloatGridValue(IndexX-1, IndexY, IndexZ, S_left);
+float S_up;
+Grid.GetFloatGridValue(IndexX, IndexY+1, IndexZ, S_up);
+float S_down;
+Grid.GetFloatGridValue(IndexX, IndexY-1, IndexZ, S_down);
+float S_front;
+Grid.GetFloatGridValue(IndexX, IndexY, IndexZ+1, S_front);
+float S_back;
+Grid.GetFloatGridValue(IndexX, IndexY, IndexZ-1, S_back);
+Grad = float3(S_right - S_left, S_up - S_down, S_front - S_back) / (2.0 * dx);
+Grad = float3(0.0, 0.0, 0.0);
+√¿¸‹;FØ
+;y7ïNJê∫àN
+fk$DÖÑ;l˛åwﬁ
+õÀ`x;3ØJö
+"õÉa|ˇ;Eí
+m∞Y*C•ˆ4ÀD;uäº
+m∞Y*C•ˆ4ÀD;uäû
+⁄9;›D∞Çy
+;«8ìêÈûO≠DÏ
+£;n4‰EfC∞Ì
+S~Îe≤Ï∫Aó;>h≠
+±qú©#N7O™ª;eﬂ
+‡gYßÖ¯Hê");rÆ◊\
+nÂ¢q“qMâ;}tk
+;W/Ë¿]◊
+;W/Ë¿]î
+Â√˙»S;ÅD†ò
+W`Äd˘å°B≥t¥÷;ƒk|à
+‡H;˜*ı
+.ë3ev˝˝@ØŸ;˘˜‚b€Ò
+.ë3ev˝˝@ØŸ;˘˜‚b
+pwh;'Û
+pwh;'è
+;*≈‹)yOèY_P∑C∞∫G
+q≥7¸u’;Cñ=
+ÛLV‚µc}I≠º;∂c
+Zæ¿Qbï™K™;aÙƒ
+Ñq;dœDÿJë`†à]À
+‰S∫Ì=M9O†<ù.Ü;mîd
+˘~ÙÈ<Ä;M•
+;5Hd6ˆ*FÆ•ÍKÛL
+(s±;î`ÏCö6⁄V`6X3Û
+C¢äËG2›A´¡˙;
+¸¥gq‘ÚôOí;
+j£;ﬁjØFÉ•4N^
+‰S∫Ì=M9O†<ù.Ü;mî]
+\∏Aä;!ô-¬€¡å
+.ë3ev˝˝@ØŸ;˘˜‚b€8
+pwh;':
+∆N‡˚ú7—AçÂµ;Ωv·
+w‚ûur´;
+!®e”dq;
+¥í^I;∏ÀDÜyÑ[
+Á“Á!;‰¿Lçª
+∂ÙµO≥;3Yx‘(Çà
+æ=¿§;0-F≥
+;aJΩzO ?∆+†s
+;aJΩzO ?∆+†ã
+èN∫≤;Ò"ê_Üå
+I¶dvÉ;
+‡ê;ªóX
+¶;ûwKçÛ∆
+q$Û;‚ò∆Oñ
+àΩÄCòåíÀ;é◊œ
+fh◊Ô˘É M£;©áÏ´EÒ
+.S.; Ná–=Åˇ∂Ã
+;aJΩzO ?∆+†∑
+ó‚‰z;XUIÄt7a!EÏ
+Úó;˝3g.Dì
+z;O∫kÉ^˝öËTà
+≤´;à‘ÿ
+ˇ;u…‰â
+Ük˚Fã¢•æV;∑@ì
+Ük˚Fã¢•æV;∑@
+º NÄ;+
+A¶∫†ÙÄ;≠ZãäEGê¿ÂN≤z
+A¶∫†ÙÄ;≠Z
+É;LßA^%Ÿ¸ª
+Hd;}†#
+4ùæò∞b;∫ÉÈm@ãõ
+∞b;∫ÉÈm@ãõ
+Rﬁı;M®
+q‘ı;EûuCdﬁ&5
+;aJΩzO ?∆+†
+DºÅïïÏ;
+Æ˝DüÁL¬C»Pµ;
+éÉ∫SòzÅS)E¶sÀ;
+MÆ/ÊÁ§ı(ïcµ|NÑc"ïì°wç;∂‘›1
+8¢∂;ıDº
+∫SòzÅS)E¶sÀ;
+aÈOp;M
+à;¯`>ˇ}HòÌﬁ_
+0ÜÓú5;
+‡ê;ªóXî
+‡ê;ªóX∑
+r}@ΩÂÈ∆Cù^V>ˇ;
+OT';ÂgÀDæ
+N´†;zXã
+⁄Tñ{¢åOØÆHZ;
+Œ>6ÅKÜ;ª¢D
+x;ò@éAíáû5&6ø
+x;ò@éAíáû5&6∑
+;w0∞µM©0r
+;Eÿ’4C™p
+[;§¯Gçw≤Aí¶K
+cöâItHÑ§;(è∑
+0Ü;±LD¢WMPúMfUΩ“
+0Ü;±LD¢WMPúMfU
+∫z;ÃI∑”∆?∏W‡E
+ÍÄHµX;¨DºÿgìÔ{
+'2¿ÿ;∑ïHàiøú63#&
+Í2 …_,nG∫Û©ªf5;AŸ
+Í2 …_,nG∫Û©ªf5;Aå
++M;y’G≥ªe|∑;∂ıì
+û;E/ºEï
++M;y’G≥ªe|∑;∂ı
+Ãiîk;Ÿ
+ˆ6Éj)ö¥OÖÜ(∆«;⁄g‚
+ˆ6Éj)ö¥OÖÜ(∆«;⁄gå
+äÛ;$Ñ®
+ú;6÷ﬁvEE•
+àΩÄCòåíÀ;é◊œÊ
+àΩÄCòåíÀ;é◊
+Ø%ÙÑ¸rWEú{˘Ω;Ô
+ÜΩ;SıF¥
+;É$˝Î°
+˛=Õ FËNOñØ#˜;Ë
+–?æπ¶éCå≤∑;+Iù
+U_√{€NÌFö*˛ú;Ì∂u
+™–ÒÀo ;Iè*js\Ú“@ˆ
+™–ÒÀo ;Iè*js\Ú“@å
+≥$Ñ;M†˜¨
+q‘ı;EûuCdﬁ&5›
+Û;Còáñ"ı¡ù/&A©9OS¡Â
+u{9Wfê6GùÎ)dÔ;
+;{âurwHÉÚ…Tá^Î≥-
+;{âurwHÉÚ…Tá^
+£πç'ˇåEHÑ.f∆{Å5/;
+x;ò@éAíáû5&6M
+Í2 …_,nG∫Û©ªf5;Ag
+ˆ6Éj)ö¥OÖÜ(∆«;⁄gp
+àΩÄCòåíÀ;é◊œt
+;êt@¨Ïá
+IÍù_;F´ó∏òCˇæ
+IÍù_;F´ó∏òCˇæ∆
+™–ÒÀo ;Iè*js\Ú“@à
+†IÜ:fΩ˚;#Tì
+†IÜ:fΩ˚;#T
+ C≠B†ZªwÂÇ
+⁄Uw;=qô
+⁄Uw;=q∑
+PYNˆ6N;Oû
+ó‚‰z;XUIÄt7a!EÏ¶
+ó‚‰z;XUIÄt7a!EÏ∑
+V6∑ÿ·9˚NæH;ÆÔ#ê£
+;©†˚(ÊÂFêç
+A¢;QÉ¢f
+ÂkYóŸJö;ƒb’
+∏ı∞ùD∆;@ò¶>ı
+UV¿¥AÑ+äª•z;ß
+¨;M"D0
+.ë3ev˝˝@ØŸ;˘˜‚b€
+Â;À-ßî
+ÙZ≤A;E
+ t’(æMùühNw+DëÃ
+ t’(æMùühNw+Dë
+Kû\;óŒ
+Kû\;óT
+∫z;ÃI∑”∆?∏W‡Eœ
+∫z;ÃI∑”∆?∏W‡E√
+'2¿ÿ;∑ïHàiøú63#&œ
+'2¿ÿ;∑ïHàiøú63#&¿
+x;ò@éAíáû5&6
+´ÎF˚;∫ŸK≤‡ïëÖ_
+;˙/¯X”
+;˙/¯X±
+R±Tˇ; 
+ïE•£˚H;ÖX
+g‹I∏xü;Ü
+U_√{€NÌFö*˛ú;Ì∂u◊
+U_√{€NÌFö*˛ú;Ì∂uZ
+ëË‡r;Ë-Aß“ƒ
+fh◊Ô˘É M£;©áÏ´EÒÿ
+fh◊Ô˘É M£;©áÏ´EÒf
+√b]8ÖJíßæ ;óÑS
+O/™;ÃGöV
+kø åz¯â@äGrºgY;
+ C≠B†ZªwÂÇM
+;√nQm'
+;√nQm/
+Bà;r‚=µç¶√
+0m4P≈ﬁA;•K¶ó_Î˛
+hd‚;Y¬
+ª°p7¥;÷5÷eñò
+// Shader generated by Niagara HLSL Translator
+// SimStage[0] = ParticleSpawnUpdate
+// Compile Tags: 
+// Compile Tags Editor Only: 
+// Compile Data> Static Variables Input: 
+// Compile Data> PinToConstantValues Input: 
+int ID;
+int Index;
+int AcquireTag;
+float Engine_WorldDeltaTime;
+float Engine_DeltaTime;
+float Engine_InverseDeltaTime;
+float Engine_Time;
+float Engine_RealTime;
+int Engine_QualityLevel;
+int Engine_PaddingInt32_0;
+int Engine_PaddingInt32_1;
+float PREV_Engine_WorldDeltaTime;
+float PREV_Engine_DeltaTime;
+float PREV_Engine_InverseDeltaTime;
+float PREV_Engine_Time;
+float PREV_Engine_RealTime;
+int PREV_Engine_QualityLevel;
+int PREV_Engine_PaddingInt32_0;
+int PREV_Engine_PaddingInt32_1;
+float Engine_Owner_TimeSinceRendered;
+float Engine_Owner_LODDistance;
+float Engine_Owner_LODDistanceFraction;
+float Engine_System_Age;
+int Engine_Owner_ExecutionState;
+int Engine_System_TickCount;
+int Engine_System_NumEmitters;
+int Engine_System_NumEmittersAlive;
+int Engine_System_SignificanceIndex;
+int Engine_System_RandomSeed;
+int Engine_System_CurrentTimeStep;
+int Engine_System_NumTimeSteps;
+float Engine_System_TimeStepFraction;
+int Engine_System_NumParticles;
+int Engine_System_PaddingInt32_0;
+int Engine_System_PaddingInt32_1;
+float PREV_Engine_Owner_TimeSinceRendered;
+float PREV_Engine_Owner_LODDistance;
+float PREV_Engine_Owner_LODDistanceFraction;
+float PREV_Engine_System_Age;
+int PREV_Engine_Owner_ExecutionState;
+int PREV_Engine_System_TickCount;
+int PREV_Engine_System_NumEmitters;
+int PREV_Engine_System_NumEmittersAlive;
+int PREV_Engine_System_SignificanceIndex;
+int PREV_Engine_System_RandomSeed;
+int PREV_Engine_System_CurrentTimeStep;
+int PREV_Engine_System_NumTimeSteps;
+float PREV_Engine_System_TimeStepFraction;
+int PREV_Engine_System_NumParticles;
+int PREV_Engine_System_PaddingInt32_0;
+int PREV_Engine_System_PaddingInt32_1;
+float4x4 Engine_Owner_SystemLocalToWorld;
+float4x4 Engine_Owner_SystemWorldToLocal;
+float4x4 Engine_Owner_SystemLocalToWorldTransposed;
+float4x4 Engine_Owner_SystemWorldToLocalTransposed;
+float4x4 Engine_Owner_SystemLocalToWorldNoScale;
+float4x4 Engine_Owner_SystemWorldToLocalNoScale;
+float4 Engine_Owner_Rotation;
+float3 Engine_Owner_Position;
+int Engine_Owner_PaddingInt32_0;
+float3 Engine_Owner_Velocity;
+int Engine_Owner_PaddingInt32_1;
+float3 Engine_Owner_SystemXAxis;
+int Engine_Owner_PaddingInt32_2;
+float3 Engine_Owner_SystemYAxis;
+int Engine_Owner_PaddingInt32_3;
+float3 Engine_Owner_SystemZAxis;
+int Engine_Owner_PaddingInt32_4;
+float3 Engine_Owner_Scale;
+int Engine_Owner_PaddingInt32_5;
+float4 Engine_Owner_LWCTile;
+float4x4 PREV_Engine_Owner_SystemLocalToWorld;
+float4x4 PREV_Engine_Owner_SystemWorldToLocal;
+float4x4 PREV_Engine_Owner_SystemLocalToWorldTransposed;
+float4x4 PREV_Engine_Owner_SystemWorldToLocalTransposed;
+float4x4 PREV_Engine_Owner_SystemLocalToWorldNoScale;
+float4x4 PREV_Engine_Owner_SystemWorldToLocalNoScale;
+float4 PREV_Engine_Owner_Rotation;
+float3 PREV_Engine_Owner_Position;
+int PREV_Engine_Owner_PaddingInt32_0;
+float3 PREV_Engine_Owner_Velocity;
+int PREV_Engine_Owner_PaddingInt32_1;
+float3 PREV_Engine_Owner_SystemXAxis;
+int PREV_Engine_Owner_PaddingInt32_2;
+float3 PREV_Engine_Owner_SystemYAxis;
+int PREV_Engine_Owner_PaddingInt32_3;
+float3 PREV_Engine_Owner_SystemZAxis;
+int PREV_Engine_Owner_PaddingInt32_4;
+float3 PREV_Engine_Owner_Scale;
+int PREV_Engine_Owner_PaddingInt32_5;
+float4 PREV_Engine_Owner_LWCTile;
+int Engine_Emitter_NumParticles;
+int Engine_Emitter_TotalSpawnedParticles;
+float Engine_Emitter_SpawnCountScale;
+float Emitter_Age;
+int Emitter_RandomSeed;
+int Engine_Emitter_InstanceSeed;
+int Engine_Emitter_PaddingInt32_0;
+int Engine_Emitter_PaddingInt32_1;
+int PREV_Engine_Emitter_NumParticles;
+int PREV_Engine_Emitter_TotalSpawnedParticles;
+float PREV_Engine_Emitter_SpawnCountScale;
+float PREV_Emitter_Age;
+int PREV_Emitter_RandomSeed;
+int PREV_Engine_Emitter_InstanceSeed;
+int PREV_Engine_Emitter_PaddingInt32_0;
+int PREV_Engine_Emitter_PaddingInt32_1;
+float Emitter_DistanceTraveled;
+float Emitter_SpawnRate;
+float PREV_Emitter_DistanceTraveled;
+float PREV_Emitter_SpawnRate;
+float3 AdvectionVelocity;
+bool DragIgnoreMass;
+bool FirstFrame;
+float4 ParticleColorScaleFactor;
+float PhysicsDeltaTime;
+float PhysicsDrag;
+float3 PhysicsForce;
+float PhysicsRotationalDrag;
+float DeltaTime;
+float3 Force;
+float Mass;
+float3 Position;
+float3 Velocity;
+bool WritetoIntrinsicProperties;
+float3 ApplyOwnerScale;
+bool InvertRotationQuaternion;
+int RotationCoordinateSpace;
+float4x4 RotationMatrix;
+float4 RotationQuaternion;
+float3 ShapeOrigin;
+float4 ColorValueToScale;
+float ScaleAlpha;
+float Lifetime;
+float3 ShapeBitangent;
+float3 ShapeNormal;
+float3 ShapePosition;
+float3 ShapeTangent;
+float3 ShapeVector;
+float SpriteRotation;
+float2 SpriteSize;
+float4 Color;
+float Age;
+float DistanceTraveled;
+FParamMap0_Particles_Initial Initial;
+float MaterialRandom;
+float NormalizedAge;
+FParamMap0_Particles_Presolve Presolve;
+FParamMap0_Particles_Previous Previous;
+float RibbonUVDistance;
+FParamMap0_Particles_ShapeLocation ShapeLocation;
+int UniqueID;
+float IncomingPhysicsDrag;
+float3 IncomingPhysicsForce;
+float3 ConeAxis;
+FParamMap0_OUTPUT_VAR_AddVelocity AddVelocity;
+FParamMap0_OUTPUT_VAR_ParticleState ParticleState;
+FParamMap0_OUTPUT_VAR_SolveForcesAndVelocity SolveForcesAndVelocity;
+float3 DragVelocity;
+float InverseDeltaTime;
+float InverseMass;
+float3 LocalTransformBitangent;
+float3 LocalTransformNormal;
+float3 LocalTransformTangent;
+float3 LocalTransformVector;
+float3 InverseScaleFactor;
+float3 OffsetVector;
+float3 ScaleFactor;
+float3 SphereNormal;
+float3 SphereTangent;
+float3 SphereVector;
+FParamMap0_Local_ShapeLocation_TransformStack_Rotation TransformStack_Rotation;
+float InitRIbbonDistance;
+float3 TransformedVector;
+FParamMap0_Local_AddVelocity_TransformStack_Rotation TransformStack_Rotation;
+FParamMap0_Local_AddVelocity AddVelocity;
+FParamMap0_Local_InitializeParticle InitializeParticle;
+FParamMap0_Local_ShapeLocation ShapeLocation;
+FParamMap0_Local_SolveForcesAndVelocity SolveForcesAndVelocity;
+float Emitter_InterpSpawnStartDt;
+int Emitter_SpawnGroup;
+float Emitter_SpawnInterval;
+int InterpSpawn_Index;
+float InterpSpawn_InvSpawnTime;
+float InterpSpawn_InvUpdateTime;
+float InterpSpawn_SpawnTime;
+float InterpSpawn_UpdateTime;
+float SpawnInterp;
+int PositionOffsetCoordinateSpace;
+float CurveIndex;
+int CurrentTimeStep;
+int NumEmitters;
+int NumEmittersAlive;
+int NumParticles;
+int NumTimeSteps;
+int PaddingInt32_0;
+int PaddingInt32_1;
+int RandomSeed;
+int SignificanceIndex;
+int TickCount;
+float TimeStepFraction;
+int ExecutionState;
+float LODDistance;
+float LODDistanceFraction;
+float4 LWCTile;
+int PaddingInt32_2;
+int PaddingInt32_3;
+int PaddingInt32_4;
+int PaddingInt32_5;
+float4 Rotation;
+float3 Scale;
+float4x4 SystemLocalToWorld;
+float4x4 SystemLocalToWorldNoScale;
+float4x4 SystemLocalToWorldTransposed;
+float4x4 SystemWorldToLocal;
+float4x4 SystemWorldToLocalNoScale;
+float4x4 SystemWorldToLocalTransposed;
+float3 SystemXAxis;
+float3 SystemYAxis;
+float3 SystemZAxis;
+float TimeSinceRendered;
+NiagaraEmitterID ID;
+int InstanceSeed;
+float SpawnCountScale;
+int TotalSpawnedParticles;
+FParamMap0_Engine_Emitter Emitter;
+int ExecIndex;
+int ExecutionCount;
+FParamMap0_Engine_Owner Owner;
+int QualityLevel;
+float RealTime;
+FParamMap0_Engine_System System;
+float Time;
+float WorldDeltaTime;
+float SpawnRate;
+bool IgnoreMass;
+bool Alive;
+int ShapeBitangent;
+int ShapeNormal;
+int ShapePosition;
+int ShapeTangent;
+int ShapeVector;
+int Position;
+int SpriteRotation;
+int SpriteSize;
+int Velocity;
+int PhysicsForce;
+int Color;
+int Age;
+int DistanceTraveled;
+FParamMap0_Array_Initial Initial;
+int Lifetime;
+int Mass;
+int MaterialRandom;
+int NormalizedAge;
+FParamMap0_Array_Presolve Presolve;
+FParamMap0_Array_Previous Previous;
+int RibbonUVDistance;
+FParamMap0_Array_ShapeLocation ShapeLocation;
+bool UseConeFalloff;
+bool UseVelDistribution;
+float VelocitySpeed;
+FParamMap0_AddVelocity AddVelocity;
+FParamMap0_Array Array;
+FParamMap0_DataInstance DataInstance;
+FParamMap0_Drag Drag;
+FParamMap0_Emitter Emitter;
+FParamMap0_Engine Engine;
+FParamMap0_FloatFromCurve FloatFromCurve;
+FParamMap0_InitializeParticle InitializeParticle;
+FParamMap0_Interpolation Interpolation;
+FParamMap0_Local Local;
+FParamMap0_OUTPUT_VAR OUTPUT_VAR;
+FParamMap0_Particles Particles;
+FParamMap0_ParticleState ParticleState;
+FParamMap0_ScaleColor ScaleColor;
+FParamMap0_ShapeLocation ShapeLocation;
+FParamMap0_SolveForcesAndVelocity SolveForcesAndVelocity;
+FParamMap0_Transient Transient;
+#if ((SimulationStageIndex == 0)) // MapSpawn
+FParamMap0 MapSpawn;
+#endif // MapSpawn
+#if ((SimulationStageIndex == 0)) // MapUpdate
+FParamMap0 MapUpdate;
+#endif // MapUpdate
+static float HackSpawnInterp = 1.0;
+void CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(int In_Engine_System_RandomSeed, float In_FloatMin, float In_FloatMax, int In_Seed, int In_Particles_UniqueID, int In_Emitter_RandomSeed, int In_Engine_Emitter_InstanceSeed, out float Out_RandomFloat, out bool Out_IsDeterministic, inout FSimulationContext Context);
+void SimulationPosition_v1_1_Particle_Func_(float3 In_Engine_Owner_Position, out float3 Out_SimulationPosition, inout FSimulationContext Context);
+void InitializeParticle_Emitter_Func_(inout FSimulationContext Context);
+void AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_(float In_Angle, out float Out_ConvertedAngle, inout FSimulationContext Context);
+void AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_(float In_Angle, out float Out_ConvertedAngle, inout FSimulationContext Context);
+void CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_(float In_Angle, float In_Scale, float In_ConeDistribution, float In_RadialAngle, int In_Seed, float In_InnerAngle, out float3 Out_ConeVector, out float3 Out_ConeNormal, out float3 Out_ConeTangent, inout FSimulationContext Context);
+void TransformBase_Func_(int In_SourceSpace, int In_DestinationSpace, float4x4 In_LocalToWorldTransform, float4x4 In_WorldToLocalTransform, bool In_bLocalSpace, out bool Out_bUseOriginal, out float4x4 Out_OutTransform, out bool Out_LocalToWorld, inout FSimulationContext Context);
+void ShapeLocation_TransformStack_Rotation_TransformVector002_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void ShapeLocation_TransformStack_Rotation_TransformVector001_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void ShapeLocation_TransformStack_Rotation_TransformVector003_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void ShapeLocation_TransformStack_Rotation_TransformVector004_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void ShapeLocation_TransformStack_Rotation_Emitter_Func_(float3 In_InputVector, int In_RotationCoordinateSpace, float3 In_InputNormal, float3 In_InputTangent, float3 In_InputBitangent, out float3 Out_TransformedVector, out float3 Out_TransformedNormal, out float3 Out_TransformedTangent, out float3 Out_TransformedBitangent, inout FSimulationContext Context);
+void ShapeLocation_Emitter_Func_(inout FSimulationContext Context);
+void RandomRangeFloat_Emitter_Func_(out float Out_UniformRangedFloat, inout FSimulationContext Context);
+void CustomHlslB59562126C7D322C8482DEED214BF7E2A66E9604_Func_(float In_InFloat, out float Out_OutFloat);
+void SaturateFloat_Particle_Func_(float In_Value, out float Out_ClampedValue, inout FSimulationContext Context);
+void DirectionAndLengthSafe_v1_0_Particle_Func_(float3 In_V, float3 In_Fallback, float In_Threshold, out float3 Out_Direction, out float Out_Length, out bool Out_BelowThreshold, inout FSimulationContext Context);
+void AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_(float In_Angle, out float Out_ConvertedAngle, inout FSimulationContext Context);
+void CustomHlsl8ED5154AF56F49FB1C3EF5F949AB3231070A81C9_Func_(float3 In_From, float3 In_To, out float4 Out_Result);
+void FindQuatBetween_v1_0_Func_(float3 In_From, float3 In_To, out float4 Out_NewOutput, inout FSimulationContext Context);
+void MultiplyVectorWithQuaternion_Func_(float3 In_VECTOR_VAR, float4 In_Quaternion, out float3 Out_Vector, inout FSimulationContext Context);
+void CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_(float In_Angle, float In_Scale, float In_ConeDistribution, float In_RadialAngle, int In_Seed, float3 In_ConeAxis, float In_InnerAngle, out float3 Out_ConeVector, out float3 Out_ConeNormal, out float3 Out_ConeTangent, inout FSimulationContext Context);
+void AddVelocity_TransformStack_Rotation_TransformVector002_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void AddVelocity_TransformStack_Rotation_TransformVector001_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void AddVelocity_TransformStack_Rotation_TransformVector003_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void AddVelocity_TransformStack_Rotation_TransformVector004_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void AddVelocity_TransformStack_Rotation_Emitter_Func_(float3 In_InputVector, int In_RotationCoordinateSpace, float3 In_InputNormal, float3 In_InputTangent, float3 In_InputBitangent, out float3 Out_TransformedVector, out float3 Out_TransformedNormal, out float3 Out_TransformedTangent, out float3 Out_TransformedBitangent, inout FSimulationContext Context);
+void AddVelocity_Emitter_Func_(inout FSimulationContext Context);
+void ParticleState_Emitter_Func_(inout FSimulationContext Context);
+void GravityForce_Emitter_Func_(inout FSimulationContext Context);
+void Drag_Emitter_Func_(inout FSimulationContext Context);
+void SampleCurve_Emitter_ScaleAlpha_FloatCurve(float In_X, out float Out_Value);
+void FloatFromCurve_Emitter_Func_(out float Out_Value, inout FSimulationContext Context);
+void ScaleColor_Emitter_Func_(inout FSimulationContext Context);
+void DragVelocity_Particle_Func_(float3 In_Velocity, float3 In_AdvectionVelocity, float In_InverseMass, float In_Drag, float In_DeltaTime, bool In_IgnoreMass, out float3 Out_Output, inout FSimulationContext Context);
+void SolveForcesAndVelocity_Emitter_Func_(inout FSimulationContext Context);
+float GetSpawnInterpolation();
+bool Constant27 = false;
+float Result = In_FloatMax - In_FloatMin;
+float Result1 = rand_float(Result);
+float Result2 = In_FloatMin + Result1;
+Out_RandomFloat = Result2;
+Out_IsDeterministic = Constant27;
+Out_SimulationPosition = Context.MapSpawn.Engine.Owner.Position;
+Context.MapSpawn.Particles.MaterialRandom = Context.MapSpawn.InitializeParticle.MaterialRandom;
+int Constant39 = (0);
+float Constant40 = 1.4;
+float Constant41 = 1.75;
+int Constant42 = -1;
+int Constant43 = 0;
+int Constant44 = (0);
+int Constant45 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat1;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic1;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant39, Constant40, Constant41, Constant42, Constant43, Constant44, Constant45, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat1, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic1, Context);
+Context.MapSpawn.Particles.Lifetime = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat1;
+float4 Constant46 = float4(1,1,1,1);
+Context.MapSpawn.Particles.Color = Constant46;
+int Constant47 = (0);
+float Constant48 = 0.75;
+float Constant49 = 1.25;
+int Constant50 = -1;
+int Constant51 = 0;
+int Constant52 = (0);
+int Constant53 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat2;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic2;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant47, Constant48, Constant49, Constant50, Constant51, Constant52, Constant53, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat2, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic2, Context);
+Context.MapSpawn.Particles.Mass = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat2;
+int Constant54 = (0);
+float Constant55 = 25;
+float Constant56 = 50;
+int Constant57 = -1;
+int Constant58 = 0;
+int Constant59 = (0);
+int Constant60 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat3;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic3;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant54, Constant55, Constant56, Constant57, Constant58, Constant59, Constant60, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat3, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic3, Context);
+float2 Output1;
+Output1.x = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat3;
+Output1.y = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat3;
+Context.MapSpawn.Particles.SpriteSize = Output1;
+int Constant61 = (0);
+float Constant62 = 0;
+float Constant63 = 360;
+int Constant64 = -1;
+int Constant65 = 0;
+int Constant66 = (0);
+int Constant67 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat4;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic4;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant61, Constant62, Constant63, Constant64, Constant65, Constant66, Constant67, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat4, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic4, Context);
+Context.MapSpawn.Particles.SpriteRotation = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat4;
+float3 Constant68 = float3(0,0,0);
+float3 SimulationPosition_v1_1_Particle_Func_Output_SimulationPosition;
+SimulationPosition_v1_1_Particle_Func_(Constant68, SimulationPosition_v1_1_Particle_Func_Output_SimulationPosition, Context);
+float3 Constant69 = float3(0,0,0);
+float Constant70 = 0;
+float3 Result3 = Constant69 * Constant70;
+float3 Result4 = SimulationPosition_v1_1_Particle_Func_Output_SimulationPosition + Result3;
+Context.MapSpawn.Particles.Position = Result4;
+Context.MapSpawn.Local.InitializeParticle.InitRIbbonDistance = Context.MapSpawn.Particles.RibbonUVDistance;
+float Constant102 = 360;
+float Result11 = In_Angle * Constant102;
+float Result12 = (PI/180.0f)*(Result11);
+Out_ConvertedAngle = Result12;
+float Constant104 = 360;
+float Result15 = In_Angle / Constant104;
+Out_ConvertedAngle = Result15;
+float Constant91 = 0;
+float Result7 = max(In_ConeDistribution, Constant91);
+float Constant92 = 1;
+bool Result8 = NiagaraAll(Result7 == Constant92);
+int Constant93 = (0);
+float Constant94 = 1;
+int Constant95 = 0;
+int Constant96 = (0);
+int Constant97 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat5;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic5;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant93, Result7, Constant94, In_Seed, Constant95, Constant96, Constant97, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat5, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic5, Context);
+float Constant98 = 0.333333;
+float Result9 = pow(max(0, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat5),Constant98);
+float Constant99 = (0.0);
+float NiagaraFloat_SelectResult = Constant99;
+NiagaraFloat_SelectResult = Result7;
+NiagaraFloat_SelectResult = Result9;
+int Constant100 = (0);
+float Constant101 = 0.5;
+float Result10 = In_Angle * Constant101;
+float AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle;
+AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_(Result10, AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle, Context);
+float Result13 = cos(AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle);
+float Constant103 = 0.5;
+float Result14 = In_InnerAngle * Constant103;
+float AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_Output_ConvertedAngle;
+AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_(Result14, AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_Output_ConvertedAngle, Context);
+float Result16 = 1 - AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_Output_ConvertedAngle;
+float Constant105 = 1;
+float Result17 = cos(Result16*(TWO_PI/Constant105));
+int Constant106 = 0;
+int Constant107 = (0);
+int Constant108 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat6;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic6;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant100, Result13, Result17, In_Seed, Constant106, Constant107, Constant108, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat6, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic6, Context);
+float Result18 = acos(clamp(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat6, -1.0f, 1.0f));
+float Result19 = cos(Result18);
+float Constant109 = 0;
+float Constant110 = 0;
+float Constant111 = 1;
+float3 Output11;
+Output11.x = Constant109;
+Output11.y = Constant110;
+Output11.z = Constant111;
+float3 Result20 = Result19 * Output11;
+float Result21 = sin(Result18);
+int Constant112 = (0);
+float Constant113 = 0;
+float AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle1;
+AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_(In_RadialAngle, AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle1, Context);
+float Constant114 = 0;
+float Result22 = TWO_PI;
+float Result23 = clamp(AngleUnitConverter_v1_1_AngleInput_NewEnumerator1_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle1,Constant114,Result22);
+int Constant115 = 0;
+int Constant116 = (0);
+int Constant117 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat7;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic7;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant112, Constant113, Result23, In_Seed, Constant115, Constant116, Constant117, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat7, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic7, Context);
+float Result24 = cos(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat7);
+float Constant118 = 1;
+float Constant119 = 0;
+float Constant120 = 0;
+float3 Output12;
+Output12.x = Constant118;
+Output12.y = Constant119;
+Output12.z = Constant120;
+float3 Result25 = Result24 * Output12;
+float Result26 = sin(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat7);
+float Constant121 = 0;
+float Constant122 = 1;
+float Constant123 = 0;
+float3 Output13;
+Output13.x = Constant121;
+Output13.y = Constant122;
+Output13.z = Constant123;
+float3 Result27 = Result26 * Output13;
+float3 Result28 = Result25 + Result27;
+float3 Result29 = Result21 * Result28;
+float3 Result30 = Result20 + Result29;
+float3 Result31 = NiagaraFloat_SelectResult * Result30;
+float3 Result32 = Result31 * In_Scale;
+float3 Result33 = normalize(Result31);
+float3 Constant124 = float3(0,0,1);
+float3 Result34 = cross(Result33,Constant124);
+float3 Result35 = cross(Result34,Result33);
+Out_ConeVector = Result32;
+Out_ConeNormal = Result33;
+Out_ConeTangent = Result35;
+int Constant143 = 0;
+bool Result51 = NiagaraAll(In_SourceSpace == Constant143);
+int Constant144 = 0;
+bool Result52 = NiagaraAll(In_DestinationSpace == Constant144);
+bool Result53 = Result51 && Result52;
+int Constant145 = 1;
+bool Result54 = NiagaraAll(In_SourceSpace == Constant145);
+int Constant146 = 1;
+bool Result55 = NiagaraAll(In_DestinationSpace == Constant146);
+bool Result56 = Result54 && Result55;
+bool Result57 = Result53 || Result56;
+int Constant147 = 2;
+bool Result58 = NiagaraAll(In_SourceSpace == Constant147);
+int Constant148 = 2;
+bool Result59 = NiagaraAll(In_DestinationSpace == Constant148);
+bool Result60 = Result58 && Result59;
+bool Result61 = Result57 || Result60;
+bool Result62 = Result51 && Result59;
+bool Result63 = Result58 && Result52;
+bool Result64 = Result62 || Result63;
+bool Result65 = In_bLocalSpace && Result64;
+bool Result66 = Result61 || Result65;
+bool Result67 = !In_bLocalSpace;
+bool Result68 = Result51 && Result55;
+bool Result69 = Result54 && Result52;
+bool Result70 = Result68 || Result69;
+bool Result71 = Result67 && Result70;
+bool Result72 = Result66 || Result71;
+bool Result73 = In_bLocalSpace && Result68;
+bool Result74 = Result58 && Result55;
+bool Result75 = Result73 || Result74;
+bool Result76 = Result67 && Result63;
+bool Result77 = Result75 || Result76;
+float4x4 Matrix_IfResult1;
+Matrix_IfResult1 = In_LocalToWorldTransform;
+Matrix_IfResult1 = In_WorldToLocalTransform;
+Out_bUseOriginal = Result72;
+Out_OutTransform = Matrix_IfResult1;
+Out_LocalToWorld = Result77;
+bool Constant142 = false;
+float4x4 Matrix_IfResult;
+float4x4 Matrix001_IfResult;
+Matrix_IfResult = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal;
+float4x4 TransformBase_Func_Output_OutTransform;
+bool TransformBase_Func_Output_LocalToWorld;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult, Matrix001_IfResult, Constant142, TransformBase_Func_Output_bUseOriginal, TransformBase_Func_Output_OutTransform, TransformBase_Func_Output_LocalToWorld, Context);
+float3 Result78 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform).xyz;
+float3 Vector_IfResult;
+Vector_IfResult = In_InVector;
+Vector_IfResult = Result78;
+Out_OutVector = Vector_IfResult;
+bool Constant151 = false;
+float4x4 Matrix_IfResult2;
+float4x4 Matrix001_IfResult1;
+Matrix_IfResult2 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult1 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult2 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult1 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal1;
+float4x4 TransformBase_Func_Output_OutTransform1;
+bool TransformBase_Func_Output_LocalToWorld1;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult2, Matrix001_IfResult1, Constant151, TransformBase_Func_Output_bUseOriginal1, TransformBase_Func_Output_OutTransform1, TransformBase_Func_Output_LocalToWorld1, Context);
+float3 Result79 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform1).xyz;
+float3 Vector_IfResult1;
+Vector_IfResult1 = In_InVector;
+Vector_IfResult1 = Result79;
+Out_OutVector = Vector_IfResult1;
+bool Constant154 = false;
+float4x4 Matrix_IfResult3;
+float4x4 Matrix001_IfResult2;
+Matrix_IfResult3 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult2 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult3 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult2 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal2;
+float4x4 TransformBase_Func_Output_OutTransform2;
+bool TransformBase_Func_Output_LocalToWorld2;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult3, Matrix001_IfResult2, Constant154, TransformBase_Func_Output_bUseOriginal2, TransformBase_Func_Output_OutTransform2, TransformBase_Func_Output_LocalToWorld2, Context);
+float3 Result80 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform2).xyz;
+float3 Vector_IfResult2;
+Vector_IfResult2 = In_InVector;
+Vector_IfResult2 = Result80;
+Out_OutVector = Vector_IfResult2;
+bool Constant157 = false;
+float4x4 Matrix_IfResult4;
+float4x4 Matrix001_IfResult3;
+Matrix_IfResult4 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult3 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult4 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult3 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal3;
+float4x4 TransformBase_Func_Output_OutTransform3;
+bool TransformBase_Func_Output_LocalToWorld3;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult4, Matrix001_IfResult3, Constant157, TransformBase_Func_Output_bUseOriginal3, TransformBase_Func_Output_OutTransform3, TransformBase_Func_Output_LocalToWorld3, Context);
+float3 Result81 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform3).xyz;
+float3 Vector_IfResult3;
+Vector_IfResult3 = In_InVector;
+Vector_IfResult3 = Result81;
+Out_OutVector = Vector_IfResult3;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformVector = In_InputVector;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformNormal = In_InputNormal;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformTangent = In_InputTangent;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformBitangent = In_InputBitangent;
+int Constant140 = 0;
+bool Constant141 = false;
+float3 ShapeLocation_TransformStack_Rotation_TransformVector002_Emitter_Func_Output_OutVector;
+ShapeLocation_TransformStack_Rotation_TransformVector002_Emitter_Func_(Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformVector, In_RotationCoordinateSpace, Constant140, Constant141, ShapeLocation_TransformStack_Rotation_TransformVector002_Emitter_Func_Output_OutVector, Context);
+int Constant149 = 0;
+bool Constant150 = false;
+float3 ShapeLocation_TransformStack_Rotation_TransformVector001_Emitter_Func_Output_OutVector;
+ShapeLocation_TransformStack_Rotation_TransformVector001_Emitter_Func_(Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformNormal, In_RotationCoordinateSpace, Constant149, Constant150, ShapeLocation_TransformStack_Rotation_TransformVector001_Emitter_Func_Output_OutVector, Context);
+int Constant152 = 0;
+bool Constant153 = false;
+float3 ShapeLocation_TransformStack_Rotation_TransformVector003_Emitter_Func_Output_OutVector;
+ShapeLocation_TransformStack_Rotation_TransformVector003_Emitter_Func_(Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformTangent, In_RotationCoordinateSpace, Constant152, Constant153, ShapeLocation_TransformStack_Rotation_TransformVector003_Emitter_Func_Output_OutVector, Context);
+int Constant155 = 0;
+bool Constant156 = false;
+float3 ShapeLocation_TransformStack_Rotation_TransformVector004_Emitter_Func_Output_OutVector;
+ShapeLocation_TransformStack_Rotation_TransformVector004_Emitter_Func_(Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformBitangent, In_RotationCoordinateSpace, Constant155, Constant156, ShapeLocation_TransformStack_Rotation_TransformVector004_Emitter_Func_Output_OutVector, Context);
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformVector = ShapeLocation_TransformStack_Rotation_TransformVector002_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformNormal = ShapeLocation_TransformStack_Rotation_TransformVector001_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformTangent = ShapeLocation_TransformStack_Rotation_TransformVector003_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformBitangent = ShapeLocation_TransformStack_Rotation_TransformVector004_Emitter_Func_Output_OutVector;
+Out_TransformedVector = Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformVector;
+Out_TransformedNormal = Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformNormal;
+Out_TransformedTangent = Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformTangent;
+Out_TransformedBitangent = Context.MapSpawn.Local.ShapeLocation.TransformStack_Rotation.LocalTransformBitangent;
+float Constant85 = 0;
+float2 Constant86 = float2(1,1);
+int Constant87 = 0;
+float X;
+float Y;
+X = Constant86.x;
+Y = Constant86.y;
+float Constant88 = 8;
+float Result5 = abs(Constant88);
+float Constant89 = 1e-05;
+float Result6 = max(Result5, Constant89);
+float Constant90 = 0;
+float3 CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector;
+float3 CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeNormal;
+float3 CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeTangent;
+CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_(Y, Result6, Constant85, X, Constant87, Constant90, CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector, CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeNormal, CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeTangent, Context);
+Context.MapSpawn.Local.ShapeLocation.SphereVector = CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator1_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_false_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector;
+float3 Result36 = normalize(Context.MapSpawn.Local.ShapeLocation.SphereVector);
+float3 Result37 = abs(Result36);
+float Constant125 = 0;
+float Constant126 = 0;
+float Constant127 = 1;
+float3 Output14;
+Output14.x = Constant125;
+Output14.y = Constant126;
+Output14.z = Constant127;
+float Result38 = dot(Result37,Output14);
+float Constant128 = 1;
+bool Result39 = NiagaraAll(Result38 == Constant128);
+float Constant129 = 1;
+float Constant130 = 0;
+float Constant131 = 0;
+float3 Output15;
+Output15.x = Constant129;
+Output15.y = Constant130;
+Output15.z = Constant131;
+float3 Constant132 = float3(0.0, 0.0, 0.0);
+float3 Vector3f_SelectResult1 = Constant132;
+Vector3f_SelectResult1 = Output15;
+Vector3f_SelectResult1 = Output14;
+float3 Result40 = cross(Result36,Vector3f_SelectResult1);
+float3 Result41 = cross(Result40,Result36);
+Context.MapSpawn.Local.ShapeLocation.SphereNormal = Result36;
+Context.MapSpawn.Local.ShapeLocation.SphereTangent = Result41;
+Context.MapSpawn.Local.ShapeLocation.ShapeVector = Context.MapSpawn.Local.ShapeLocation.SphereVector;
+Context.MapSpawn.Local.ShapeLocation.ShapeNormal = Context.MapSpawn.Local.ShapeLocation.SphereNormal;
+Context.MapSpawn.Local.ShapeLocation.ShapeTangent = Context.MapSpawn.Local.ShapeLocation.SphereTangent;
+float3 Constant133 = float3(1,1,1);
+float3 Result42 = Constant133 * Context.MapSpawn.ShapeLocation.ApplyOwnerScale;
+float3 Result43 = Context.MapSpawn.Local.ShapeLocation.ShapeVector * Result42;
+float3 Result44 = abs(Result42);
+float3 Constant134 = float3(0.0001,0.0001,0.0001);
+float3 Result45 = max(Result44, Constant134);
+float3 Result46 = rcp(Result45);
+Context.MapSpawn.Local.ShapeLocation.ShapeVector = Result43;
+Context.MapSpawn.Local.ShapeLocation.ScaleFactor = Result42;
+Context.MapSpawn.Local.ShapeLocation.InverseScaleFactor = Result46;
+float3 Result47 = Context.MapSpawn.Local.ShapeLocation.ShapeNormal * Context.MapSpawn.Local.ShapeLocation.InverseScaleFactor;
+float3 Result48 = normalize(Result47);
+float3 Result49 = Context.MapSpawn.Local.ShapeLocation.InverseScaleFactor * Context.MapSpawn.Local.ShapeLocation.ShapeTangent;
+float3 Result50 = normalize(Result49);
+Context.MapSpawn.Local.ShapeLocation.ShapeNormal = Result48;
+Context.MapSpawn.Local.ShapeLocation.ShapeTangent = Result50;
+float3 Constant135 = float3(0,0,0);
+Context.MapSpawn.Local.ShapeLocation.OffsetVector = Constant135;
+float3 Constant136 = float3(0,0,0);
+float3 Constant137 = float3(1,0,0);
+float Constant138 = 0;
+float3 Constant139 = float3(0,0,0);
+float3 ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedVector;
+float3 ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedNormal;
+float3 ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedTangent;
+float3 ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedBitangent;
+ShapeLocation_TransformStack_Rotation_Emitter_Func_(Context.MapSpawn.Local.ShapeLocation.ShapeVector, Context.MapSpawn.ShapeLocation.RotationCoordinateSpace, Context.MapSpawn.Local.ShapeLocation.ShapeNormal, Context.MapSpawn.Local.ShapeLocation.ShapeTangent, Context.MapSpawn.Local.ShapeLocation.ShapeBitangent, ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedVector, ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedNormal, ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedTangent, ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedBitangent, Context);
+Context.MapSpawn.Local.ShapeLocation.ShapeVector = ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedVector;
+Context.MapSpawn.Local.ShapeLocation.ShapeNormal = ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedNormal;
+Context.MapSpawn.Local.ShapeLocation.ShapeTangent = ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedTangent;
+Context.MapSpawn.Local.ShapeLocation.ShapeBitangent = ShapeLocation_TransformStack_Rotation_Emitter_Func_Output_TransformedBitangent;
+float3 Result82 = Context.MapSpawn.Local.ShapeLocation.ShapeVector + Context.MapSpawn.Local.ShapeLocation.OffsetVector;
+Context.MapSpawn.Local.ShapeLocation.ShapeVector = Result82;
+float3 Result83 = Context.MapSpawn.ShapeLocation.ShapeOrigin + Context.MapSpawn.Local.ShapeLocation.ShapeVector;
+Context.MapSpawn.Local.ShapeLocation.ShapePosition = Result83;
+int Constant158 = 0;
+Context.MapSpawn.Particles.ShapeLocation.ShapeVector = Context.MapSpawn.Local.ShapeLocation.ShapeVector;
+Context.MapSpawn.Particles.ShapeLocation.ShapePosition = Context.MapSpawn.Local.ShapeLocation.ShapePosition;
+Context.MapSpawn.Particles.Position = Context.MapSpawn.Local.ShapeLocation.ShapePosition;
+float3 Result84 = cross(Context.MapSpawn.Local.ShapeLocation.ShapeNormal,Context.MapSpawn.Local.ShapeLocation.ShapeTangent);
+Context.MapSpawn.Particles.ShapeLocation.ShapeNormal = Context.MapSpawn.Local.ShapeLocation.ShapeNormal;
+Context.MapSpawn.Particles.ShapeLocation.ShapeTangent = Context.MapSpawn.Local.ShapeLocation.ShapeTangent;
+Context.MapSpawn.Particles.ShapeLocation.ShapeBitangent = Result84;
+int Constant162 = (0);
+float Constant163 = 500;
+float Constant164 = 850;
+int Constant165 = 0;
+int Constant166 = 0;
+int Constant167 = (0);
+int Constant168 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat8;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic8;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant162, Constant163, Constant164, Constant165, Constant166, Constant167, Constant168, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat8, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic8, Context);
+Out_UniformRangedFloat = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat8;
+Out_OutFloat = saturate (In_InFloat);
+#if ((SimulationStageIndex == 0) || (SimulationStageIndex == 0)) // Multiple stages
+float CustomHlslB59562126C7D322C8482DEED214BF7E2A66E9604_Func_Output_OutFloat;
+CustomHlslB59562126C7D322C8482DEED214BF7E2A66E9604_Func_(In_Value, CustomHlslB59562126C7D322C8482DEED214BF7E2A66E9604_Func_Output_OutFloat);
+Out_ClampedValue = CustomHlslB59562126C7D322C8482DEED214BF7E2A66E9604_Func_Output_OutFloat;
+#endif // Multiple stages
+float Result87 = dot(In_V,In_V);
+float Result88 = In_Threshold * In_Threshold;
+bool Result89 = NiagaraAll(Result87 < Result88);
+float Result90 = length(In_Fallback);
+float Result91 = rsqrt(Result87);
+float3 Result92 = In_V * Result91;
+float Result93 = Reciprocal(Result91);
+float3 Constant203 = float3(0.0, 0.0, 0.0);
+float3 Direction_SelectResult3 = Constant203;
+float Constant204 = (0.0);
+float Length_SelectResult3 = Constant204;
+Direction_SelectResult3 = In_Fallback;
+Length_SelectResult3 = Result90;
+Direction_SelectResult3 = Result92;
+Length_SelectResult3 = Result93;
+Out_Direction = Direction_SelectResult3;
+Out_Length = Length_SelectResult3;
+Out_BelowThreshold = Result89;
+float Result98 = (PI/180.0f)*(In_Angle);
+Out_ConvertedAngle = Result98;
+// From UE::Math::FindBetween_Helper()
+const float NormAB = sqrt(dot(In_From, In_From) * dot(In_To, In_To));
+float W = NormAB + dot(In_From, In_To);
+float4 ValidResult = float4(cross(In_From, In_To), W);
+float4 FallbackX = float4(-In_From.z, 0.0f, In_From.x, 0.0f);
+float4 FallbackY = float4(0.0f, -In_From.z, In_From.y, 0.0f);
+float4 Identity = float4(0.0f, 0.0f, 0.0f, 1.0f);
+const float Epsilon = 1e-6f;
+    Out_Result = FallbackX;
+    Out_Result = FallbackY;
+    Out_Result = ValidResult;
+    Out_Result = Identity;
+    // normalize the quat before returning
+    Out_Result = normalize(Out_Result);
+float3 Constant237 = float3(1,0,0);
+float Constant238 = 1e-05;
+float3 DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction1;
+float DirectionAndLengthSafe_v1_0_Particle_Func_Output_Length1;
+bool DirectionAndLengthSafe_v1_0_Particle_Func_Output_BelowThreshold1;
+DirectionAndLengthSafe_v1_0_Particle_Func_(In_From, Constant237, Constant238, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction1, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Length1, DirectionAndLengthSafe_v1_0_Particle_Func_Output_BelowThreshold1, Context);
+float3 Constant239 = float3(1,0,0);
+float Constant240 = 1e-05;
+float3 DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction2;
+float DirectionAndLengthSafe_v1_0_Particle_Func_Output_Length2;
+bool DirectionAndLengthSafe_v1_0_Particle_Func_Output_BelowThreshold2;
+DirectionAndLengthSafe_v1_0_Particle_Func_(In_To, Constant239, Constant240, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction2, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Length2, DirectionAndLengthSafe_v1_0_Particle_Func_Output_BelowThreshold2, Context);
+float4 CustomHlsl8ED5154AF56F49FB1C3EF5F949AB3231070A81C9_Func_Output_Result;
+CustomHlsl8ED5154AF56F49FB1C3EF5F949AB3231070A81C9_Func_(DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction1, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction2, CustomHlsl8ED5154AF56F49FB1C3EF5F949AB3231070A81C9_Func_Output_Result);
+Out_NewOutput = CustomHlsl8ED5154AF56F49FB1C3EF5F949AB3231070A81C9_Func_Output_Result;
+float3 Output0;
+float Output19;
+Output0.x = In_Quaternion.x;
+Output0.y = In_Quaternion.y;
+Output0.z = In_Quaternion.z;
+Output19 = In_Quaternion.w;
+float Result117 = dot(Output0,In_VECTOR_VAR);
+float Constant241 = 2;
+float Result118 = Result117 * Constant241;
+float3 Result119 = Output0 * Result118;
+float Result120 = Output19 * Output19;
+float Result121 = dot(Output0,Output0);
+float Result122 = Result120 - Result121;
+float3 Result123 = Result122 * In_VECTOR_VAR;
+float3 Result124 = Result119 + Result123;
+float3 Result125 = cross(Output0,In_VECTOR_VAR);
+float Constant242 = 2;
+float Result126 = Output19 * Constant242;
+float3 Result127 = Result125 * Result126;
+float3 Result128 = Result124 + Result127;
+Out_Vector = Result128;
+float Constant205 = 0;
+float Result94 = max(In_ConeDistribution, Constant205);
+float Constant206 = 1;
+bool Result95 = NiagaraAll(Result94 == Constant206);
+int Constant207 = (0);
+float Constant208 = 1;
+int Constant209 = 0;
+int Constant210 = (0);
+int Constant211 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat10;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic10;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant207, Result94, Constant208, In_Seed, Constant209, Constant210, Constant211, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat10, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic10, Context);
+float Constant212 = 0.333333;
+float Result96 = pow(max(0, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat10),Constant212);
+float Constant213 = (0.0);
+float NiagaraFloat_SelectResult4 = Constant213;
+NiagaraFloat_SelectResult4 = Result94;
+NiagaraFloat_SelectResult4 = Result96;
+int Constant214 = (0);
+float Constant215 = 0.5;
+float Result97 = In_Angle * Constant215;
+float AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle;
+AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_(Result97, AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle, Context);
+float Result99 = cos(AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle);
+float Constant216 = 0.5;
+float Result100 = In_InnerAngle * Constant216;
+float AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_Output_ConvertedAngle1;
+AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_(Result100, AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_Output_ConvertedAngle1, Context);
+float Result101 = 1 - AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator1_Func_Output_ConvertedAngle1;
+float Constant217 = 1;
+float Result102 = cos(Result101*(TWO_PI/Constant217));
+int Constant218 = 0;
+int Constant219 = (0);
+int Constant220 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat11;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic11;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant214, Result99, Result102, In_Seed, Constant218, Constant219, Constant220, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat11, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic11, Context);
+float Result103 = acos(clamp(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat11, -1.0f, 1.0f));
+float Result104 = cos(Result103);
+float Constant221 = 0;
+float Constant222 = 0;
+float Constant223 = 1;
+float3 Output16;
+Output16.x = Constant221;
+Output16.y = Constant222;
+Output16.z = Constant223;
+float3 Result105 = Result104 * Output16;
+float Result106 = sin(Result103);
+int Constant224 = (0);
+float Constant225 = 0;
+float AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle1;
+AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_(In_RadialAngle, AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle1, Context);
+float Constant226 = 0;
+float Result107 = TWO_PI;
+float Result108 = clamp(AngleUnitConverter_v1_1_AngleInput_NewEnumerator0_AngleOutput_NewEnumerator2_Func_Output_ConvertedAngle1,Constant226,Result107);
+int Constant227 = 0;
+int Constant228 = (0);
+int Constant229 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat12;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic12;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant224, Constant225, Result108, In_Seed, Constant227, Constant228, Constant229, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat12, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic12, Context);
+float Result109 = cos(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat12);
+float Constant230 = 1;
+float Constant231 = 0;
+float Constant232 = 0;
+float3 Output17;
+Output17.x = Constant230;
+Output17.y = Constant231;
+Output17.z = Constant232;
+float3 Result110 = Result109 * Output17;
+float Result111 = sin(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat12);
+float Constant233 = 0;
+float Constant234 = 1;
+float Constant235 = 0;
+float3 Output18;
+Output18.x = Constant233;
+Output18.y = Constant234;
+Output18.z = Constant235;
+float3 Result112 = Result111 * Output18;
+float3 Result113 = Result110 + Result112;
+float3 Result114 = Result106 * Result113;
+float3 Result115 = Result105 + Result114;
+float3 Result116 = NiagaraFloat_SelectResult4 * Result115;
+float3 Constant236 = float3(0,0,1);
+float4 FindQuatBetween_v1_0_Func_Output_NewOutput;
+FindQuatBetween_v1_0_Func_(Constant236, In_ConeAxis, FindQuatBetween_v1_0_Func_Output_NewOutput, Context);
+float3 MultiplyVectorWithQuaternion_Func_Output_Vector;
+MultiplyVectorWithQuaternion_Func_(Result116, FindQuatBetween_v1_0_Func_Output_NewOutput, MultiplyVectorWithQuaternion_Func_Output_Vector, Context);
+float3 Result129 = MultiplyVectorWithQuaternion_Func_Output_Vector * In_Scale;
+float3 Result130 = normalize(MultiplyVectorWithQuaternion_Func_Output_Vector);
+float3 Result131 = cross(Result130,In_ConeAxis);
+float3 Result132 = cross(Result131,Result130);
+Out_ConeVector = Result129;
+Out_ConeNormal = Result130;
+Out_ConeTangent = Result132;
+bool Constant256 = false;
+float4x4 Matrix_IfResult5;
+float4x4 Matrix001_IfResult4;
+Matrix_IfResult5 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult4 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult5 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult4 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal4;
+float4x4 TransformBase_Func_Output_OutTransform4;
+bool TransformBase_Func_Output_LocalToWorld4;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult5, Matrix001_IfResult4, Constant256, TransformBase_Func_Output_bUseOriginal4, TransformBase_Func_Output_OutTransform4, TransformBase_Func_Output_LocalToWorld4, Context);
+float3 Result138 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform4).xyz;
+float3 Vector_IfResult4;
+Vector_IfResult4 = In_InVector;
+Vector_IfResult4 = Result138;
+Out_OutVector = Vector_IfResult4;
+bool Constant259 = false;
+float4x4 Matrix_IfResult6;
+float4x4 Matrix001_IfResult5;
+Matrix_IfResult6 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult5 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult6 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult5 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal5;
+float4x4 TransformBase_Func_Output_OutTransform5;
+bool TransformBase_Func_Output_LocalToWorld5;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult6, Matrix001_IfResult5, Constant259, TransformBase_Func_Output_bUseOriginal5, TransformBase_Func_Output_OutTransform5, TransformBase_Func_Output_LocalToWorld5, Context);
+float3 Result139 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform5).xyz;
+float3 Vector_IfResult5;
+Vector_IfResult5 = In_InVector;
+Vector_IfResult5 = Result139;
+Out_OutVector = Vector_IfResult5;
+bool Constant262 = false;
+float4x4 Matrix_IfResult7;
+float4x4 Matrix001_IfResult6;
+Matrix_IfResult7 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult6 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult7 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult6 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal6;
+float4x4 TransformBase_Func_Output_OutTransform6;
+bool TransformBase_Func_Output_LocalToWorld6;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult7, Matrix001_IfResult6, Constant262, TransformBase_Func_Output_bUseOriginal6, TransformBase_Func_Output_OutTransform6, TransformBase_Func_Output_LocalToWorld6, Context);
+float3 Result140 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform6).xyz;
+float3 Vector_IfResult6;
+Vector_IfResult6 = In_InVector;
+Vector_IfResult6 = Result140;
+Out_OutVector = Vector_IfResult6;
+bool Constant265 = false;
+float4x4 Matrix_IfResult8;
+float4x4 Matrix001_IfResult7;
+Matrix_IfResult8 = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+Matrix001_IfResult7 = Context.MapSpawn.Engine.Owner.SystemWorldToLocal;
+Matrix_IfResult8 = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+Matrix001_IfResult7 = Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale;
+bool TransformBase_Func_Output_bUseOriginal7;
+float4x4 TransformBase_Func_Output_OutTransform7;
+bool TransformBase_Func_Output_LocalToWorld7;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult8, Matrix001_IfResult7, Constant265, TransformBase_Func_Output_bUseOriginal7, TransformBase_Func_Output_OutTransform7, TransformBase_Func_Output_LocalToWorld7, Context);
+float3 Result141 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform7).xyz;
+float3 Vector_IfResult7;
+Vector_IfResult7 = In_InVector;
+Vector_IfResult7 = Result141;
+Out_OutVector = Vector_IfResult7;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformVector = In_InputVector;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformNormal = In_InputNormal;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformTangent = In_InputTangent;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformBitangent = In_InputBitangent;
+int Constant254 = 0;
+bool Constant255 = false;
+float3 AddVelocity_TransformStack_Rotation_TransformVector002_Emitter_Func_Output_OutVector;
+AddVelocity_TransformStack_Rotation_TransformVector002_Emitter_Func_(Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformVector, In_RotationCoordinateSpace, Constant254, Constant255, AddVelocity_TransformStack_Rotation_TransformVector002_Emitter_Func_Output_OutVector, Context);
+int Constant257 = 0;
+bool Constant258 = false;
+float3 AddVelocity_TransformStack_Rotation_TransformVector001_Emitter_Func_Output_OutVector;
+AddVelocity_TransformStack_Rotation_TransformVector001_Emitter_Func_(Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformNormal, In_RotationCoordinateSpace, Constant257, Constant258, AddVelocity_TransformStack_Rotation_TransformVector001_Emitter_Func_Output_OutVector, Context);
+int Constant260 = 0;
+bool Constant261 = false;
+float3 AddVelocity_TransformStack_Rotation_TransformVector003_Emitter_Func_Output_OutVector;
+AddVelocity_TransformStack_Rotation_TransformVector003_Emitter_Func_(Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformTangent, In_RotationCoordinateSpace, Constant260, Constant261, AddVelocity_TransformStack_Rotation_TransformVector003_Emitter_Func_Output_OutVector, Context);
+int Constant263 = 0;
+bool Constant264 = false;
+float3 AddVelocity_TransformStack_Rotation_TransformVector004_Emitter_Func_Output_OutVector;
+AddVelocity_TransformStack_Rotation_TransformVector004_Emitter_Func_(Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformBitangent, In_RotationCoordinateSpace, Constant263, Constant264, AddVelocity_TransformStack_Rotation_TransformVector004_Emitter_Func_Output_OutVector, Context);
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformVector = AddVelocity_TransformStack_Rotation_TransformVector002_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformNormal = AddVelocity_TransformStack_Rotation_TransformVector001_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformTangent = AddVelocity_TransformStack_Rotation_TransformVector003_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformBitangent = AddVelocity_TransformStack_Rotation_TransformVector004_Emitter_Func_Output_OutVector;
+Out_TransformedVector = Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformVector;
+Out_TransformedNormal = Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformNormal;
+Out_TransformedTangent = Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformTangent;
+Out_TransformedBitangent = Context.MapSpawn.Local.AddVelocity.TransformStack_Rotation.LocalTransformBitangent;
+float Constant184 = 32;
+int Constant185 = 0;
+float3 Constant186 = float3(0,0,1);
+float Constant187 = 0.5;
+float Constant188 = 0.25;
+float Constant189 = 0;
+int Constant190 = (0);
+float Constant191 = 1;
+float Constant192 = -0.5;
+float SaturateFloat_Particle_Func_Output_ClampedValue;
+SaturateFloat_Particle_Func_(Constant188, SaturateFloat_Particle_Func_Output_ClampedValue, Context);
+float Result85 = lerp(Constant191,Constant192,SaturateFloat_Particle_Func_Output_ClampedValue);
+float Constant193 = 1;
+int Constant194 = -1;
+int Constant195 = 0;
+int Constant196 = (0);
+int Constant197 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat9;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic9;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant190, Result85, Constant193, Constant194, Constant195, Constant196, Constant197, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat9, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic9, Context);
+float SaturateFloat_Particle_Func_Output_ClampedValue1;
+SaturateFloat_Particle_Func_(CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat9, SaturateFloat_Particle_Func_Output_ClampedValue1, Context);
+float Result86 = Constant184 * SaturateFloat_Particle_Func_Output_ClampedValue1;
+float Constant198 = (0.0);
+float NiagaraFloat_SelectResult2 = Constant198;
+NiagaraFloat_SelectResult2 = Result86;
+NiagaraFloat_SelectResult2 = Constant184;
+float Constant199 = 1;
+float Constant200 = 360;
+float3 Constant201 = float3(1,0,0);
+float Constant202 = 1e-05;
+float3 DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction;
+float DirectionAndLengthSafe_v1_0_Particle_Func_Output_Length;
+bool DirectionAndLengthSafe_v1_0_Particle_Func_Output_BelowThreshold;
+DirectionAndLengthSafe_v1_0_Particle_Func_(Constant186, Constant201, Constant202, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Length, DirectionAndLengthSafe_v1_0_Particle_Func_Output_BelowThreshold, Context);
+float3 CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector;
+float3 CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeNormal;
+float3 CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeTangent;
+CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_(NiagaraFloat_SelectResult2, Context.MapSpawn.AddVelocity.VelocitySpeed, Constant199, Constant200, Constant185, DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction, Constant189, CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector, CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeNormal, CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeTangent, Context);
+float Constant243 = 1;
+float Result133 = dot(CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeNormal,DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction);
+float SaturateFloat_Particle_Func_Output_ClampedValue2;
+SaturateFloat_Particle_Func_(Result133, SaturateFloat_Particle_Func_Output_ClampedValue2, Context);
+float SaturateFloat_Particle_Func_Output_ClampedValue3;
+SaturateFloat_Particle_Func_(Constant187, SaturateFloat_Particle_Func_Output_ClampedValue3, Context);
+float Constant244 = 10;
+float Result134 = SaturateFloat_Particle_Func_Output_ClampedValue3 * Constant244;
+float Result135 = pow(max(0, SaturateFloat_Particle_Func_Output_ClampedValue2),Result134);
+float Result136 = lerp(Constant243,Result135,SaturateFloat_Particle_Func_Output_ClampedValue3);
+float3 Result137 = CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector * Result136;
+float3 Constant245 = float3(0.0, 0.0, 0.0);
+float3 Vector3f_SelectResult5 = Constant245;
+Vector3f_SelectResult5 = Result137;
+Vector3f_SelectResult5 = CalculateRandomPointInConeSphereIntersection_v1_1_Particle_AngleInput_NewEnumerator0_EvaluationType_NewEnumerator0_FixedRandomSeed_false_OverrideSeed_false_RandomnessMode_NewEnumerator0_EnableConeAxisRotation_true_EnableRandomPosition_true_EnableFlattenedEndcaps_false_Func_Output_ConeVector;
+Context.MapSpawn.Local.AddVelocity.TransformedVector = Vector3f_SelectResult5;
+Context.MapSpawn.OUTPUT_VAR.AddVelocity.ConeAxis = DirectionAndLengthSafe_v1_0_Particle_Func_Output_Direction;
+float3 Constant246 = float3(0,0,0);
+float3 Constant247 = float3(1,0,0);
+float Constant248 = 0;
+float4 Constant249 = float4(0,0,0,1);
+float3 Constant250 = float3(0,0,0);
+float3 Constant251 = float3(0,0,0);
+float3 Constant252 = float3(0,0,0);
+float3 Constant253 = float3(0,0,0);
+float3 AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedVector;
+float3 AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedNormal;
+float3 AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedTangent;
+float3 AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedBitangent;
+AddVelocity_TransformStack_Rotation_Emitter_Func_(Context.MapSpawn.Local.AddVelocity.TransformedVector, Context.MapSpawn.AddVelocity.RotationCoordinateSpace, Constant251, Constant252, Constant253, AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedVector, AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedNormal, AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedTangent, AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedBitangent, Context);
+Context.MapSpawn.Local.AddVelocity.TransformedVector = AddVelocity_TransformStack_Rotation_Emitter_Func_Output_TransformedVector;
+float3 Result142 = Context.MapSpawn.Local.AddVelocity.TransformedVector + Context.MapSpawn.Particles.Velocity;
+Context.MapSpawn.Particles.Velocity = Result142;
+bool Result143 = NiagaraAll(Context.MapUpdate.Particles.Age <= Context.MapUpdate.Engine.DeltaTime);
+Context.MapUpdate.OUTPUT_VAR.ParticleState.FirstFrame = Result143;
+Context.MapUpdate.Transient.FirstFrame = Result143;
+float Constant267 = 1e-06;
+bool Result144 = NiagaraAll(Context.MapUpdate.ParticleState.Lifetime > Constant267);
+bool Result145 = Context.MapUpdate.Transient.FirstFrame && Result144;
+float Result146 = Context.MapUpdate.Particles.Age + Context.MapUpdate.ParticleState.DeltaTime;
+float Constant268 = 1e-05;
+float Result147 = max(Context.MapUpdate.ParticleState.Lifetime, Constant268);
+bool Result148 = NiagaraAll(Result146 < Result147);
+bool Result149 = Result145 || Result148;
+bool Result150 = Context.MapUpdate.DataInstance.Alive && Result149;
+float Result151 = Result146 / Result147;
+float SaturateFloat_Particle_Func_Output_ClampedValue4;
+SaturateFloat_Particle_Func_(Result151, SaturateFloat_Particle_Func_Output_ClampedValue4, Context);
+Context.MapUpdate.DataInstance.Alive = Result150;
+Context.MapUpdate.Particles.Age = Result146;
+Context.MapUpdate.Particles.NormalizedAge = SaturateFloat_Particle_Func_Output_ClampedValue4;
+bool Constant269 = false;
+bool Constant270 = true;
+float3 Constant273 = float3(0,0,-980);
+float3 Result152 = Constant273 * Context.MapUpdate.Particles.Mass;
+float3 Result153 = Context.MapUpdate.Transient.PhysicsForce + Result152;
+Context.MapUpdate.Transient.PhysicsForce = Result153;
+float Constant279 = 0.25;
+float Result154 = Constant279 + Context.MapUpdate.Transient.PhysicsDrag;
+Context.MapUpdate.Transient.PhysicsDrag = Result154;
+float Constant280 = 1;
+float Constant281 = 0.01;
+float Result155 = Context.MapUpdate.Transient.PhysicsRotationalDrag * Constant281;
+Context.MapUpdate.Transient.PhysicsRotationalDrag = Result155;
+Context.MapUpdate.Transient.DragIgnoreMass = Context.MapUpdate.Drag.IgnoreMass;
+float Constant283 = 1;
+float SampleCurve_Emitter_ScaleAlpha_FloatCurveOutput_Value;
+SampleCurve_Emitter_ScaleAlpha_FloatCurve(Context.MapUpdate.FloatFromCurve.CurveIndex, SampleCurve_Emitter_ScaleAlpha_FloatCurveOutput_Value);
+float Result156 = SampleCurve_Emitter_ScaleAlpha_FloatCurveOutput_Value * Constant283;
+Out_Value = Result156;
+float3 Constant286 = float3(1,1,1);
+float4 Output01;
+Output01.r = Constant286.x;
+Output01.g = Constant286.y;
+Output01.b = Constant286.z;
+Output01.a = Context.MapUpdate.ScaleColor.ScaleAlpha;
+float4 Result157 = Context.MapUpdate.Transient.ParticleColorScaleFactor * Output01;
+float4 Result158 = Context.MapUpdate.ScaleColor.ColorValueToScale * Result157;
+Context.MapUpdate.Particles.Color = Result158;
+Context.MapUpdate.Transient.ParticleColorScaleFactor = Result157;
+float3 Result165 = In_Velocity - In_AdvectionVelocity;
+float Result166 = In_Drag * In_InverseMass;
+float Constant294 = (0.0);
+float NiagaraFloat_SelectResult6 = Constant294;
+NiagaraFloat_SelectResult6 = In_Drag;
+NiagaraFloat_SelectResult6 = Result166;
+float Constant295 = 0;
+float Result167 = max(NiagaraFloat_SelectResult6, Constant295);
+float Result168 = Result167 * In_DeltaTime;
+float Constant296 = 1;
+float Result169 = Result168 + Constant296;
+float3 Result170 = Result165 / Result169;
+float3 Result171 = Result170 + In_AdvectionVelocity;
+Out_Output = Result171;
+Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime = Context.MapUpdate.SolveForcesAndVelocity.DeltaTime;
+float Constant292 = 1e-05;
+float Result159 = max(Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime, Constant292);
+float Result160 = Reciprocal(Result159);
+Context.MapUpdate.Local.SolveForcesAndVelocity.InverseDeltaTime = Result160;
+Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce = Context.MapUpdate.SolveForcesAndVelocity.Force;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.IncomingPhysicsForce = Context.MapUpdate.SolveForcesAndVelocity.Force;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity = Context.MapUpdate.SolveForcesAndVelocity.Velocity;
+Context.MapUpdate.Local.SolveForcesAndVelocity.Mass = Context.MapUpdate.SolveForcesAndVelocity.Mass;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position = Context.MapUpdate.SolveForcesAndVelocity.Position;
+Context.MapUpdate.Particles.Presolve.Velocity = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+Context.MapUpdate.Particles.Presolve.Position = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position;
+Context.MapUpdate.Particles.Presolve.PhysicsForce = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.IncomingPhysicsForce;
+float Constant293 = 1e-06;
+float Result161 = max(Context.MapUpdate.Local.SolveForcesAndVelocity.Mass, Constant293);
+float Result162 = Reciprocal(Result161);
+float3 Result163 = Result162 * Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce;
+Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce = Result163;
+Context.MapUpdate.Local.SolveForcesAndVelocity.InverseMass = Result162;
+float3 Result164 = Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce * Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime + Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity = Result164;
+Context.MapUpdate.Local.SolveForcesAndVelocity.AdvectionVelocity = Context.MapUpdate.Transient.AdvectionVelocity;
+Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsDrag = Context.MapUpdate.Transient.PhysicsDrag;
+Context.MapUpdate.Local.SolveForcesAndVelocity.DragIgnoreMass = Context.MapUpdate.Transient.DragIgnoreMass;
+float3 DragVelocity_Particle_Func_Output_Output;
+DragVelocity_Particle_Func_(Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity, Context.MapUpdate.Local.SolveForcesAndVelocity.AdvectionVelocity, Context.MapUpdate.Local.SolveForcesAndVelocity.InverseMass, Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsDrag, Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime, Context.MapUpdate.Local.SolveForcesAndVelocity.DragIgnoreMass, DragVelocity_Particle_Func_Output_Output, Context);
+float3 Result172 = DragVelocity_Particle_Func_Output_Output - Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity = DragVelocity_Particle_Func_Output_Output;
+Context.MapUpdate.Local.SolveForcesAndVelocity.DragVelocity = Result172;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.IncomingPhysicsDrag = Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsDrag;
+float Constant297 = 1000;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+float3 Constant298 = float3(0,0,0);
+float Constant299 = 9999;
+float3 Result173 = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity * Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime;
+float3 Result174 = Result173 + Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position = Result174;
+float3 Position_IfResult;
+float3 Velocity_IfResult;
+Position_IfResult = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position;
+Velocity_IfResult = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+Position_IfResult = Context.MapUpdate.Particles.Position;
+Velocity_IfResult = Context.MapUpdate.Particles.Velocity;
+Context.MapUpdate.Particles.Position = Position_IfResult;
+Context.MapUpdate.Particles.Velocity = Velocity_IfResult;
+float3 Constant300 = float3(0,0,0);
+float Constant301 = 0;
+float3 ForceVector_IfResult;
+float Drag_IfResult;
+ForceVector_IfResult = Constant300;
+Drag_IfResult = Constant301;
+ForceVector_IfResult = Context.MapUpdate.Transient.PhysicsForce;
+Drag_IfResult = Context.MapUpdate.Transient.PhysicsDrag;
+Context.MapUpdate.Transient.PhysicsForce = ForceVector_IfResult;
+Context.MapUpdate.Transient.PhysicsDrag = Drag_IfResult;
+float3 Result175 = Context.MapUpdate.Particles.Position - Context.MapUpdate.Particles.Previous.Position;
+float Result176 = length(Result175);
+float Constant302 = 0.3333;
+float Result177 = Result176 * Constant302;
+float Constant303 = 1e+08;
+float Result178 = Modulo(Context.MapUpdate.Particles.DistanceTraveled, Constant303);
+float Result179 = Result177 + Result178;
+Context.MapUpdate.Particles.DistanceTraveled = Result179;
+return HackSpawnInterp;
+int InterpSpawn_Index = ExecIndex();
+float InterpSpawn_SpawnTime = Emitter_InterpSpawnStartDt + (Emitter_SpawnInterval * InterpSpawn_Index);
+float InterpSpawn_UpdateTime = Engine_DeltaTime - InterpSpawn_SpawnTime;
+float InterpSpawn_InvSpawnTime = 1.0 / InterpSpawn_SpawnTime;
+float InterpSpawn_InvUpdateTime = 1.0 / InterpSpawn_UpdateTime;
+float SpawnInterp = InterpSpawn_SpawnTime * Engine_InverseDeltaTime ;
+HackSpawnInterp = SpawnInterp;
+Context.MapSpawn.Interpolation.InterpSpawn_Index = InterpSpawn_Index;
+Context.MapSpawn.Interpolation.InterpSpawn_SpawnTime = InterpSpawn_SpawnTime;
+Context.MapSpawn.Interpolation.InterpSpawn_UpdateTime = InterpSpawn_UpdateTime;
+Context.MapSpawn.Interpolation.InterpSpawn_InvSpawnTime = InterpSpawn_InvSpawnTime;
+Context.MapSpawn.Interpolation.InterpSpawn_InvUpdateTime = InterpSpawn_InvUpdateTime;
+Context.MapSpawn.Interpolation.SpawnInterp = SpawnInterp;
+Context.MapSpawn.Interpolation.Emitter_SpawnInterval = Emitter_SpawnInterval;
+Context.MapSpawn.Interpolation.Emitter_InterpSpawnStartDt = Emitter_InterpSpawnStartDt;
+Context.MapSpawn.Interpolation.Emitter_SpawnGroup = Emitter_SpawnGroup;
+Context.MapSpawn.Engine.Time = lerp(PREV_Engine_Time, Engine_Time, SpawnInterp);
+Context.MapSpawn.Engine.RealTime = lerp(PREV_Engine_RealTime, Engine_RealTime, SpawnInterp);
+Context.MapSpawn.Engine.Owner.TimeSinceRendered = lerp(PREV_Engine_Owner_TimeSinceRendered, Engine_Owner_TimeSinceRendered, SpawnInterp);
+Context.MapSpawn.Engine.Owner.LODDistance = lerp(PREV_Engine_Owner_LODDistance, Engine_Owner_LODDistance, SpawnInterp);
+Context.MapSpawn.Engine.Owner.LODDistanceFraction = lerp(PREV_Engine_Owner_LODDistanceFraction, Engine_Owner_LODDistanceFraction, SpawnInterp);
+Context.MapSpawn.Engine.System.Age = lerp(PREV_Engine_System_Age, Engine_System_Age, SpawnInterp);
+Context.MapSpawn.Engine.Owner.Rotation = NiagaraQuatSLerp(PREV_Engine_Owner_Rotation, Engine_Owner_Rotation, SpawnInterp);
+Context.MapSpawn.Engine.Owner.Position = lerp(PREV_Engine_Owner_Position, Engine_Owner_Position, SpawnInterp);
+Context.MapSpawn.Engine.Owner.Velocity = lerp(PREV_Engine_Owner_Velocity, Engine_Owner_Velocity, SpawnInterp);
+Context.MapSpawn.Engine.Owner.SystemXAxis = lerp(PREV_Engine_Owner_SystemXAxis, Engine_Owner_SystemXAxis, SpawnInterp);
+Context.MapSpawn.Engine.Owner.SystemYAxis = lerp(PREV_Engine_Owner_SystemYAxis, Engine_Owner_SystemYAxis, SpawnInterp);
+Context.MapSpawn.Engine.Owner.SystemZAxis = lerp(PREV_Engine_Owner_SystemZAxis, Engine_Owner_SystemZAxis, SpawnInterp);
+Context.MapSpawn.Engine.Owner.Scale = lerp(PREV_Engine_Owner_Scale, Engine_Owner_Scale, SpawnInterp);
+Context.MapSpawn.Engine.Owner.LWCTile = lerp(PREV_Engine_Owner_LWCTile, Engine_Owner_LWCTile, SpawnInterp);
+Context.MapSpawn.Emitter.Age = lerp(PREV_Emitter_Age, Emitter_Age, SpawnInterp);
+Context.MapSpawn.Emitter.DistanceTraveled = lerp(PREV_Emitter_DistanceTraveled, Emitter_DistanceTraveled, SpawnInterp);
+Context.MapUpdate.Engine.DeltaTime = InterpSpawn_UpdateTime;
+Context.MapUpdate.Engine.InverseDeltaTime = InterpSpawn_InvUpdateTime;
+#if (SimulationStageIndex == 0) // MapSpawn
+Context.MapSpawn.Particles.Previous.Position = Context.MapSpawn.Particles.Position;
+Context.MapSpawn.Particles.Previous.SpriteRotation = Context.MapSpawn.Particles.SpriteRotation;
+Context.MapSpawn.Particles.Previous.SpriteSize = Context.MapSpawn.Particles.SpriteSize;
+Context.MapSpawn.Particles.Previous.Velocity = Context.MapSpawn.Particles.Velocity;
+//Begin Interpolated Spawn Script!
+//Begin Initialize Parameter Map Defaults
+float Constant = (0.0);
+Context.MapSpawn.Particles.MaterialRandom = Constant;
+float Constant1 = (0.0);
+Context.MapSpawn.Particles.Lifetime = Constant1;
+float4 Constant2 = float4(1.0, 1.0, 1.0, 1.0);
+Context.MapSpawn.Particles.Color = Constant2;
+float Constant3 = (0.0);
+Context.MapSpawn.Particles.Mass = Constant3;
+float2 Constant4 = float2(0.0, 0.0);
+Context.MapSpawn.Particles.SpriteSize = Constant4;
+float Constant5 = (0.0);
+Context.MapSpawn.Particles.SpriteRotation = Constant5;
+float3 Constant6 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.Position = Constant6;
+float3 Constant7 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.ShapeLocation.ShapeVector = Constant7;
+float3 Constant8 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.ShapeLocation.ShapePosition = Constant8;
+float3 Constant9 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.ShapeLocation.ShapeNormal = Constant9;
+float3 Constant10 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.ShapeLocation.ShapeTangent = Constant10;
+float3 Constant11 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.ShapeLocation.ShapeBitangent = Constant11;
+float3 Constant12 = float3(0,0,0);
+Context.MapSpawn.Particles.Velocity = Constant12;
+float Constant13 = 0;
+Context.MapSpawn.Particles.Age = Constant13;
+float Constant14 = (0.0);
+Context.MapSpawn.Particles.NormalizedAge = Constant14;
+float3 Constant15 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.Presolve.Velocity = Constant15;
+float3 Constant16 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.Presolve.Position = Constant16;
+float3 Constant17 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.Presolve.PhysicsForce = Constant17;
+float3 Constant18 = float3(0,0,0);
+Context.MapSpawn.Particles.Previous.Position = Constant18;
+float Constant19 = 0;
+Context.MapSpawn.Particles.DistanceTraveled = Constant19;
+//End Initialize Parameter Map Defaults
+int Constant20 = (0);
+float Constant21 = 0;
+float Constant22 = 1;
+int Constant23 = -1;
+int Constant24 = 0;
+int Constant25 = (0);
+int Constant26 = (0);
+float CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat;
+bool CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic;
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant20, Constant21, Constant22, Constant23, Constant24, Constant25, Constant26, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic, Context);
+Context.MapSpawn.InitializeParticle.MaterialRandom = CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat;
+float Constant28 = 1.4;
+float Constant29 = 1.75;
+float4 Constant30 = float4(1,1,1,1);
+float Constant31 = 0.75;
+float Constant32 = 1.25;
+float Constant33 = 25;
+float Constant34 = 50;
+float Constant35 = 0;
+float Constant36 = 360;
+float3 Constant37 = float3(0,0,0);
+int Constant38 = 0;
+Context.MapSpawn.InitializeParticle.PositionOffsetCoordinateSpace = Constant38;
+Context.MapSpawn.Particles.RibbonUVDistance = Context.MapSpawn.Emitter.DistanceTraveled;
+EnterStatScope(1 /**InitializeParticle_Emitter_Func_*/);
+InitializeParticle_Emitter_Func_(Context);
+ExitStatScope(/**InitializeParticle_Emitter_Func_*/);
+float Constant71 = 0;
+float2 Constant72 = float2(1,1);
+int Constant73 = 0;
+float Constant74 = 8;
+float3 Constant75 = float3(1,1,1);
+Context.MapSpawn.ShapeLocation.ApplyOwnerScale = Context.MapSpawn.Engine.Owner.Scale;
+float3 Constant76 = float3(0,0,0);
+Context.MapSpawn.Local.ShapeLocation.ShapeBitangent = Constant76;
+int Constant77 = 2;
+Context.MapSpawn.ShapeLocation.RotationCoordinateSpace = Constant77;
+float3 Constant78 = float3(0,0,0);
+float3 Constant79 = float3(1,0,0);
+float Constant80 = 0;
+Context.MapSpawn.ShapeLocation.RotationQuaternion = Context.MapSpawn.Engine.Owner.Rotation;
+bool Constant81 = false;
+Context.MapSpawn.ShapeLocation.InvertRotationQuaternion = Constant81;
+float3 Constant82 = float3(0,0,0);
+Context.MapSpawn.ShapeLocation.RotationMatrix = Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale;
+bool Constant83 = false;
+Context.MapSpawn.ShapeLocation.ShapeOrigin = Context.MapSpawn.Particles.Position;
+int Constant84 = 0;
+EnterStatScope(2 /**ShapeLocation_Emitter_Func_*/);
+ShapeLocation_Emitter_Func_(Context);
+ExitStatScope(/**ShapeLocation_Emitter_Func_*/);
+float Constant159 = 500;
+float Constant160 = 850;
+int Constant161 = 0;
+float RandomRangeFloat_Emitter_Func_Output_UniformRangedFloat;
+RandomRangeFloat_Emitter_Func_(RandomRangeFloat_Emitter_Func_Output_UniformRangedFloat, Context);
+bool Constant169 = true;
+bool Constant170 = true;
+Context.MapSpawn.AddVelocity.VelocitySpeed = RandomRangeFloat_Emitter_Func_Output_UniformRangedFloat;
+Context.MapSpawn.AddVelocity.UseVelDistribution = Constant169;
+Context.MapSpawn.AddVelocity.UseConeFalloff = Constant170;
+float Constant171 = 32;
+int Constant172 = 0;
+float3 Constant173 = float3(0,0,1);
+float Constant174 = 0.5;
+float Constant175 = 0.25;
+float Constant176 = 0;
+int Constant177 = 2;
+Context.MapSpawn.AddVelocity.RotationCoordinateSpace = Constant177;
+float3 Constant178 = float3(0,0,0);
+float3 Constant179 = float3(1,0,0);
+float Constant180 = 0;
+float4 Constant181 = float4(0,0,0,1);
+bool Constant182 = false;
+Context.MapSpawn.AddVelocity.InvertRotationQuaternion = Constant182;
+float3 Constant183 = float3(0,0,0);
+Context.MapSpawn.AddVelocity.RotationMatrix = Context.MapSpawn.Engine.Owner.SystemLocalToWorld;
+EnterStatScope(3 /**AddVelocity_Emitter_Func_*/);
+AddVelocity_Emitter_Func_(Context);
+ExitStatScope(/**AddVelocity_Emitter_Func_*/);
+//End Spawn Script!
+//Handle resetting previous values at the end of spawn so that they match outputs! (Needed for motion blur/etc)
+HandlePreviousValuesForSpawn(Context);
+// Begin HandleMissingDefaultValues
+Context.MapSpawn.Particles.Initial.Color = Context.MapSpawn.Particles.Color;
+// End HandleMissingDefaultValues
+//Begin Update Script!
+RandomCounterDeterministic = 0;
+bool Constant266 = true;
+Context.MapUpdate.DataInstance.Alive = Constant266;
+Context.MapUpdate.ParticleState.DeltaTime = Context.MapUpdate.Engine.DeltaTime;
+Context.MapUpdate.ParticleState.Lifetime = Context.MapUpdate.Particles.Lifetime;
+EnterStatScope(4 /**ParticleState_Emitter_Func_*/);
+ParticleState_Emitter_Func_(Context);
+ExitStatScope(/**ParticleState_Emitter_Func_*/);
+float3 Constant271 = float3(0,0,0);
+Context.MapUpdate.Transient.PhysicsForce = Constant271;
+float3 Constant272 = float3(0,0,-980);
+EnterStatScope(5 /**GravityForce_Emitter_Func_*/);
+GravityForce_Emitter_Func_(Context);
+ExitStatScope(/**GravityForce_Emitter_Func_*/);
+float Constant274 = 0.25;
+float Constant275 = 0;
+Context.MapUpdate.Transient.PhysicsDrag = Constant275;
+float Constant276 = 1;
+float Constant277 = 0;
+Context.MapUpdate.Transient.PhysicsRotationalDrag = Constant277;
+bool Constant278 = true;
+Context.MapUpdate.Drag.IgnoreMass = Constant278;
+EnterStatScope(6 /**Drag_Emitter_Func_*/);
+Drag_Emitter_Func_(Context);
+ExitStatScope(/**Drag_Emitter_Func_*/);
+Context.MapUpdate.FloatFromCurve.CurveIndex = Context.MapUpdate.Particles.NormalizedAge;
+float Constant282 = 1;
+float FloatFromCurve_Emitter_Func_Output_Value;
+FloatFromCurve_Emitter_Func_(FloatFromCurve_Emitter_Func_Output_Value, Context);
+Context.MapUpdate.ScaleColor.ScaleAlpha = FloatFromCurve_Emitter_Func_Output_Value;
+Context.MapUpdate.ScaleColor.ColorValueToScale = Context.MapUpdate.Particles.Initial.Color;
+float4 Constant284 = float4(1,1,1,1);
+Context.MapUpdate.Transient.ParticleColorScaleFactor = Constant284;
+float3 Constant285 = float3(1,1,1);
+EnterStatScope(7 /**ScaleColor_Emitter_Func_*/);
+ScaleColor_Emitter_Func_(Context);
+ExitStatScope(/**ScaleColor_Emitter_Func_*/);
+Context.MapUpdate.Transient.PhysicsDeltaTime = Context.MapUpdate.Engine.DeltaTime;
+Context.MapUpdate.SolveForcesAndVelocity.DeltaTime = Context.MapUpdate.Transient.PhysicsDeltaTime;
+Context.MapUpdate.SolveForcesAndVelocity.Force = Context.MapUpdate.Transient.PhysicsForce;
+Context.MapUpdate.SolveForcesAndVelocity.Velocity = Context.MapUpdate.Particles.Velocity;
+Context.MapUpdate.SolveForcesAndVelocity.Mass = Context.MapUpdate.Particles.Mass;
+Context.MapUpdate.SolveForcesAndVelocity.Position = Context.MapUpdate.Particles.Position;
+float3 Constant287 = float3(0,0,0);
+Context.MapUpdate.Transient.AdvectionVelocity = Constant287;
+float Constant288 = 1000;
+float3 Constant289 = float3(0,0,0);
+float Constant290 = 9999;
+bool Constant291 = true;
+Context.MapUpdate.SolveForcesAndVelocity.WritetoIntrinsicProperties = Constant291;
+EnterStatScope(8 /**SolveForcesAndVelocity_Emitter_Func_*/);
+SolveForcesAndVelocity_Emitter_Func_(Context);
+ExitStatScope(/**SolveForcesAndVelocity_Emitter_Func_*/);
+//End Update Script!
+// Copyright Epic Games, Inc. All Rights Reserved.
+Emitter_ScaleAlpha_FloatCurve_MinTime;
+Emitter_ScaleAlpha_FloatCurve_MaxTime;
+Emitter_ScaleAlpha_FloatCurve_InvTimeRange;
+Emitter_ScaleAlpha_FloatCurve_CurveLUTNumMinusOne;
+Emitter_ScaleAlpha_FloatCurve_LUTOffset;
+Emitter_ScaleAlpha_FloatCurve_CurveLUT;
+float RemappedTime = saturate((Time - Emitter_ScaleAlpha_FloatCurve_MinTime) * Emitter_ScaleAlpha_FloatCurve_InvTimeRange) * float(Emitter_ScaleAlpha_FloatCurve_CurveLUTNumMinusOne);
+IndexA = floor(RemappedTime);
+IndexB = min(IndexA + 1, Emitter_ScaleAlpha_FloatCurve_CurveLUTNumMinusOne);
+Fraction = frac(RemappedTime);
+return Emitter_ScaleAlpha_FloatCurve_CurveLUT[index];
+return StaticInputFloat[Emitter_ScaleAlpha_FloatCurve_LUTOffset + index];
+uint IndexA, IndexB;
+float Fraction;
+GetCurveLUTIndices_Emitter_ScaleAlpha_FloatCurve(Time, IndexA, IndexB, Fraction);
+IndexA *= 1;
+IndexB *= 1;
+for ( int i=0; i < 1; ++i )
+Value = lerp(SampleCurveLUT_Emitter_ScaleAlpha_FloatCurve(IndexA + i), SampleCurveLUT_Emitter_ScaleAlpha_FloatCurve(IndexB + i), Fraction);
+Value[i] = lerp(SampleCurveLUT_Emitter_ScaleAlpha_FloatCurve(IndexA + i), SampleCurveLUT_Emitter_ScaleAlpha_FloatCurve(IndexB + i), Fraction);
+Context.MapSpawn.Emitter.DistanceTraveled = Emitter_DistanceTraveled;
+Context.MapSpawn.Engine.Owner.Position = Engine_Owner_Position;
+Context.MapSpawn.Engine.Owner.Scale = Engine_Owner_Scale;
+Context.MapSpawn.Engine.Owner.Rotation = Engine_Owner_Rotation;
+Context.MapSpawn.Engine.Owner.SystemLocalToWorldNoScale = Engine_Owner_SystemLocalToWorldNoScale;
+Context.MapSpawn.Engine.Owner.SystemLocalToWorld = Engine_Owner_SystemLocalToWorld;
+Context.MapSpawn.Engine.Owner.SystemWorldToLocal = Engine_Owner_SystemWorldToLocal;
+Context.MapSpawn.Engine.Owner.SystemWorldToLocalNoScale = Engine_Owner_SystemWorldToLocalNoScale;
+Context.MapUpdate.Engine.DeltaTime = Engine_DeltaTime;
+Context.MapUpdate.Engine.Owner.Position = Engine_Owner_Position;
+Context.MapUpdate.Engine.Time = Engine_Time;
+Context.MapUpdate.Engine.WorldDeltaTime = Engine_WorldDeltaTime;
+Context.MapUpdate.Engine.InverseDeltaTime = Engine_InverseDeltaTime;
+Context.MapUpdate.Engine.ExecutionCount = Engine_ExecutionCount;
+Context.MapUpdate.Emitter.SpawnRate = Emitter_SpawnRate;
+Context.MapUpdate.Engine.Emitter.TotalSpawnedParticles = Engine_Emitter_TotalSpawnedParticles;
+Context.MapUpdate.Emitter.RandomSeed = Emitter_RandomSeed;
+Context.MapUpdate.Engine.Emitter.InstanceSeed = Engine_Emitter_InstanceSeed;
+Context.MapUpdate.Engine.System.RandomSeed = Engine_System_RandomSeed;
+Context.MapSpawn.Particles.Age = 0.0f;
+Context.MapSpawn.Particles.Color.r = 0.0f;
+Context.MapSpawn.Particles.Color.g = 0.0f;
+Context.MapSpawn.Particles.Color.b = 0.0f;
+Context.MapSpawn.Particles.Color.a = 0.0f;
+Context.MapSpawn.Particles.DistanceTraveled = 0.0f;
+Context.MapSpawn.Particles.Initial.Color.r = 0.0f;
+Context.MapSpawn.Particles.Initial.Color.g = 0.0f;
+Context.MapSpawn.Particles.Initial.Color.b = 0.0f;
+Context.MapSpawn.Particles.Initial.Color.a = 0.0f;
+Context.MapSpawn.Particles.Lifetime = 0.0f;
+Context.MapSpawn.Particles.Mass = 0.0f;
+Context.MapSpawn.Particles.MaterialRandom = 0.0f;
+Context.MapSpawn.Particles.NormalizedAge = 0.0f;
+Context.MapSpawn.Particles.Position.x = 0.0f;
+Context.MapSpawn.Particles.Position.y = 0.0f;
+Context.MapSpawn.Particles.Position.z = 0.0f;
+Context.MapSpawn.Particles.Presolve.PhysicsForce.x = 0.0f;
+Context.MapSpawn.Particles.Presolve.PhysicsForce.y = 0.0f;
+Context.MapSpawn.Particles.Presolve.PhysicsForce.z = 0.0f;
+Context.MapSpawn.Particles.Presolve.Position.x = 0.0f;
+Context.MapSpawn.Particles.Presolve.Position.y = 0.0f;
+Context.MapSpawn.Particles.Presolve.Position.z = 0.0f;
+Context.MapSpawn.Particles.Presolve.Velocity.x = 0.0f;
+Context.MapSpawn.Particles.Presolve.Velocity.y = 0.0f;
+Context.MapSpawn.Particles.Presolve.Velocity.z = 0.0f;
+Context.MapSpawn.Particles.Previous.Position.x = 0.0f;
+Context.MapSpawn.Particles.Previous.Position.y = 0.0f;
+Context.MapSpawn.Particles.Previous.Position.z = 0.0f;
+Context.MapSpawn.Particles.Previous.SpriteRotation = 0.0f;
+Context.MapSpawn.Particles.Previous.SpriteSize.x = 0.0f;
+Context.MapSpawn.Particles.Previous.SpriteSize.y = 0.0f;
+Context.MapSpawn.Particles.Previous.Velocity.x = 0.0f;
+Context.MapSpawn.Particles.Previous.Velocity.y = 0.0f;
+Context.MapSpawn.Particles.Previous.Velocity.z = 0.0f;
+Context.MapSpawn.Particles.RibbonUVDistance = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeBitangent.x = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeBitangent.y = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeBitangent.z = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeNormal.x = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeNormal.y = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeNormal.z = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapePosition.x = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapePosition.y = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapePosition.z = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeTangent.x = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeTangent.y = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeTangent.z = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeVector.x = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeVector.y = 0.0f;
+Context.MapSpawn.Particles.ShapeLocation.ShapeVector.z = 0.0f;
+Context.MapSpawn.Particles.SpriteRotation = 0.0f;
+Context.MapSpawn.Particles.SpriteSize.x = 0.0f;
+Context.MapSpawn.Particles.SpriteSize.y = 0.0f;
+Context.MapSpawn.Particles.UniqueID = 0;
+Context.MapSpawn.Particles.Velocity.x = 0.0f;
+Context.MapSpawn.Particles.Velocity.y = 0.0f;
+Context.MapSpawn.Particles.Velocity.z = 0.0f;
+Context.MapSpawn.DataInstance.Alive=true;
+Context.MapSpawn.Engine.Emitter.ID.ID = 0;
+Context.MapUpdate.Array.Age = 0;
+Context.MapUpdate.Particles.Age = InputDataFloat(0, 0, InstanceIdx);
+Context.MapUpdate.Array.Color = 1;
+Context.MapUpdate.Particles.Color.r = InputDataFloat(0, 1, InstanceIdx);
+Context.MapUpdate.Particles.Color.g = InputDataFloat(0, 2, InstanceIdx);
+Context.MapUpdate.Particles.Color.b = InputDataFloat(0, 3, InstanceIdx);
+Context.MapUpdate.Particles.Color.a = InputDataFloat(0, 4, InstanceIdx);
+Context.MapUpdate.Array.DistanceTraveled = 5;
+Context.MapUpdate.Particles.DistanceTraveled = InputDataFloat(0, 5, InstanceIdx);
+Context.MapUpdate.Array.Initial.Color = 6;
+Context.MapUpdate.Particles.Initial.Color.r = InputDataFloat(0, 6, InstanceIdx);
+Context.MapUpdate.Particles.Initial.Color.g = InputDataFloat(0, 7, InstanceIdx);
+Context.MapUpdate.Particles.Initial.Color.b = InputDataFloat(0, 8, InstanceIdx);
+Context.MapUpdate.Particles.Initial.Color.a = InputDataFloat(0, 9, InstanceIdx);
+Context.MapUpdate.Array.Lifetime = 10;
+Context.MapUpdate.Particles.Lifetime = InputDataFloat(0, 10, InstanceIdx);
+Context.MapUpdate.Array.Mass = 11;
+Context.MapUpdate.Particles.Mass = InputDataFloat(0, 11, InstanceIdx);
+Context.MapUpdate.Array.MaterialRandom = 12;
+Context.MapUpdate.Particles.MaterialRandom = InputDataFloat(0, 12, InstanceIdx);
+Context.MapUpdate.Array.NormalizedAge = 13;
+Context.MapUpdate.Particles.NormalizedAge = InputDataFloat(0, 13, InstanceIdx);
+Context.MapUpdate.Array.Position = 14;
+Context.MapUpdate.Particles.Position.x = InputDataFloat(0, 14, InstanceIdx);
+Context.MapUpdate.Particles.Position.y = InputDataFloat(0, 15, InstanceIdx);
+Context.MapUpdate.Particles.Position.z = InputDataFloat(0, 16, InstanceIdx);
+Context.MapUpdate.Array.Presolve.PhysicsForce = 17;
+Context.MapUpdate.Particles.Presolve.PhysicsForce.x = InputDataFloat(0, 17, InstanceIdx);
+Context.MapUpdate.Particles.Presolve.PhysicsForce.y = InputDataFloat(0, 18, InstanceIdx);
+Context.MapUpdate.Particles.Presolve.PhysicsForce.z = InputDataFloat(0, 19, InstanceIdx);
+Context.MapUpdate.Array.Presolve.Position = 20;
+Context.MapUpdate.Particles.Presolve.Position.x = InputDataFloat(0, 20, InstanceIdx);
+Context.MapUpdate.Particles.Presolve.Position.y = InputDataFloat(0, 21, InstanceIdx);
+Context.MapUpdate.Particles.Presolve.Position.z = InputDataFloat(0, 22, InstanceIdx);
+Context.MapUpdate.Array.Presolve.Velocity = 23;
+Context.MapUpdate.Particles.Presolve.Velocity.x = InputDataFloat(0, 23, InstanceIdx);
+Context.MapUpdate.Particles.Presolve.Velocity.y = InputDataFloat(0, 24, InstanceIdx);
+Context.MapUpdate.Particles.Presolve.Velocity.z = InputDataFloat(0, 25, InstanceIdx);
+Context.MapUpdate.Array.RibbonUVDistance = 35;
+Context.MapUpdate.Particles.RibbonUVDistance = InputDataFloat(0, 35, InstanceIdx);
+Context.MapUpdate.Array.ShapeLocation.ShapeBitangent = 36;
+Context.MapUpdate.Particles.ShapeLocation.ShapeBitangent.x = InputDataFloat(0, 36, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeBitangent.y = InputDataFloat(0, 37, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeBitangent.z = InputDataFloat(0, 38, InstanceIdx);
+Context.MapUpdate.Array.ShapeLocation.ShapeNormal = 39;
+Context.MapUpdate.Particles.ShapeLocation.ShapeNormal.x = InputDataFloat(0, 39, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeNormal.y = InputDataFloat(0, 40, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeNormal.z = InputDataFloat(0, 41, InstanceIdx);
+Context.MapUpdate.Array.ShapeLocation.ShapePosition = 42;
+Context.MapUpdate.Particles.ShapeLocation.ShapePosition.x = InputDataFloat(0, 42, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapePosition.y = InputDataFloat(0, 43, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapePosition.z = InputDataFloat(0, 44, InstanceIdx);
+Context.MapUpdate.Array.ShapeLocation.ShapeTangent = 45;
+Context.MapUpdate.Particles.ShapeLocation.ShapeTangent.x = InputDataFloat(0, 45, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeTangent.y = InputDataFloat(0, 46, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeTangent.z = InputDataFloat(0, 47, InstanceIdx);
+Context.MapUpdate.Array.ShapeLocation.ShapeVector = 48;
+Context.MapUpdate.Particles.ShapeLocation.ShapeVector.x = InputDataFloat(0, 48, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeVector.y = InputDataFloat(0, 49, InstanceIdx);
+Context.MapUpdate.Particles.ShapeLocation.ShapeVector.z = InputDataFloat(0, 50, InstanceIdx);
+Context.MapUpdate.Array.SpriteRotation = 51;
+Context.MapUpdate.Particles.SpriteRotation = InputDataFloat(0, 51, InstanceIdx);
+Context.MapUpdate.Array.SpriteSize = 52;
+Context.MapUpdate.Particles.SpriteSize.x = InputDataFloat(0, 52, InstanceIdx);
+Context.MapUpdate.Particles.SpriteSize.y = InputDataFloat(0, 53, InstanceIdx);
+Context.MapUpdate.Array.UniqueID = 0;
+Context.MapUpdate.Particles.UniqueID = InputDataInt(0, 0, InstanceIdx);
+Context.MapUpdate.Array.Velocity = 54;
+Context.MapUpdate.Particles.Velocity.x = InputDataFloat(0, 54, InstanceIdx);
+Context.MapUpdate.Particles.Velocity.y = InputDataFloat(0, 55, InstanceIdx);
+Context.MapUpdate.Particles.Velocity.z = InputDataFloat(0, 56, InstanceIdx);
+Context.MapUpdate.Particles.Position;
+Context.MapUpdate.Particles.SpriteRotation;
+Context.MapUpdate.Particles.SpriteSize;
+Context.MapUpdate.Particles.Velocity;
+Context.MapUpdate.DataInstance.Alive=true;
+Context.MapUpdate.Engine.Emitter.ID.ID = 0;
+InterpolateParameters(Context);
+Context.MapUpdate.Particles = Context.MapSpawn.Particles;
+Context.MapUpdate.DataInstance.Alive = true;
+Context.MapUpdate.Particles.Previous.Position = Context.MapSpawn.Particles.Position;
+const bool bValid = bIsValidInstance && Context.MapUpdate.DataInstance.Alive;
+const int WriteIndex = OutputIndex(0, true, bValid);
+OutputDataFloat(0, 0, WriteIndex, Context.MapUpdate.Particles.Age);
+OutputDataFloat(0, 1, WriteIndex, Context.MapUpdate.Particles.Color.r);
+OutputDataFloat(0, 2, WriteIndex, Context.MapUpdate.Particles.Color.g);
+OutputDataFloat(0, 3, WriteIndex, Context.MapUpdate.Particles.Color.b);
+OutputDataFloat(0, 4, WriteIndex, Context.MapUpdate.Particles.Color.a);
+OutputDataFloat(0, 5, WriteIndex, Context.MapUpdate.Particles.DistanceTraveled);
+OutputDataFloat(0, 6, WriteIndex, Context.MapUpdate.Particles.Initial.Color.r);
+OutputDataFloat(0, 7, WriteIndex, Context.MapUpdate.Particles.Initial.Color.g);
+OutputDataFloat(0, 8, WriteIndex, Context.MapUpdate.Particles.Initial.Color.b);
+OutputDataFloat(0, 9, WriteIndex, Context.MapUpdate.Particles.Initial.Color.a);
+OutputDataFloat(0, 10, WriteIndex, Context.MapUpdate.Particles.Lifetime);
+OutputDataFloat(0, 11, WriteIndex, Context.MapUpdate.Particles.Mass);
+OutputDataFloat(0, 12, WriteIndex, Context.MapUpdate.Particles.MaterialRandom);
+OutputDataFloat(0, 13, WriteIndex, Context.MapUpdate.Particles.NormalizedAge);
+OutputDataFloat(0, 14, WriteIndex, Context.MapUpdate.Particles.Position.x);
+OutputDataFloat(0, 15, WriteIndex, Context.MapUpdate.Particles.Position.y);
+OutputDataFloat(0, 16, WriteIndex, Context.MapUpdate.Particles.Position.z);
+OutputDataFloat(0, 17, WriteIndex, Context.MapUpdate.Particles.Presolve.PhysicsForce.x);
+OutputDataFloat(0, 18, WriteIndex, Context.MapUpdate.Particles.Presolve.PhysicsForce.y);
+OutputDataFloat(0, 19, WriteIndex, Context.MapUpdate.Particles.Presolve.PhysicsForce.z);
+OutputDataFloat(0, 20, WriteIndex, Context.MapUpdate.Particles.Presolve.Position.x);
+OutputDataFloat(0, 21, WriteIndex, Context.MapUpdate.Particles.Presolve.Position.y);
+OutputDataFloat(0, 22, WriteIndex, Context.MapUpdate.Particles.Presolve.Position.z);
+OutputDataFloat(0, 23, WriteIndex, Context.MapUpdate.Particles.Presolve.Velocity.x);
+OutputDataFloat(0, 24, WriteIndex, Context.MapUpdate.Particles.Presolve.Velocity.y);
+OutputDataFloat(0, 25, WriteIndex, Context.MapUpdate.Particles.Presolve.Velocity.z);
+OutputDataFloat(0, 26, WriteIndex, Context.MapUpdate.Particles.Previous.Position.x);
+OutputDataFloat(0, 27, WriteIndex, Context.MapUpdate.Particles.Previous.Position.y);
+OutputDataFloat(0, 28, WriteIndex, Context.MapUpdate.Particles.Previous.Position.z);
+OutputDataFloat(0, 29, WriteIndex, Context.MapUpdate.Particles.Previous.SpriteRotation);
+OutputDataFloat(0, 30, WriteIndex, Context.MapUpdate.Particles.Previous.SpriteSize.x);
+OutputDataFloat(0, 31, WriteIndex, Context.MapUpdate.Particles.Previous.SpriteSize.y);
+OutputDataFloat(0, 32, WriteIndex, Context.MapUpdate.Particles.Previous.Velocity.x);
+OutputDataFloat(0, 33, WriteIndex, Context.MapUpdate.Particles.Previous.Velocity.y);
+OutputDataFloat(0, 34, WriteIndex, Context.MapUpdate.Particles.Previous.Velocity.z);
+OutputDataFloat(0, 35, WriteIndex, Context.MapUpdate.Particles.RibbonUVDistance);
+OutputDataFloat(0, 36, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeBitangent.x);
+OutputDataFloat(0, 37, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeBitangent.y);
+OutputDataFloat(0, 38, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeBitangent.z);
+OutputDataFloat(0, 39, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeNormal.x);
+OutputDataFloat(0, 40, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeNormal.y);
+OutputDataFloat(0, 41, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeNormal.z);
+OutputDataFloat(0, 42, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapePosition.x);
+OutputDataFloat(0, 43, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapePosition.y);
+OutputDataFloat(0, 44, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapePosition.z);
+OutputDataFloat(0, 45, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeTangent.x);
+OutputDataFloat(0, 46, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeTangent.y);
+OutputDataFloat(0, 47, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeTangent.z);
+OutputDataFloat(0, 48, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeVector.x);
+OutputDataFloat(0, 49, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeVector.y);
+OutputDataFloat(0, 50, WriteIndex, Context.MapUpdate.Particles.ShapeLocation.ShapeVector.z);
+OutputDataFloat(0, 51, WriteIndex, Context.MapUpdate.Particles.SpriteRotation);
+OutputDataFloat(0, 52, WriteIndex, Context.MapUpdate.Particles.SpriteSize.x);
+OutputDataFloat(0, 53, WriteIndex, Context.MapUpdate.Particles.SpriteSize.y);
+OutputDataInt(0, 0, WriteIndex, Context.MapUpdate.Particles.UniqueID);
+OutputDataFloat(0, 54, WriteIndex, Context.MapUpdate.Particles.Velocity.x);
+OutputDataFloat(0, 55, WriteIndex, Context.MapUpdate.Particles.Velocity.y);
+OutputDataFloat(0, 56, WriteIndex, Context.MapUpdate.Particles.Velocity.z);
+// TODO!
+CS wrapper for our generated code; calls spawn and update functions on the corresponding instances in the buffer
+= InDispatchThreadId;
+= InGroupId;
+= InGroupThreadId;
+= InGroupIndex;
+GEmitterTickCounter = EmitterTickCounter;
+GRandomSeedOffset = 0;
+#if SimulationStageIndex == 0 // MapUpdate
+DispatchThreadIdBounds = IndirectDispatchArgs[IndirectDispatchArgsOffset].xyz;
+GLinearThreadId = GDispatchThreadId.x;
+GLinearThreadId += GDispatchThreadId.y * DispatchThreadIdBounds.x;
+GLinearThreadId += GDispatchThreadId.z * DispatchThreadIdBounds.x * DispatchThreadIdBounds.y;
+#else //NIAGARA_DISPATCH_INDIRECT
+= GDispatchThreadId.x + (GDispatchThreadId.y * DispatchThreadIdToLinear.y);
+GLinearThreadId += GDispatchThreadId.z * DispatchThreadIdToLinear.z;
+#endif //NIAGARA_DISPATCH_INDIRECT
+bool bRunSpawnUpdateLogic = true;
+GSpawnStartInstance = 0;
+GSpawnStartInstance = RWInstanceCounts[ReadInstanceCountOffset];
+const uint MaxInstances = GSpawnStartInstance + NumSpawnedInstances;
+const bool bRunUpdateLogic = bRunSpawnUpdateLogic && GLinearThreadId < GSpawnStartInstance && GLinearThreadId < MaxInstances;
+const bool bRunSpawnLogic = bRunSpawnUpdateLogic && GLinearThreadId >= GSpawnStartInstance && GLinearThreadId < MaxInstances;
+const float RandomSeedInitialisation = NiagaraInternalNoise(GLinearThreadId * 16384, 0 * 8196, (bRunUpdateLogic ? 4096 : 0) + EmitterTickCounter);
+// initialise the random state seed
+FSimulationContext Context = (FSimulationContext)0;
+SetupExecIndexForGPU();
+InitConstants(Context);
+LoadUpdateVariables(Context, GLinearThreadId);
+ReadDataSets(Context);
+SetupExecIndexAndSpawnInfoForGPU();
+InitSpawnVariables(Context);
+Context.MapSpawn.Particles.UniqueID = Engine_Emitter_TotalSpawnedParticles + GLinearThreadId - GSpawnStartInstance;
+ConditionalInterpolateParameters(Context);
+SimulateMapSpawn(Context);
+TransferAttributes(Context);
+SimulateMapUpdate(Context);
+WriteDataSets(Context);
+StoreUpdateVariables(Context, bRunUpdateLogic || bRunSpawnLogic);
+ÅÑ;Ï∫ˆD≠
+——6¸'…;`
+‰S∫Ì=M9O†<ù.Ü;mîH
+// SimStage[1] = Build Kernel Array
+// SimStage[2] = Fill Rasterization Grid Reader
+// SimStage[3] = Fill RasterizationGrid NDC
+// SimStage[4] = Smooth in X
+// SimStage[5] = Smooth in Y
+// SimStage[6] = Smooth in Z and Output
+// SimStage[7] = Output
+// SimStage[8] = Generate Mesh
+float4x4 Emitter_WorldToUnit;
+float4x4 Emitter_UnitToWorld;
+int Emitter_Grid3D_InitializeConvolutionKernel_Radius;
+float Emitter_RasterizationGrid3D_Initialize_dx;
+int Emitter_RasterizationGrid3D_Initialize_HalfBandwidth;
+float User_ParticleSizeMult;
+bool Emitter_SourceIsLocalSpace;
+float Emitter_SDFGrid_SDF;
+float Emitter_SDF_dx;
+float ParticleSizeMult;
+float SDF;
+FParamMap0_SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9_Emitter_SDFGrid SDFGrid;
+FParamMap0_SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9_Emitter Emitter;
+FParamMap0_SetVariables_8F84CC084116DB1E24DAB3A11D37F716_Emitter_SDFGrid SDFGrid;
+FParamMap0_SetVariables_8F84CC084116DB1E24DAB3A11D37F716_Emitter Emitter;
+FParamMap0_SetVariables_53E1127D4C9E34492A8683A360C3CF0F_Emitter_SDFGrid SDFGrid;
+FParamMap0_SetVariables_53E1127D4C9E34492A8683A360C3CF0F_Emitter Emitter;
+float dx;
+int HalfBandwidth;
+float RadiusMult;
+float4x4 WorldToUnit;
+bool SourceIsLocalSpace;
+float ConvolvedValue;
+float3 Grad;
+FParamMap0_OUTPUT_VAR_Grid3D_ComputeGradient Grid3D_ComputeGradient;
+FParamMap0_OUTPUT_VAR_Grid3D_ConvolveAxis Grid3D_ConvolveAxis;
+FParamMap0_OUTPUT_VAR_Grid3D_ConvolveAxis001 Grid3D_ConvolveAxis001;
+FParamMap0_OUTPUT_VAR_Grid3D_ConvolveAxis002 Grid3D_ConvolveAxis002;
+int Channel;
+float3 VECTOR_VAR;
+float4 Value;
+FParamMap0_Local_Grid3D_SetRTValues Grid3D_SetRTValues;
+FParamMap0_Local_Grid3D_SetRTValues001 Grid3D_SetRTValues001;
+float Alpha;
+float Blue;
+float Green;
+float Red;
+float CellSize;
+float4x4 UnitToWorld;
+int Radius;
+FParamMap0_Emitter_Grid3D_InitializeConvolutionKernel Grid3D_InitializeConvolutionKernel;
+FParamMap0_Emitter_RasterizationGrid3D_Initialize RasterizationGrid3D_Initialize;
+float SDF_dx;
+FParamMap0_Emitter_SDFGrid SDFGrid;
+FParamMap0_Grid3D_ComputeGradient Grid3D_ComputeGradient;
+FParamMap0_Grid3D_CreateConvolutionKernel Grid3D_CreateConvolutionKernel;
+FParamMap0_Grid3D_GenerateMeshFromDistanceField Grid3D_GenerateMeshFromDistanceField;
+FParamMap0_Grid3D_SetRTValues Grid3D_SetRTValues;
+FParamMap0_Grid3D_SetRTValues001 Grid3D_SetRTValues001;
+FParamMap0_MakeFloatFromVector MakeFloatFromVector;
+FParamMap0_MakeFloatFromVector001 MakeFloatFromVector001;
+FParamMap0_MakeFloatFromVector002 MakeFloatFromVector002;
+FParamMap0_RasterizationGrid_ParticleSource RasterizationGrid_ParticleSource;
+FParamMap0_RasterizationGrid_ParticleSource001 RasterizationGrid_ParticleSource001;
+FParamMap0_SetVariables_53E1127D4C9E34492A8683A360C3CF0F SetVariables_53E1127D4C9E34492A8683A360C3CF0F;
+FParamMap0_SetVariables_8F84CC084116DB1E24DAB3A11D37F716 SetVariables_8F84CC084116DB1E24DAB3A11D37F716;
+FParamMap0_SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9 SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9;
+FParamMap0_User User;
+#if ((SimulationStageIndex == 1)) // MapSimStage1_BuildKernelArray
+FParamMap0 MapSimStage1_BuildKernelArray;
+#endif // MapSimStage1_BuildKernelArray
+#if ((SimulationStageIndex == 2)) // MapSimStage2_FillRasterizationGridReader
+FParamMap0 MapSimStage2_FillRasterizationGridReader;
+#endif // MapSimStage2_FillRasterizationGridReader
+#if ((SimulationStageIndex == 3)) // MapSimStage3_FillRasterizationGridNDC
+FParamMap0 MapSimStage3_FillRasterizationGridNDC;
+#endif // MapSimStage3_FillRasterizationGridNDC
+#if ((SimulationStageIndex == 4)) // MapSimStage4_SmoothinX
+FParamMap0 MapSimStage4_SmoothinX;
+#endif // MapSimStage4_SmoothinX
+#if ((SimulationStageIndex == 5)) // MapSimStage5_SmoothinY
+FParamMap0 MapSimStage5_SmoothinY;
+#endif // MapSimStage5_SmoothinY
+#if ((SimulationStageIndex == 6)) // MapSimStage6_SmoothinZandOutput
+FParamMap0 MapSimStage6_SmoothinZandOutput;
+#endif // MapSimStage6_SmoothinZandOutput
+#if ((SimulationStageIndex == 7)) // MapSimStage7_Output
+FParamMap0 MapSimStage7_Output;
+#endif // MapSimStage7_Output
+#if ((SimulationStageIndex == 8)) // MapSimStage8_GenerateMesh
+FParamMap0 MapSimStage8_GenerateMesh;
+#endif // MapSimStage8_GenerateMesh
+void SetFloatValue_Emitter_KernelGrid_UEImpureCall_Attributek(int In_IndexX, int In_IndexY, float In_Value);
+void CustomHlsl7538628959E42A67EF98A7211182191BB2A32CF2Emitter_KernelGrid_Func_(int In_Radius, inout FSimulationContext Context);
+void Grid3D_CreateConvolutionKernel_Emitter_Func_(inout FSimulationContext Context);
+void GetPositionByIndex_Emitter_Reader_AttributePosition(int In_ParticleIndex, out bool Out_Valid, out float3 Out_Value);
+void TransformPosition_v2_0_Emitter_Localspace_false_Particle_Func_(float3 In_Position, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, float4x4 In_Engine_Owner_SystemLocalToWorld, float4x4 In_Engine_Owner_SystemWorldToLocal, float4x4 In_Engine_Owner_SystemLocalToWorldNoScale, float4x4 In_Engine_Owner_SystemWorldToLocalNoScale, out float3 Out_Position, inout FSimulationContext Context);
+void GetVector2DByIndex_Emitter_Reader_AttributeSpriteSize(int In_ParticleIndex, out bool Out_Valid, out float2 Out_Value);
+void UnitToFloatIndex_Emitter_RasterizationGrid(float3 In_Unit, out float3 Out_Index);
+void GetNumCells_Emitter_RasterizationGrid(out int Out_NumCellsX, out int Out_NumCellsY, out int Out_NumCellsZ);
+void InterlockedMinFloatGridValue_Emitter_RasterizationGrid(int In_IndexX, int In_IndexY, int In_IndexZ, int In_AttributeIndex, float In_Value, out int Out_IGNORE);
+void CustomHlsl1F121CE02C1427DEA34B35005FC46D826DAEF815Emitter_RasterizationGrid_Func_(float3 In_Position, float2 In_SpriteSize, float3 In_Index, float In_dx, int In_HalfBandwidth, float In_RadiusMult, int In_NumCellsX, int In_NumCellsY, int In_NumCellsZ, inout FSimulationContext Context);
+void RasterizationGrid_ParticleSource_Emitter_Func_(inout FSimulationContext Context);
+void Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColor(int In_Index, out bool Out_Success, out float3 Out_Position, out float3 Out_Velocity, out float Out_Radius, out float Out_PreviousRadius, out float Out_Density, out float Out_Temperature, out float Out_Divergence, out float4 Out_Color);
+void RasterizationGrid_ParticleSource001_Emitter_Func_(inout FSimulationContext Context);
+void GetNumCells_Emitter_KernelGrid(out int Out_NumCellsX, out int Out_NumCellsY);
+void ExecutionIndexToGridIndex_Emitter_RasterizationGrid(out int Out_IndexX, out int Out_IndexY, out int Out_IndexZ);
+void GetFloatGridValue_Emitter_RasterizationGrid(int In_IndexX, int In_IndexY, int In_IndexZ, int In_AttributeIndex, out float Out_Value);
+void GetPreviousFloatValue_Emitter_KernelGrid_Attributek(int In_IndexX, int In_IndexY, out float Out_Value);
+void CustomHlsl8199713393C2233DAB99CF9760DA784B9B03495DEmitter_RasterizationGridEmitter_KernelGrid_Func_(int In_Radius, int In_IndexX, int In_IndexY, int In_IndexZ, int In_NumCellsX, int In_NumCellsY, int In_NumCellsZ, float3 In_ConvAxis, int In_AttributeIndex, out float Out_ConvolvedValue);
+void Grid3D_ConvolveAxis_Emitter_Func_(inout FSimulationContext Context);
+void SetVariables_8F84CC084116DB1E24DAB3A11D37F716_Emitter_Func_(inout FSimulationContext Context);
+void ExecutionIndexToGridIndex_Emitter_SDFGrid(out int Out_IndexX, out int Out_IndexY, out int Out_IndexZ);
+void SetFloatValue_Emitter_SDFGrid_UEImpureCall_AttributeSDF(int In_IndexX, int In_IndexY, int In_IndexZ, float In_Value);
+void GetNumCells_Emitter_SDFGrid(out int Out_NumCellsX, out int Out_NumCellsY, out int Out_NumCellsZ);
+void GetPreviousFloatValueAtIndex_Emitter_SDFGrid(int In_IndexX, int In_IndexY, int In_IndexZ, int In_AttributeIndex, out float Out_Value);
+void CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_(int In_Radius, int In_IndexX, int In_IndexY, int In_IndexZ, int In_NumCellsX, int In_NumCellsY, int In_NumCellsZ, float3 In_ConvAxis, int In_AttributeIndex, out float Out_ConvolvedValue);
+void Grid3D_ConvolveAxis001_Emitter_Func_(inout FSimulationContext Context);
+void SetVariables_53E1127D4C9E34492A8683A360C3CF0F_Emitter_Func_(inout FSimulationContext Context);
+void Grid3D_ConvolveAxis002_Emitter_Func_(inout FSimulationContext Context);
+void SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9_Emitter_Func_(inout FSimulationContext Context);
+void ExecToIndex_Emitter_SimRT(out int Out_IndexX, out int Out_IndexY, out int Out_IndexZ);
+void SetRenderTargetValue_Emitter_SimRT_UEImpureCall(bool In_Enabled, int In_IndexX, int In_IndexY, int In_IndexZ, float4 In_Value);
+void Grid3D_SetRTValues_Emitter_Func_(inout FSimulationContext Context);
+void GetPreviousFloatValue_Emitter_SDFGrid_AttributeSDF(int In_IndexX, int In_IndexY, int In_IndexZ, out float Out_Value);
+void GetGridValue_Emitter_SDFGrid(int In_IndexX, int In_IndexY, int In_IndexZ, int In_AttributeIndex, out float Out_Value);
+void CustomHlsl2A4D5E5BE7C582945D14ADEF0975395113CD9840Emitter_SDFGrid_Func_(float In_dx, int In_IndexX, int In_IndexY, int In_IndexZ, int In_ScalarIndex, out float3 Out_Grad);
+void Grid3D_ComputeGradient_Emitter_Func_(inout FSimulationContext Context);
+void SelectV3Channel_Particle_Func_(float3 In_VECTOR_VAR, int In_TargetChannel, out float Out_Float, inout FSimulationContext Context);
+void MakeFloatFromVector_Emitter_Func_(out float Out_Float, inout FSimulationContext Context);
+void MakeFloatFromVector001_Emitter_Func_(out float Out_Float, inout FSimulationContext Context);
+void MakeFloatFromVector002_Emitter_Func_(out float Out_Float, inout FSimulationContext Context);
+void Grid3D_SetRTValues001_Emitter_Func_(inout FSimulationContext Context);
+void GetRenderTargetSize_Emitter_SimRT(out int Out_Width, out int Out_Height, out int Out_Depth);
+void AppendTriangle_Emitter_GeneratedMesh_UEImpureCall(bool In_Execute, int In_SectionIndex, float3 In_Position0, float3 In_TangentX0, float3 In_TangentY0, float3 In_TangentZ0, float2 In_TexCoord0, float4 In_Color0, float3 In_Position1, float3 In_TangentX1, float3 In_TangentY1, float3 In_TangentZ1, float2 In_TexCoord1, float4 In_Color1, float3 In_Position2, float3 In_TangentX2, float3 In_TangentY2, float3 In_TangentZ2, float2 In_TexCoord2, float4 In_Color2, out int Out_TriangleIndex);
+void GetRenderTargetValue_Emitter_SimRT(int In_IndexX, int In_IndexY, int In_IndexZ, out float4 Out_Value);
+void SampleRenderTargetValue_Emitter_SimRT(float3 In_UVW, float In_MipLevel, out float4 Out_Value);
+void CustomHlslD01B102F45DBB09196AE4A4C3EC9E430AF7674E0Emitter_GeneratedMeshEmitter_SimRT_Func_(float In_CubeSize, float3 In_Position, float In_IsoValue, int In_NumVerticesX, int In_NumVerticesY, int In_NumVerticesZ, float4x4 In_UnitToWorld, float4x4 In_WorldToUnit, inout FSimulationContext Context);
+void Grid3D_GenerateMeshFromDistanceField_Emitter_Func_(inout FSimulationContext Context);
+   SetFloatValue_Emitter_KernelGrid_UEImpureCall_Attributek(0,0,1);
+    float Total = 0;
+    int i;
+    for (i = 0; i <= In_Radius; ++i)
+        float Val = 1. - 1. * i/(In_Radius+1);
+        Total += Val;
+        // add negative side to total
+        if (i > 0)
+            Total += Val;
+        SetFloatValue_Emitter_KernelGrid_UEImpureCall_Attributek(i, 0, Val/Total);
+//SetConstantByStaticVariable "/Grid 3D Create Convolution Kernel/Map Get/Map Get->Module.Smoothing Kernel"
+int Constant = 2;
+CustomHlsl7538628959E42A67EF98A7211182191BB2A32CF2Emitter_KernelGrid_Func_(Context.MapSimStage1_BuildKernelArray.Grid3D_CreateConvolutionKernel.Radius, Context);
+int Constant13 = 0;
+bool Result1 = NiagaraAll(In_SourceSpace == Constant13);
+int Constant14 = 0;
+bool Result2 = NiagaraAll(In_DestinationSpace == Constant14);
+bool Result3 = Result1 && Result2;
+int Constant15 = 1;
+bool Result4 = NiagaraAll(In_SourceSpace == Constant15);
+int Constant16 = 1;
+bool Result5 = NiagaraAll(In_DestinationSpace == Constant16);
+bool Result6 = Result4 && Result5;
+bool Result7 = Result3 || Result6;
+int Constant17 = 2;
+bool Result8 = NiagaraAll(In_SourceSpace == Constant17);
+int Constant18 = 2;
+bool Result9 = NiagaraAll(In_DestinationSpace == Constant18);
+bool Result10 = Result8 && Result9;
+bool Result11 = Result7 || Result10;
+bool Result12 = Result1 && Result9;
+bool Result13 = Result8 && Result2;
+bool Result14 = Result12 || Result13;
+bool Result15 = In_bLocalSpace && Result14;
+bool Result16 = Result11 || Result15;
+bool Result17 = !In_bLocalSpace;
+bool Result18 = Result1 && Result5;
+bool Result19 = Result4 && Result2;
+bool Result20 = Result18 || Result19;
+bool Result21 = Result17 && Result20;
+bool Result22 = Result16 || Result21;
+bool Result23 = In_bLocalSpace && Result18;
+bool Result24 = Result8 && Result5;
+bool Result25 = Result23 || Result24;
+bool Result26 = Result17 && Result13;
+bool Result27 = Result25 || Result26;
+Matrix_IfResult = In_LocalToWorldTransform;
+Matrix_IfResult = In_WorldToLocalTransform;
+Out_bUseOriginal = Result22;
+Out_OutTransform = Matrix_IfResult;
+Out_LocalToWorld = Result27;
+float4x4 Constant10 = (float4x4)0;
+float4x4 LocalToWorld_SelectResult = Constant10;
+float4x4 Constant11 = (float4x4)0;
+float4x4 WorldToLocal_SelectResult = Constant11;
+LocalToWorld_SelectResult = Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemLocalToWorld;
+WorldToLocal_SelectResult = Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemWorldToLocal;
+LocalToWorld_SelectResult = Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemLocalToWorldNoScale;
+WorldToLocal_SelectResult = Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemWorldToLocalNoScale;
+bool Constant12 = false;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, LocalToWorld_SelectResult, WorldToLocal_SelectResult, Constant12, TransformBase_Func_Output_bUseOriginal, TransformBase_Func_Output_OutTransform, TransformBase_Func_Output_LocalToWorld, Context);
+float3 Result28 = mul(float4(In_Position,1.0),TransformBase_Func_Output_OutTransform).xyz;
+float3 Constant19 = float3(0.0, 0.0, 0.0);
+float3 NiagaraPosition_SelectResult1 = Constant19;
+NiagaraPosition_SelectResult1 = In_Position;
+NiagaraPosition_SelectResult1 = Result28;
+Out_Position = NiagaraPosition_SelectResult1;
+#if ((SimulationStageIndex == 2) || (SimulationStageIndex == 3)) // Multiple stages
+int IGNORE;
+// we never want a radius smaller than half of the cell size otherwise
+// we can't rasterize an sdf
+float Radius = max(In_SpriteSize.x * .5 * In_RadiusMult, In_dx * .5);
+float IndexRadius = Radius / In_dx;
+int size = ceil(IndexRadius) + In_HalfBandwidth;
+int IndexX = round(In_Index.x);
+int IndexY = round(In_Index.y);
+int IndexZ = round(In_Index.z);
+for (int xx = -size; xx <= size; ++xx) {
+for (int yy = -size;  yy <= size; ++yy) {
+for (int zz = -size; zz <= size; ++zz) {
+    int3 CurrIndex = int3(IndexX+xx,IndexY+yy,IndexZ+zz);
+    float IndexDist = length(In_Index - CurrIndex) - IndexRadius;
+   if (abs(IndexDist) <= In_HalfBandwidth &&
+        CurrIndex.x >= 0 && CurrIndex.x < In_NumCellsX &&
+        CurrIndex.y >= 0 && CurrIndex.y < In_NumCellsY &&
+        CurrIndex.z >= 0 && CurrIndex.z < In_NumCellsZ)
+        InterlockedMinFloatGridValue_Emitter_RasterizationGrid(CurrIndex.x, CurrIndex.y, CurrIndex.z, 0, IndexDist * In_dx, IGNORE);
+//SetConstantByStaticVariable "/Rasterization Grid Particle Source/Map Get/Map Get->Module.UseNDC"
+int Constant1 = 0;
+int Result = ExecIndex();
+bool GetPositionByIndex_Emitter_Reader_AttributePositionOutput_Valid;
+float3 GetPositionByIndex_Emitter_Reader_AttributePositionOutput_Value;
+GetPositionByIndex_Emitter_Reader_AttributePosition(Result, GetPositionByIndex_Emitter_Reader_AttributePositionOutput_Valid, GetPositionByIndex_Emitter_Reader_AttributePositionOutput_Value);
+int Constant2 = 2;
+int Constant3 = 1;
+bool Constant4 = false;
+float4x4 Constant5 = float4x4(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+float4x4 Constant6 = float4x4(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+float4x4 Constant7 = float4x4(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+float4x4 Constant8 = float4x4(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+bool Constant9 = false;
+float3 TransformPosition_v2_0_Emitter_Localspace_false_Particle_Func_Output_Position;
+TransformPosition_v2_0_Emitter_Localspace_false_Particle_Func_(GetPositionByIndex_Emitter_Reader_AttributePositionOutput_Value, Constant2, Constant3, Constant4, Constant5, Constant6, Constant7, Constant8, TransformPosition_v2_0_Emitter_Localspace_false_Particle_Func_Output_Position, Context);
+float3 Constant20 = float3(0.0, 0.0, 0.0);
+float3 NiagaraPosition_SelectResult2 = Constant20;
+NiagaraPosition_SelectResult2 = TransformPosition_v2_0_Emitter_Localspace_false_Particle_Func_Output_Position;
+NiagaraPosition_SelectResult2 = GetPositionByIndex_Emitter_Reader_AttributePositionOutput_Value;
+float3 Result29 = mul(float4(NiagaraPosition_SelectResult2,1.0),Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.WorldToUnit).xyz;
+float3 Output1;
+Output1.x = Result29.x;
+Output1.y = Result29.y;
+Output1.z = Result29.z;
+bool GetVector2DByIndex_Emitter_Reader_AttributeSpriteSizeOutput_Valid;
+float2 GetVector2DByIndex_Emitter_Reader_AttributeSpriteSizeOutput_Value;
+GetVector2DByIndex_Emitter_Reader_AttributeSpriteSize(Result, GetVector2DByIndex_Emitter_Reader_AttributeSpriteSizeOutput_Valid, GetVector2DByIndex_Emitter_Reader_AttributeSpriteSizeOutput_Value);
+float3 UnitToFloatIndex_Emitter_RasterizationGridOutput_Index;
+UnitToFloatIndex_Emitter_RasterizationGrid(Output1, UnitToFloatIndex_Emitter_RasterizationGridOutput_Index);
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsX;
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsY;
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ;
+GetNumCells_Emitter_RasterizationGrid(GetNumCells_Emitter_RasterizationGridOutput_NumCellsX, GetNumCells_Emitter_RasterizationGridOutput_NumCellsY, GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ);
+CustomHlsl1F121CE02C1427DEA34B35005FC46D826DAEF815Emitter_RasterizationGrid_Func_(Output1, GetVector2DByIndex_Emitter_Reader_AttributeSpriteSizeOutput_Value, UnitToFloatIndex_Emitter_RasterizationGridOutput_Index, Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.dx, Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.HalfBandwidth, Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.RadiusMult, GetNumCells_Emitter_RasterizationGridOutput_NumCellsX, GetNumCells_Emitter_RasterizationGridOutput_NumCellsY, GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ, Context);
+//SetConstantByStaticVariable "/Rasterization Grid Particle Source 001/Map Get/Map Get->Module.UseNDC"
+int Constant21 = 1;
+int Result30 = ExecIndex();
+bool Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Success;
+float3 Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Position;
+float3 Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Velocity;
+float Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Radius;
+float Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_PreviousRadius;
+float Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Density;
+float Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Temperature;
+float Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Divergence;
+float4 Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Color;
+Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColor(Result30, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Success, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Position, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Velocity, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Radius, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_PreviousRadius, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Density, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Temperature, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Divergence, Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Color);
+float3 Result31 = mul(float4(Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Position,1.0),Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.WorldToUnit).xyz;
+Output11.x = Result31.x;
+Output11.y = Result31.y;
+Output11.z = Result31.z;
+float Constant22 = 2;
+float Result32 = Read_Emitter_NDCReader_PositionNiagaraPosition_VelocityVector3f_RadiusNiagaraFloat_PreviousRadiusNiagaraFloat_DensityNiagaraFloat_TemperatureNiagaraFloat_DivergenceNiagaraFloat_ColorLinearColorOutput_Radius * Constant22;
+float2 Output12;
+Output12.x = Result32;
+Output12.y = Result32;
+float3 UnitToFloatIndex_Emitter_RasterizationGridOutput_Index1;
+UnitToFloatIndex_Emitter_RasterizationGrid(Output11, UnitToFloatIndex_Emitter_RasterizationGridOutput_Index1);
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsX1;
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsY1;
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ1;
+GetNumCells_Emitter_RasterizationGrid(GetNumCells_Emitter_RasterizationGridOutput_NumCellsX1, GetNumCells_Emitter_RasterizationGridOutput_NumCellsY1, GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ1);
+CustomHlsl1F121CE02C1427DEA34B35005FC46D826DAEF815Emitter_RasterizationGrid_Func_(Output11, Output12, UnitToFloatIndex_Emitter_RasterizationGridOutput_Index1, Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.dx, Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.HalfBandwidth, Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.RadiusMult, GetNumCells_Emitter_RasterizationGridOutput_NumCellsX1, GetNumCells_Emitter_RasterizationGridOutput_NumCellsY1, GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ1, Context);
+Out_ConvolvedValue = 0;
+int3 CurrCell = int3(In_IndexX, In_IndexY, In_IndexZ);
+int3 MaxCells = int3(In_NumCellsX, In_NumCellsY, In_NumCellsZ)  - 1;
+for (int uu = -In_Radius; uu <= In_Radius; ++uu) {
+  int3 SampleVec = uu * In_ConvAxis;
+  int3 CurrIndex = clamp(CurrCell + SampleVec, int3(0,0,0), MaxCells);
+  GetFloatGridValue_Emitter_RasterizationGrid(CurrIndex.x, CurrIndex.y, CurrIndex.z, In_AttributeIndex, Sample);
+  float KernelValue;
+  GetPreviousFloatValue_Emitter_KernelGrid_Attributek(abs(uu), 0, KernelValue);
+  Out_ConvolvedValue += Sample * KernelValue;
+//SetConstantByStaticVariable "/Grid 3D Convolve Axis/Map Get/Map Get->Module.Axis"
+int Constant25 = 0;
+int GetNumCells_Emitter_KernelGridOutput_NumCellsX;
+int GetNumCells_Emitter_KernelGridOutput_NumCellsY;
+GetNumCells_Emitter_KernelGrid(GetNumCells_Emitter_KernelGridOutput_NumCellsX, GetNumCells_Emitter_KernelGridOutput_NumCellsY);
+int Constant26 = 1;
+int Result33 = GetNumCells_Emitter_KernelGridOutput_NumCellsX - Constant26;
+int ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexX;
+int ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexY;
+int ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexZ;
+ExecutionIndexToGridIndex_Emitter_RasterizationGrid(ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexX, ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexY, ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexZ);
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsX2;
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsY2;
+int GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ2;
+GetNumCells_Emitter_RasterizationGrid(GetNumCells_Emitter_RasterizationGridOutput_NumCellsX2, GetNumCells_Emitter_RasterizationGridOutput_NumCellsY2, GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ2);
+float3 Constant27 = float3(1,0,0);
+float CustomHlsl8199713393C2233DAB99CF9760DA784B9B03495DEmitter_RasterizationGridEmitter_KernelGrid_Func_Output_ConvolvedValue;
+CustomHlsl8199713393C2233DAB99CF9760DA784B9B03495DEmitter_RasterizationGridEmitter_KernelGrid_Func_(Result33, ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexX, ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexY, ExecutionIndexToGridIndex_Emitter_RasterizationGridOutput_IndexZ, GetNumCells_Emitter_RasterizationGridOutput_NumCellsX2, GetNumCells_Emitter_RasterizationGridOutput_NumCellsY2, GetNumCells_Emitter_RasterizationGridOutput_NumCellsZ2, Constant27, Constant24, CustomHlsl8199713393C2233DAB99CF9760DA784B9B03495DEmitter_RasterizationGridEmitter_KernelGrid_Func_Output_ConvolvedValue);
+Context.MapSimStage4_SmoothinX.OUTPUT_VAR.Grid3D_ConvolveAxis.ConvolvedValue = CustomHlsl8199713393C2233DAB99CF9760DA784B9B03495DEmitter_RasterizationGridEmitter_KernelGrid_Func_Output_ConvolvedValue;
+Context.MapSimStage4_SmoothinX.Emitter.SDFGrid.SDF = Context.MapSimStage4_SmoothinX.SetVariables_8F84CC084116DB1E24DAB3A11D37F716.Emitter.SDFGrid.SDF;
+#if ((SimulationStageIndex == 5) || (SimulationStageIndex == 6)) // Multiple stages
+  GetPreviousFloatValueAtIndex_Emitter_SDFGrid(CurrIndex.x, CurrIndex.y, CurrIndex.z, In_AttributeIndex, Sample);
+int Constant29 = 0;
+//SetConstantByStaticVariable "/Grid 3D Convolve Axis 001/Map Get/Map Get->Module.Axis"
+int Constant30 = 1;
+int GetNumCells_Emitter_KernelGridOutput_NumCellsX1;
+int GetNumCells_Emitter_KernelGridOutput_NumCellsY1;
+GetNumCells_Emitter_KernelGrid(GetNumCells_Emitter_KernelGridOutput_NumCellsX1, GetNumCells_Emitter_KernelGridOutput_NumCellsY1);
+int Constant31 = 1;
+int Result34 = GetNumCells_Emitter_KernelGridOutput_NumCellsX1 - Constant31;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ;
+ExecutionIndexToGridIndex_Emitter_SDFGrid(ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ);
+int GetNumCells_Emitter_SDFGridOutput_NumCellsX;
+int GetNumCells_Emitter_SDFGridOutput_NumCellsY;
+int GetNumCells_Emitter_SDFGridOutput_NumCellsZ;
+GetNumCells_Emitter_SDFGrid(GetNumCells_Emitter_SDFGridOutput_NumCellsX, GetNumCells_Emitter_SDFGridOutput_NumCellsY, GetNumCells_Emitter_SDFGridOutput_NumCellsZ);
+float3 Constant32 = float3(0,1,0);
+float CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_Output_ConvolvedValue;
+CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_(Result34, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ, GetNumCells_Emitter_SDFGridOutput_NumCellsX, GetNumCells_Emitter_SDFGridOutput_NumCellsY, GetNumCells_Emitter_SDFGridOutput_NumCellsZ, Constant32, Constant29, CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_Output_ConvolvedValue);
+Context.MapSimStage5_SmoothinY.OUTPUT_VAR.Grid3D_ConvolveAxis001.ConvolvedValue = CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_Output_ConvolvedValue;
+Context.MapSimStage5_SmoothinY.Emitter.SDFGrid.SDF = Context.MapSimStage5_SmoothinY.SetVariables_53E1127D4C9E34492A8683A360C3CF0F.Emitter.SDFGrid.SDF;
+int Constant34 = 0;
+//SetConstantByStaticVariable "/Grid 3D Convolve Axis 002/Map Get/Map Get->Module.Axis"
+int Constant35 = 2;
+int GetNumCells_Emitter_KernelGridOutput_NumCellsX2;
+int GetNumCells_Emitter_KernelGridOutput_NumCellsY2;
+GetNumCells_Emitter_KernelGrid(GetNumCells_Emitter_KernelGridOutput_NumCellsX2, GetNumCells_Emitter_KernelGridOutput_NumCellsY2);
+int Constant36 = 1;
+int Result35 = GetNumCells_Emitter_KernelGridOutput_NumCellsX2 - Constant36;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX1;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY1;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ1;
+ExecutionIndexToGridIndex_Emitter_SDFGrid(ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX1, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY1, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ1);
+int GetNumCells_Emitter_SDFGridOutput_NumCellsX1;
+int GetNumCells_Emitter_SDFGridOutput_NumCellsY1;
+int GetNumCells_Emitter_SDFGridOutput_NumCellsZ1;
+GetNumCells_Emitter_SDFGrid(GetNumCells_Emitter_SDFGridOutput_NumCellsX1, GetNumCells_Emitter_SDFGridOutput_NumCellsY1, GetNumCells_Emitter_SDFGridOutput_NumCellsZ1);
+float3 Constant37 = float3(0,0,1);
+float CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_Output_ConvolvedValue1;
+CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_(Result35, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX1, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY1, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ1, GetNumCells_Emitter_SDFGridOutput_NumCellsX1, GetNumCells_Emitter_SDFGridOutput_NumCellsY1, GetNumCells_Emitter_SDFGridOutput_NumCellsZ1, Constant37, Constant34, CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_Output_ConvolvedValue1);
+Context.MapSimStage6_SmoothinZandOutput.OUTPUT_VAR.Grid3D_ConvolveAxis002.ConvolvedValue = CustomHlsl1340F50CE4B44A11430CF030445385034FB766C7Emitter_SDFGridEmitter_KernelGrid_Func_Output_ConvolvedValue1;
+Context.MapSimStage6_SmoothinZandOutput.Emitter.SDFGrid.SDF = Context.MapSimStage6_SmoothinZandOutput.SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9.Emitter.SDFGrid.SDF;
+float Constant41 = 0;
+float Constant42 = 0;
+float Constant43 = 0;
+float4 Output13;
+Output13.r = Context.MapSimStage6_SmoothinZandOutput.Grid3D_SetRTValues.Red;
+Output13.g = Constant41;
+Output13.b = Constant42;
+Output13.a = Constant43;
+Context.MapSimStage6_SmoothinZandOutput.Local.Grid3D_SetRTValues.Value = Output13;
+bool Constant44 = true;
+//SetConstantByStaticVariable "/Grid 3D Set RTValues/Map Get/Map Get->Module.UseIterationGrid"
+int Constant45 = 0;
+int ExecToIndex_Emitter_SimRTOutput_IndexX;
+int ExecToIndex_Emitter_SimRTOutput_IndexY;
+int ExecToIndex_Emitter_SimRTOutput_IndexZ;
+ExecToIndex_Emitter_SimRT(ExecToIndex_Emitter_SimRTOutput_IndexX, ExecToIndex_Emitter_SimRTOutput_IndexY, ExecToIndex_Emitter_SimRTOutput_IndexZ);
+SetRenderTargetValue_Emitter_SimRT_UEImpureCall(Constant44, ExecToIndex_Emitter_SimRTOutput_IndexX, ExecToIndex_Emitter_SimRTOutput_IndexY, ExecToIndex_Emitter_SimRTOutput_IndexZ, Context.MapSimStage6_SmoothinZandOutput.Local.Grid3D_SetRTValues.Value);
+GetGridValue_Emitter_SDFGrid(In_IndexX+1, In_IndexY, In_IndexZ, In_ScalarIndex, S_right);
+GetGridValue_Emitter_SDFGrid(In_IndexX-1, In_IndexY, In_IndexZ, In_ScalarIndex, S_left);
+GetGridValue_Emitter_SDFGrid(In_IndexX, In_IndexY+1, In_IndexZ, In_ScalarIndex, S_up);
+GetGridValue_Emitter_SDFGrid(In_IndexX, In_IndexY-1, In_IndexZ, In_ScalarIndex, S_down);
+GetGridValue_Emitter_SDFGrid(In_IndexX, In_IndexY, In_IndexZ+1, In_ScalarIndex, S_front);
+GetGridValue_Emitter_SDFGrid(In_IndexX, In_IndexY, In_IndexZ-1, In_ScalarIndex, S_back);
+Out_Grad = float3(S_right - S_left, S_up - S_down, S_front - S_back) / (2.0 * In_dx);
+Out_Grad = float3(0.0, 0.0, 0.0);
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX2;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY2;
+int ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ2;
+ExecutionIndexToGridIndex_Emitter_SDFGrid(ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX2, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY2, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ2);
+int Constant47 = 0;
+float3 CustomHlsl2A4D5E5BE7C582945D14ADEF0975395113CD9840Emitter_SDFGrid_Func_Output_Grad;
+CustomHlsl2A4D5E5BE7C582945D14ADEF0975395113CD9840Emitter_SDFGrid_Func_(Context.MapSimStage7_Output.Grid3D_ComputeGradient.dx, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexX2, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexY2, ExecutionIndexToGridIndex_Emitter_SDFGridOutput_IndexZ2, Constant47, CustomHlsl2A4D5E5BE7C582945D14ADEF0975395113CD9840Emitter_SDFGrid_Func_Output_Grad);
+Context.MapSimStage7_Output.OUTPUT_VAR.Grid3D_ComputeGradient.Grad = CustomHlsl2A4D5E5BE7C582945D14ADEF0975395113CD9840Emitter_SDFGrid_Func_Output_Grad;
+float Z;
+X = In_VECTOR_VAR.x;
+Y = In_VECTOR_VAR.y;
+Z = In_VECTOR_VAR.z;
+float Constant51 = (0.0);
+float NiagaraFloat_SelectResult3 = Constant51;
+NiagaraFloat_SelectResult3 = X;
+NiagaraFloat_SelectResult3 = Y;
+NiagaraFloat_SelectResult3 = Z;
+Out_Float = NiagaraFloat_SelectResult3;
+float SelectV3Channel_Particle_Func_Output_Float;
+SelectV3Channel_Particle_Func_(Context.MapSimStage7_Output.MakeFloatFromVector.VECTOR_VAR, Context.MapSimStage7_Output.MakeFloatFromVector.Channel, SelectV3Channel_Particle_Func_Output_Float, Context);
+Out_Float = SelectV3Channel_Particle_Func_Output_Float;
+float SelectV3Channel_Particle_Func_Output_Float1;
+SelectV3Channel_Particle_Func_(Context.MapSimStage7_Output.MakeFloatFromVector001.VECTOR_VAR, Context.MapSimStage7_Output.MakeFloatFromVector001.Channel, SelectV3Channel_Particle_Func_Output_Float1, Context);
+Out_Float = SelectV3Channel_Particle_Func_Output_Float1;
+float SelectV3Channel_Particle_Func_Output_Float2;
+SelectV3Channel_Particle_Func_(Context.MapSimStage7_Output.MakeFloatFromVector002.VECTOR_VAR, Context.MapSimStage7_Output.MakeFloatFromVector002.Channel, SelectV3Channel_Particle_Func_Output_Float2, Context);
+Out_Float = SelectV3Channel_Particle_Func_Output_Float2;
+float4 Output14;
+Output14.r = Context.MapSimStage7_Output.Grid3D_SetRTValues001.Red;
+Output14.g = Context.MapSimStage7_Output.Grid3D_SetRTValues001.Green;
+Output14.b = Context.MapSimStage7_Output.Grid3D_SetRTValues001.Blue;
+Output14.a = Context.MapSimStage7_Output.Grid3D_SetRTValues001.Alpha;
+Context.MapSimStage7_Output.Local.Grid3D_SetRTValues001.Value = Output14;
+bool Constant52 = true;
+//SetConstantByStaticVariable "/Grid 3D Set RTValues 001/Map Get/Map Get->Module.UseIterationGrid"
+int Constant53 = 0;
+int ExecToIndex_Emitter_SimRTOutput_IndexX1;
+int ExecToIndex_Emitter_SimRTOutput_IndexY1;
+int ExecToIndex_Emitter_SimRTOutput_IndexZ1;
+ExecToIndex_Emitter_SimRT(ExecToIndex_Emitter_SimRTOutput_IndexX1, ExecToIndex_Emitter_SimRTOutput_IndexY1, ExecToIndex_Emitter_SimRTOutput_IndexZ1);
+SetRenderTargetValue_Emitter_SimRT_UEImpureCall(Constant52, ExecToIndex_Emitter_SimRTOutput_IndexX1, ExecToIndex_Emitter_SimRTOutput_IndexY1, ExecToIndex_Emitter_SimRTOutput_IndexZ1, Context.MapSimStage7_Output.Local.Grid3D_SetRTValues001.Value);
+    uint3(0,0,1),
+    uint3(1,0,1),
+    uint3(1,0,0),
+    uint3(0,0,0),
+    uint3(0,1,1),
+    uint3(1,1,1),
+    uint3(1,1,0),
+    uint3(0,1,0),
+const uint3 CubeIndex = GDispatchThreadId;
+bool bSuccess;
+float CornerWeights[8];
+float3 CornerPositions[8];
+int CubeType = 0;
+int i = 0;
+bool AllInside = true;
+for (i = 0; i < 8; ++i)
+    uint3 CornerIndex = CubeIndex + CornerOffsets[i];
+    CornerIndex = clamp(CornerIndex, uint3(0,0,0), uint3(In_NumVerticesX-1, In_NumVerticesY-1, In_NumVerticesZ-1));
+float4 Weight;
+GetRenderTargetValue_Emitter_SimRT(CornerIndex.x, CornerIndex.y, CornerIndex.z, Weight);
+CornerWeights[i] = Weight.x;
+    CornerPositions[i] = (float3(CornerIndex) + .5) / float3(In_NumVerticesX, In_NumVerticesY, In_NumVerticesZ);
+    CornerPositions[i] = mul(float4(CornerPositions[i], 1.0), In_UnitToWorld).xyz;
+    CubeType |= CornerWeights[i] < In_IsoValue ? 1l << i : 0l;
+for (i = 0; TriToEdges[CubeType][i] != -1; i += 3)
+const int2 Edge0 = Edges[TriToEdges[CubeType][i + 0]];
+const int2 Edge1 = Edges[TriToEdges[CubeType][i + 1]];
+const int2 Edge2 = Edges[TriToEdges[CubeType][i + 2]];
+float3 TriangleVerts[3];
+TriangleVerts[0] = LERP_EDGE(CornerPositions[Edge0.x], CornerWeights[Edge0.x], CornerPositions[Edge0.y], CornerWeights[Edge0.y]);
+TriangleVerts[1] = LERP_EDGE(CornerPositions[Edge1.x], CornerWeights[Edge1.x], CornerPositions[Edge1.y], CornerWeights[Edge1.y]);
+TriangleVerts[2] = LERP_EDGE(CornerPositions[Edge2.x], CornerWeights[Edge2.x], CornerPositions[Edge2.y], CornerWeights[Edge2.y]);
+float3 TangentX, TangentY, TangentZ;
+    float4 TmpV;
+    float3 TriCenter = (1./3) * (TriangleVerts[0] + TriangleVerts[1] + TriangleVerts[2]);
+    float3 TriCenterUnit = mul(float4(TriCenter, 1.0), In_WorldToUnit).xyz;
+    SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit, 0, TmpV);
+    TangentZ = normalize(TmpV.yzw);
+float3 UnitDx = 1./float3(In_NumVerticesX,In_NumVerticesY,In_NumVerticesZ);
+SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit + float3(1,0,0) * UnitDx, 0, TmpV);
+float S_right = TmpV.x;
+SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit - float3(1,0,0) * UnitDx, 0, TmpV);
+float S_left = TmpV.x;
+SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit + float3(0,1,0) * UnitDx, 0, TmpV);
+float S_up = TmpV.x;
+SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit - float3(0,1,0) * UnitDx, 0, TmpV);
+float S_down = TmpV.x;
+SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit + float3(0,0,1) * UnitDx, 0, TmpV);
+float S_front = TmpV.x;
+SampleRenderTargetValue_Emitter_SimRT(TriCenterUnit - float3(0,0,1) * UnitDx, 0, TmpV);
+float S_back = TmpV.x;
+//TangentZ = normalize(float3(S_right - S_left, S_up - S_down, S_front - S_back));
+TangentX = normalize(TriangleVerts[2] - TriangleVerts[0]);
+TangentY = normalize(TriangleVerts[1] - TriangleVerts[0]);
+//TangentZ = cross(TangentX, TangentY);
+TangentY = cross(TangentZ, TangentX);
+    float3 Tri0Unit = mul(float4(TriangleVerts[0], 1.0), In_WorldToUnit).xyz;
+    SampleRenderTargetValue_Emitter_SimRT(Tri0Unit, 0, TmpV);
+    float3 TangentZ0 = normalize(TmpV.yzw);
+    float3 TangentX0 = cross(TangentZ0, TangentX);
+    float3 TangentY0 = cross(TangentZ0, TangentX0);
+    float3 Tri1Unit = mul(float4(TriangleVerts[1], 1.0), In_WorldToUnit).xyz;
+    SampleRenderTargetValue_Emitter_SimRT(Tri1Unit, 0, TmpV);
+    float3 TangentZ1 = normalize(TmpV.yzw);
+    float3 TangentX1 = cross(TangentZ1, TangentX);
+    float3 TangentY1 = cross(TangentZ1, TangentX1);
+    float3 Tri2Unit = mul(float4(TriangleVerts[2], 1.0), In_WorldToUnit).xyz;
+    SampleRenderTargetValue_Emitter_SimRT(Tri2Unit, 0, TmpV);
+    float3 TangentZ2 = normalize(TmpV.yzw);
+    float3 TangentX2 = cross(TangentZ2, TangentX);
+    float3 TangentY2 = cross(TangentZ2, TangentX2);
+int TriangleIndex;
+#endif //GPU_SIMULATION
+float Constant55 = 0.001;
+int GetRenderTargetSize_Emitter_SimRTOutput_Width;
+int GetRenderTargetSize_Emitter_SimRTOutput_Height;
+int GetRenderTargetSize_Emitter_SimRTOutput_Depth;
+GetRenderTargetSize_Emitter_SimRT(GetRenderTargetSize_Emitter_SimRTOutput_Width, GetRenderTargetSize_Emitter_SimRTOutput_Height, GetRenderTargetSize_Emitter_SimRTOutput_Depth);
+CustomHlslD01B102F45DBB09196AE4A4C3EC9E430AF7674E0Emitter_GeneratedMeshEmitter_SimRT_Func_(Context.MapSimStage8_GenerateMesh.Grid3D_GenerateMeshFromDistanceField.CellSize, Context.MapSimStage8_GenerateMesh.Engine.Owner.Position, Constant55, GetRenderTargetSize_Emitter_SimRTOutput_Width, GetRenderTargetSize_Emitter_SimRTOutput_Height, GetRenderTargetSize_Emitter_SimRTOutput_Depth, Context.MapSimStage8_GenerateMesh.Grid3D_GenerateMeshFromDistanceField.UnitToWorld, Context.MapSimStage8_GenerateMesh.Grid3D_GenerateMeshFromDistanceField.WorldToUnit, Context);
+return 1.0f;}
+//Begin Spawn Script!
+//Begin Stage Script: MapSimStage1_BuildKernelArray!
+Context.MapSimStage1_BuildKernelArray.Grid3D_CreateConvolutionKernel.Radius = Context.MapSimStage1_BuildKernelArray.Emitter.Grid3D_InitializeConvolutionKernel.Radius;
+EnterStatScope(1 /**Grid3D_CreateConvolutionKernel_Emitter_Func_*/);
+Grid3D_CreateConvolutionKernel_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_CreateConvolutionKernel_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage1_BuildKernelArray
+//Begin Stage Script: MapSimStage2_FillRasterizationGridReader!
+Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.dx = Context.MapSimStage2_FillRasterizationGridReader.Emitter.RasterizationGrid3D_Initialize.dx;
+Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.HalfBandwidth = Context.MapSimStage2_FillRasterizationGridReader.Emitter.RasterizationGrid3D_Initialize.HalfBandwidth;
+Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.WorldToUnit = Context.MapSimStage2_FillRasterizationGridReader.Emitter.WorldToUnit;
+Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.RadiusMult = Context.MapSimStage2_FillRasterizationGridReader.User.ParticleSizeMult;
+Context.MapSimStage2_FillRasterizationGridReader.RasterizationGrid_ParticleSource.SourceIsLocalSpace = Context.MapSimStage2_FillRasterizationGridReader.Emitter.SourceIsLocalSpace;
+EnterStatScope(2 /**RasterizationGrid_ParticleSource_Emitter_Func_*/);
+RasterizationGrid_ParticleSource_Emitter_Func_(Context);
+ExitStatScope(/**RasterizationGrid_ParticleSource_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage2_FillRasterizationGridReader
+//Begin Stage Script: MapSimStage3_FillRasterizationGridNDC!
+Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.dx = Context.MapSimStage3_FillRasterizationGridNDC.Emitter.RasterizationGrid3D_Initialize.dx;
+Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.HalfBandwidth = Context.MapSimStage3_FillRasterizationGridNDC.Emitter.RasterizationGrid3D_Initialize.HalfBandwidth;
+Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.RadiusMult = Context.MapSimStage3_FillRasterizationGridNDC.User.ParticleSizeMult;
+Context.MapSimStage3_FillRasterizationGridNDC.RasterizationGrid_ParticleSource001.WorldToUnit = Context.MapSimStage3_FillRasterizationGridNDC.Emitter.WorldToUnit;
+EnterStatScope(3 /**RasterizationGrid_ParticleSource001_Emitter_Func_*/);
+RasterizationGrid_ParticleSource001_Emitter_Func_(Context);
+ExitStatScope(/**RasterizationGrid_ParticleSource001_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage3_FillRasterizationGridNDC
+//Begin Stage Script: MapSimStage4_SmoothinX!
+int Constant23 = 0;
+EnterStatScope(4 /**Grid3D_ConvolveAxis_Emitter_Func_*/);
+Grid3D_ConvolveAxis_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_ConvolveAxis_Emitter_Func_*/);
+Context.MapSimStage4_SmoothinX.SetVariables_8F84CC084116DB1E24DAB3A11D37F716.Emitter.SDFGrid.SDF = Context.MapSimStage4_SmoothinX.OUTPUT_VAR.Grid3D_ConvolveAxis.ConvolvedValue;
+EnterStatScope(5 /**SetVariables_8F84CC084116DB1E24DAB3A11D37F716_Emitter_Func_*/);
+SetVariables_8F84CC084116DB1E24DAB3A11D37F716_Emitter_Func_(Context);
+ExitStatScope(/**SetVariables_8F84CC084116DB1E24DAB3A11D37F716_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage4_SmoothinX
+//Begin Stage Script: MapSimStage5_SmoothinY!
+int Constant28 = 0;
+EnterStatScope(6 /**Grid3D_ConvolveAxis001_Emitter_Func_*/);
+Grid3D_ConvolveAxis001_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_ConvolveAxis001_Emitter_Func_*/);
+Context.MapSimStage5_SmoothinY.SetVariables_53E1127D4C9E34492A8683A360C3CF0F.Emitter.SDFGrid.SDF = Context.MapSimStage5_SmoothinY.OUTPUT_VAR.Grid3D_ConvolveAxis001.ConvolvedValue;
+EnterStatScope(7 /**SetVariables_53E1127D4C9E34492A8683A360C3CF0F_Emitter_Func_*/);
+SetVariables_53E1127D4C9E34492A8683A360C3CF0F_Emitter_Func_(Context);
+ExitStatScope(/**SetVariables_53E1127D4C9E34492A8683A360C3CF0F_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage5_SmoothinY
+//Begin Stage Script: MapSimStage6_SmoothinZandOutput!
+int Constant33 = 0;
+EnterStatScope(8 /**Grid3D_ConvolveAxis002_Emitter_Func_*/);
+Grid3D_ConvolveAxis002_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_ConvolveAxis002_Emitter_Func_*/);
+Context.MapSimStage6_SmoothinZandOutput.SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9.Emitter.SDFGrid.SDF = Context.MapSimStage6_SmoothinZandOutput.OUTPUT_VAR.Grid3D_ConvolveAxis002.ConvolvedValue;
+EnterStatScope(9 /**SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9_Emitter_Func_*/);
+SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9_Emitter_Func_(Context);
+ExitStatScope(/**SetVariables_C4AC0E0A4BB18629B384FAA3CC246DE9_Emitter_Func_*/);
+Context.MapSimStage6_SmoothinZandOutput.Grid3D_SetRTValues.Red = Context.MapSimStage6_SmoothinZandOutput.Emitter.SDFGrid.SDF;
+float Constant38 = 0;
+float Constant39 = 0;
+float Constant40 = 0;
+EnterStatScope(10 /**Grid3D_SetRTValues_Emitter_Func_*/);
+Grid3D_SetRTValues_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_SetRTValues_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage6_SmoothinZandOutput
+//Begin Stage Script: MapSimStage7_Output!
+Context.MapSimStage7_Output.Grid3D_ComputeGradient.dx = Context.MapSimStage7_Output.Emitter.SDF_dx;
+int Constant46 = 0;
+EnterStatScope(11 /**Grid3D_ComputeGradient_Emitter_Func_*/);
+Grid3D_ComputeGradient_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_ComputeGradient_Emitter_Func_*/);
+int Constant48 = 1;
+int Constant49 = 2;
+Context.MapSimStage7_Output.MakeFloatFromVector.VECTOR_VAR = Context.MapSimStage7_Output.OUTPUT_VAR.Grid3D_ComputeGradient.Grad;
+Context.MapSimStage7_Output.MakeFloatFromVector001.VECTOR_VAR = Context.MapSimStage7_Output.OUTPUT_VAR.Grid3D_ComputeGradient.Grad;
+Context.MapSimStage7_Output.MakeFloatFromVector002.VECTOR_VAR = Context.MapSimStage7_Output.OUTPUT_VAR.Grid3D_ComputeGradient.Grad;
+Context.MapSimStage7_Output.MakeFloatFromVector001.Channel = Constant48;
+Context.MapSimStage7_Output.MakeFloatFromVector002.Channel = Constant49;
+int Constant50 = 0;
+Context.MapSimStage7_Output.MakeFloatFromVector.Channel = Constant50;
+float MakeFloatFromVector_Emitter_Func_Output_Float;
+MakeFloatFromVector_Emitter_Func_(MakeFloatFromVector_Emitter_Func_Output_Float, Context);
+float MakeFloatFromVector001_Emitter_Func_Output_Float;
+MakeFloatFromVector001_Emitter_Func_(MakeFloatFromVector001_Emitter_Func_Output_Float, Context);
+float MakeFloatFromVector002_Emitter_Func_Output_Float;
+MakeFloatFromVector002_Emitter_Func_(MakeFloatFromVector002_Emitter_Func_Output_Float, Context);
+Context.MapSimStage7_Output.Grid3D_SetRTValues001.Green = MakeFloatFromVector_Emitter_Func_Output_Float;
+Context.MapSimStage7_Output.Grid3D_SetRTValues001.Blue = MakeFloatFromVector001_Emitter_Func_Output_Float;
+Context.MapSimStage7_Output.Grid3D_SetRTValues001.Alpha = MakeFloatFromVector002_Emitter_Func_Output_Float;
+Context.MapSimStage7_Output.Grid3D_SetRTValues001.Red = Context.MapSimStage7_Output.Emitter.SDFGrid.SDF;
+EnterStatScope(12 /**Grid3D_SetRTValues001_Emitter_Func_*/);
+Grid3D_SetRTValues001_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_SetRTValues001_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage7_Output
+//Begin Stage Script: MapSimStage8_GenerateMesh!
+Context.MapSimStage8_GenerateMesh.Grid3D_GenerateMeshFromDistanceField.CellSize = Context.MapSimStage8_GenerateMesh.Emitter.SDF_dx;
+Context.MapSimStage8_GenerateMesh.Grid3D_GenerateMeshFromDistanceField.UnitToWorld = Context.MapSimStage8_GenerateMesh.Emitter.UnitToWorld;
+Context.MapSimStage8_GenerateMesh.Grid3D_GenerateMeshFromDistanceField.WorldToUnit = Context.MapSimStage8_GenerateMesh.Emitter.WorldToUnit;
+float Constant54 = 0.001;
+EnterStatScope(13 /**Grid3D_GenerateMeshFromDistanceField_Emitter_Func_*/);
+Grid3D_GenerateMeshFromDistanceField_Emitter_Func_(Context);
+ExitStatScope(/**Grid3D_GenerateMeshFromDistanceField_Emitter_Func_*/);
+//End Simulation Stage Script: MapSimStage8_GenerateMesh
+int2 Emitter_KernelGrid_NumCells;
+float2 Emitter_KernelGrid_UnitToUV;
+float2 Emitter_KernelGrid_CellSize;
+float2 Emitter_KernelGrid_WorldBBoxSize;
+Texture2DArray<float> Emitter_KernelGrid_Grid;
+RWTexture2DArray<float> Emitter_KernelGrid_OutputGrid;
+SamplerState Emitter_KernelGrid_GridSampler;
+int4 Emitter_KernelGrid_AttributeIndices[1];
+int Emitter_KernelGrid_NumAttributes;
+// cubic interpolation between values.
+// note f0 = function at t=0
+//      f1 = function at t=1
+float d0 = .5 * (f1 - fm1);
+float d1 = .5 * (f2 - f0);
+float delta0 = f1 - f0;
+d0 = 0;
+d1 = 0;
+float a0 = f0;
+float a1 = d0;
+float a2 = 3.0f*delta0 - 2.0f * d0 - d1;
+float a3 = d0 + d1 - 2 * delta0;
+return a3 * t*t*t + a2 * t*t + a1 * t + a0;
+return f0;
+float a1 = -1./3 * fm1 - 1./2* f0 + f1 - 1./6 * f2;
+float a2 = 1./2 * fm1 - f0 + 1./2 * f1;
+float a3 = -1./6 * fm1 + 1./2 * f0 - 1./2 * f1 + 1./6 * f2;
+const int AttributeIndex = round(UVW[2]);
+const float2 GridPos = UVW.xy * Emitter_KernelGrid_NumCells.xy - .5;
+// identify the lower-left-hand corner of the cell
+const int2 GridCell = floor(GridPos);
+const int2 MaxCell = Emitter_KernelGrid_NumCells - int2(3,3);
+// revert to bilinear hardware sampling at the boundary cells.
+return Emitter_KernelGrid_Grid.SampleLevel(Sampler, UVW, MipLevel);
+const float2 t = frac(GridPos);
+float4 GridVals;
+float minv = 3.402823466e+38;
+float maxv = -3.402823466e+38;
+float4 InterpInX;
+for (int j = 0; j < 4; ++j)
+for (int i = 0; i < 4; ++i)
+const float CurrValue = Emitter_KernelGrid_Grid.Load(int4(GridCell.x + i - 1, GridCell.y + j - 1, AttributeIndex, MipLevel));
+GridVals[i] = CurrValue;
+minv = min(CurrValue, minv);
+maxv = max(CurrValue, maxv);
+InterpInX[j] = Basic1DCubic_Emitter_KernelGrid(GridVals[0], GridVals[1], GridVals[2], GridVals[3], t[0]);
+const float BiCubicValue = Basic1DCubic_Emitter_KernelGrid(InterpInX[0], InterpInX[1], InterpInX[2], InterpInX[3], t[1]);
+return BiCubicValue;
+const int2 MaxCell = Emitter_KernelGrid_NumCells - int2(2,2);
+const float2 t = GridPos - GridCell;
+InterpInX[j] = Monotonic1DCubic_Emitter_KernelGrid(GridVals[0], GridVals[1], GridVals[2], GridVals[3], t[0]);
+const float BiCubicValue = Monotonic1DCubic_Emitter_KernelGrid(InterpInX[0], InterpInX[1], InterpInX[2], InterpInX[3], t[1]);
+return Basic2DCubic_Emitter_KernelGrid(Sampler, UVW, MipLevel);
+int3 Emitter_RasterizationGrid_NumCells;
+float3 Emitter_RasterizationGrid_UnitToUV;
+float3 Emitter_RasterizationGrid_CellSize;
+float3 Emitter_RasterizationGrid_WorldBBoxSize;
+Texture3D<int> Emitter_RasterizationGrid_IntGrid;
+RWTexture3D<int> Emitter_RasterizationGrid_OutputIntGrid;
+float Emitter_RasterizationGrid_Precision;
+Buffer<float4> Emitter_RasterizationGrid_PerAttributeData;
+int Emitter_RasterizationGrid_NumAttributes;
+return float(IntValue) / Emitter_RasterizationGrid_Precision;
+return FloatValue * Emitter_RasterizationGrid_Precision;
+Emitter_Reader_IsLocalSpace;int
+Emitter_Reader_NumSpawnedParticles;int
+Emitter_Reader_SpawnedParticlesAcquireTag;uint
+Emitter_Reader_InstanceCountOffset;uint
+Emitter_Reader_ParticleStrideFloat;uint
+Emitter_Reader_ParticleStrideInt;uint
+Emitter_Reader_ParticleStrideHalf;int
+Emitter_Reader_AcquireTagRegisterIndex;Buffer<int>
+Emitter_Reader_SpawnedIDsBuffer;Buffer<int>
+Emitter_Reader_IDToIndexTable;Buffer<float>
+Emitter_Reader_InputFloatBuffer;Buffer<int>
+Emitter_Reader_InputIntBuffer;Buffer<half>
+Emitter_Reader_InputHalfBuffer;int4
+Emitter_Reader_AttributeIndices[1];int4
+Emitter_Reader_AttributeCompressed[1];// Copyright Epic Games, Inc. All Rights Reserved.
+//Offset of each parameter accessed by this script.
+//Indices for accessing this table are embeded directly into the HLSL and we generate the table on the CPU accordingly.
+//TODO: Can probably pack this into a single global buffer rather than one per DI.
+Buffer<uint> Emitter_NDCReader_ParamOffsetTable;
+int Emitter_NDCReader_ParameterOffsetTableIndex;
+int Emitter_NDCReader_FloatStride;
+int Emitter_NDCReader_Int32Stride;
+//TODO: Half Support | int Emitter_NDCReader_HalfStride;
+// Outputs the starting offset of each component in the channel data for a partiuclar parameter.
+bool GetParameterLayoutInfo_Emitter_NDCReader(uint ParameterIndex, out uint OutFloatRegister, out uint OutInt32Register)//TODO: Half Support | , out uint OutHalfRegister)
+int ParameterTableStart = Emitter_NDCReader_ParameterOffsetTableIndex;
+const int NumComponents = 2;
+uint ParamLayoutStart = ParameterTableStart + NumComponents * ParameterIndex;
+OutFloatRegister = Emitter_NDCReader_ParamOffsetTable[ParamLayoutStart];
+OutInt32Register = Emitter_NDCReader_ParamOffsetTable[ParamLayoutStart + 1];
+//TODO: Half Support | OutHalfRegister = Emitter_NDCReader_ParamOffsetTable[ParamLayoutStart + 2];
+return OutFloatRegister != -1 || OutInt32Register != -1;//If we have no valid mappings then this parameter is not valid.
+OutFloatRegister = -1;
+OutInt32Register = -1;
+//TODO: Half Support | OutHalfRegister = -1;
+return false;
+Buffer<float> Emitter_NDCReader_DataFloat;
+Buffer<int> Emitter_NDCReader_DataInt32;
+//TODO: Half Support | Buffer<half> Emitter_NDCReader_DataHalf;
+//Instance count offset for the buffer we're reading.
+//Must be done via an instance count slot as data can come from CPU and GPU.
+int Emitter_NDCReader_InstanceCountOffset;
+//Instance count offset for tracking consume calls.
+int Emitter_NDCReader_ConsumeInstanceCountOffset;
+int Emitter_NDCReader_BufferSize;
+int Emitter_NDCReader_NDCElementCountAtSpawn;
+//Buffer containing back mapping from spawn particle exec index to the NDC index that spawned that particle.
+//Arraged into power of two buckets so that we can avoid an entry per particle.
+Buffer<int> Emitter_NDCReader_NDCSpawnDataBuffer;
+//Helper struct with various info needed for reading that can be passed around more easily in generated code.
+bool bValidParameter;
+bool bValidReadIndex;
+//Index at which to read data.
+int ReadIndex;
+//Component start offests for the current parameter.
+int ParameterComponentStart_Float;
+int ParameterComponentStart_Int32;
+//TODO: Half Support | int ParameterComponentStart_Half;
+//Current registe indices for each of the GPU write buffers
+int Register_Float;
+int Register_Int32;
+//TODO: Half Support | int Register_Half;
+int GetFloatStride() { return Emitter_NDCReader_FloatStride; }
+int GetIntStride() { return Emitter_NDCReader_Int32Stride; }
+//TODO: Half Support | int GetHalfStride() { return Emitter_NDCReader_HalfStride; }
+Buffer<float> GetBuffer_Float() { return Emitter_NDCReader_DataFloat; }
+Buffer<int> GetBuffer_Int32() { return Emitter_NDCReader_DataInt32; }
+//TODO: Half Support | Buffer<half> GetBuffer_Half() { return Emitter_NDCReader_DataHalf; }
+//Instance count used for the written number of elements in the NDC buffers.
+int GetInstanceCountOffset() { return Emitter_NDCReader_InstanceCountOffset; }
+//Instance count used to get a read index when calling Consume().
+int GetConsumeInstanceCountOffset() { return Emitter_NDCReader_ConsumeInstanceCountOffset; }
+//Return the actual buffer size allocated.
+int GetBufferSize() { return Emitter_NDCReader_BufferSize; }
+//Actual number of NDC items in the buffers. Must come from an indirect instance count instead of a uniform as the GPU could have written to this buffer.
+int Num() { return RWInstanceCounts[ GetInstanceCountOffset() ]; }
+//TODO: Add GS and Wave op path to reduce atomic contention.
+//TODO: Right now doing the simple dumb thing.
+int OutIndex = -1;
+uint OrigVal = 0;
+InterlockedAdd(RWInstanceCounts[GetConsumeInstanceCountOffset()], 1U, OrigVal);
+int MaxSize = min(Num(), GetBufferSize());
+OutIndex = (int)OrigVal;
+OutIndex = -1;
+InterlockedMin(RWInstanceCounts[GetConsumeInstanceCountOffset()], (uint)MaxSize);
+return OutIndex;
+ReadIndex = InReadIndex;
+bValidReadIndex = ReadIndex >= 0 && ReadIndex < Num() && ReadIndex < GetBufferSize();
+return bValidReadIndex;
+ReadIndex = GetConsumeIndex();
+bValidParameter = GetParameterLayoutInfo_Emitter_NDCReader(ParameterIndex, ParameterComponentStart_Float, ParameterComponentStart_Int32);//TODO: Half Support | ParameterComponentStart_Half);
+Register_Float = ParameterComponentStart_Float;
+Register_Int32 = ParameterComponentStart_Int32;
+//TODO: Half Support | Register_Half = ParameterComponentStart_Half;
+return bValidParameter;
+void Read_Float(out float Value){ NiagaraDataChannelRead_Float(GetBuffer_Float(), GetFloatStride(), Register_Float, ReadIndex, Value); }
+void Read_Float(out float2 Value){ NiagaraDataChannelRead_Float(GetBuffer_Float(), GetFloatStride(), Register_Float, ReadIndex, Value); }
+void Read_Float(out float3 Value){ NiagaraDataChannelRead_Float(GetBuffer_Float(), GetFloatStride(), Register_Float, ReadIndex, Value); }
+void Read_Float(out float4 Value){ NiagaraDataChannelRead_Float(GetBuffer_Float(), GetFloatStride(), Register_Float, ReadIndex, Value); }
+void Read_Int32(out int Value){ NiagaraDataChannelRead_Int32(GetBuffer_Int32(), GetIntStride(), Register_Int32, ReadIndex, Value); }
+void Read_Int32(out int2 Value){ NiagaraDataChannelRead_Int32(GetBuffer_Int32(), GetIntStride(), Register_Int32, ReadIndex, Value); }
+void Read_Int32(out int3 Value){ NiagaraDataChannelRead_Int32(GetBuffer_Int32(), GetIntStride(), Register_Int32, ReadIndex, Value); }
+void Read_Int32(out int4 Value){ NiagaraDataChannelRead_Int32(GetBuffer_Int32(), GetIntStride(), Register_Int32, ReadIndex, Value); }
+void Read_Bool(out bool Value){ NiagaraDataChannelRead_Bool(GetBuffer_Int32(), GetIntStride(), Register_Int32, ReadIndex, Value); }
+//TODO: Half Support | void Read_Half(out half Value){ NiagaraDataChannelRead_Half(GetBuffer_Half(), GetHalfStride(), Register_Half, ReadIndex, Value); }
+//TODO: Half Support | void Read_Half(out half2 Value){ NiagaraDataChannelRead_Half(GetBuffer_Half(), GetHalfStride(), Register_Half, ReadIndex, Value); }
+//TODO: Half Support | void Read_Half(out half3 Value){ NiagaraDataChannelRead_Half(GetBuffer_Half(), GetHalfStride(), Register_Half, ReadIndex, Value); }
+//TODO: Half Support | void Read_Half(out half4 Value){ NiagaraDataChannelRead_Half(GetBuffer_Half(), GetHalfStride(), Register_Half, ReadIndex, Value); }
+OutNum = RWInstanceCounts[Emitter_NDCReader_InstanceCountOffset];
+OutNum = 0;
+OutNDCIndex = -1;
+OutNDCSpawnIndex = -1;
+OutNDCSpawnCount = -1;
+return;
+uint ExecIdx = (uint)InExecIndex;
+int NumNDCEntries = Emitter_NDCReader_NDCElementCountAtSpawn;
+//First part of the buffer is the per emitter offsets into the data.
+//Grab the right base offset for this emitter.
+uint NDCSpawnDataOffset = Emitter_NDCReader_NDCSpawnDataBuffer[InEmitterID.ID];
+OutNDCSpawnCount = 0;
+uint NDCSpawnData_BucketSizeStart = NDCSpawnDataOffset;
+uint NDCSpawnData_NDCCountsStart = NDCSpawnData_BucketSizeStart + 16;
+uint NDCSPawnData_NDCIndexBucketsStart = NDCSpawnData_NDCCountsStart + NumNDCEntries;
+uint MaxBucketExecIndex = 0;
+uint BucketEntryStart = NDCSPawnData_NDCIndexBucketsStart;
+for(int BucketIdx = 0; BucketIdx < 16; ++BucketIdx)
+uint BucketSize = (1U << 15U) >> BucketIdx;
+uint NumEntriesInBucket = Emitter_NDCReader_NDCSpawnDataBuffer[NDCSpawnData_BucketSizeStart + BucketIdx];
+uint MinBucketExecIndex = MaxBucketExecIndex; 
+MaxBucketExecIndex += BucketSize * NumEntriesInBucket;
+//We found our bucket.
+//Find our NDC entry. There is one entry for each bucket load of instances. So we divide our current adjusted exec index in this bucket by the bucket size.
+//As buckets are power of 2 we can do this faster by just shifting down.
+uint NDCIndexEntry = (ExecIdx - MinBucketExecIndex) >> (15U - BucketIdx);
+OutNDCIndex = Emitter_NDCReader_NDCSpawnDataBuffer[BucketEntryStart + NDCIndexEntry];
+break;
+BucketEntryStart += NumEntriesInBucket;
+//Pull the NDC Spawn count from the first part of the buffer.
+OutNDCSpawnCount = Emitter_NDCReader_NDCSpawnDataBuffer[NDCSpawnData_NDCCountsStart + OutNDCIndex];
+//Do another pass to calculate our SpawnIndex for this NDC within the total count for this NDC.
+OutNDCSpawnIndex = 0;
+MaxBucketExecIndex = 0;
+uint Count = OutNDCSpawnCount;
+uint Mask = (0xFFFFU >> (BucketIdx + 1U));
+uint CountMasked = Count & ~Mask;
+Count &= Mask;
+uint NumNDCEntriesInBucket = CountMasked >> (15U - BucketIdx);
+uint NumNDCInstancesInBucket = NumNDCEntriesInBucket * BucketSize;
+uint MinBucketExecIndex = MaxBucketExecIndex;
+uint MinNDCBucketExecIndex = MinBucketExecIndex + (BucketSize * NDCIndexEntry);
+OutNDCSpawnIndex += (ExecIdx - MinNDCBucketExecIndex);
+OutNDCSpawnIndex += NumNDCInstancesInBucket;
+Context.Read_Float(Color);
+bSuccess = false;
+Context.Read_Float(Density);
+Context.Read_Float(Divergence);
+Context.Read_Float(Position);
+Context.Read_Float(PreviousRadius);
+Context.Read_Float(Radius);
+Context.Read_Float(Temperature);
+Context.Read_Float(Velocity);
+//Default outputs in case of failure.
+Color = float4(1.0, 1.0, 1.0, 1.0);
+Density = (0.0);
+Divergence = (0.0);
+Position = float3(0.0, 0.0, 0.0);
+PreviousRadius = (0.0);
+Radius = (0.0);
+Temperature = (0.0);
+Velocity = float3(0.0, 0.0, 0.0);
+bOutSuccess = false;
+FNDCAccessContext_Emitter_NDCReader Context;
+bOutSuccess = true;
+//This is generated in the DI Cpp depending on the function parameters.
+Read_Position_Emitter_NDCReader(Context, bOutSuccess, Position);
+Read_Velocity_Emitter_NDCReader(Context, bOutSuccess, Velocity);
+Read_Radius_Emitter_NDCReader(Context, bOutSuccess, Radius);
+Read_PreviousRadius_Emitter_NDCReader(Context, bOutSuccess, PreviousRadius);
+Read_Density_Emitter_NDCReader(Context, bOutSuccess, Density);
+Read_Temperature_Emitter_NDCReader(Context, bOutSuccess, Temperature);
+Read_Divergence_Emitter_NDCReader(Context, bOutSuccess, Divergence);
+Read_Color_Emitter_NDCReader(Context, bOutSuccess, Color);
+int3 Emitter_SDFGrid_NumCells;
+float3 Emitter_SDFGrid_UnitToUV;
+float3 Emitter_SDFGrid_CellSize;
+float3 Emitter_SDFGrid_WorldBBoxSize;
+Texture3D<float> Emitter_SDFGrid_Grid;
+RWTexture3D<float> Emitter_SDFGrid_OutputGrid;
+int3 Emitter_SDFGrid_NumTiles;
+float3 Emitter_SDFGrid_OneOverNumTiles;
+float3 Emitter_SDFGrid_UnitClampMin;
+float3 Emitter_SDFGrid_UnitClampMax;
+SamplerState Emitter_SDFGrid_GridSampler;
+int4 Emitter_SDFGrid_AttributeIndices[2];
+Buffer<float4> Emitter_SDFGrid_PerAttributeData;
+int Emitter_SDFGrid_NumAttributes;
+int Emitter_SDFGrid_NumNamedAttributes;
+int3 TotalDim = Emitter_SDFGrid_NumCells * Emitter_SDFGrid_NumTiles;
+float3 GridPos = float3(TotalDim[0] * UVW[0] - 0.5,  TotalDim[1] * UVW[1] - 0.5, TotalDim[2] * UVW[2] - 0.5f);
+int3 GridCell = floor(GridPos);
+float3 delta = float3( GridPos[0] - GridCell[0], GridPos[1] - GridCell[1], GridPos[2] - GridCell[2]);
+// local values
+float4 F; 
+// bottom face
+F[0] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0],     GridCell[1], GridCell[2], MipLevel) );
+F[1] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0] + 1, GridCell[1], GridCell[2], MipLevel) );
+F[2] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0] + 1, GridCell[1] +1 , GridCell[2], MipLevel) );
+F[3] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0],     GridCell[1] +1 , GridCell[2], MipLevel) );
+// bottom value
+float BV = (1.-delta.y) * (F[0] *(1.-delta.x) + F[1]*(delta.x)) + delta.y * (F[3]*(1.-delta.x) + F[2]*delta.x);
+// top face
+F[0] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0],     GridCell[1],     GridCell[2] + 1, MipLevel) );
+F[1] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0] + 1, GridCell[1],     GridCell[2] + 1, MipLevel) );
+F[2] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0] + 1, GridCell[1] +1 , GridCell[2] + 1, MipLevel) );
+F[3] = Emitter_SDFGrid_Grid.Load( int4( GridCell[0],     GridCell[1] +1 , GridCell[2] + 1, MipLevel) );
+// top value
+float TV = (1.-delta.y) * (F[0] *(1.-delta.x) + F[1]*(delta.x)) + delta.y * (F[3]*(1.-delta.x) + F[2]*delta.x);
+// interp between bottom and top
+return TV * delta.z + BV * (1.-delta.z);
+int3 LocalCell = GridCell % Emitter_SDFGrid_NumCells;
+const int3 MaxCell = Emitter_SDFGrid_NumCells - int3(2,2,2);
+// revert to trilinear hardware sampling at the boundary cells.
+return Emitter_SDFGrid_Grid.SampleLevel(Sampler, UVW, MipLevel);
+// sample point offset from lower left
+float t = 1. + delta.x;
+float u = 1. + delta.y;
+float v = 1. + delta.z;
+float4x1 DataInZ;
+float1 minv = 3.402823466e+38;
+float1 maxv = -3.402823466e+38;
+for (int zk = 0; zk < 4; zk++)
+int plane = GridCell[2] + zk -1;
+float4x1  DataInY;
+for (int yj = 0; yj < 4; yj++)
+float4x1 DataInX;
+int row = GridCell[1] + yj - 1;
+for(int xi = 0; xi < 4; xi++)
+int col = GridCell[0] + xi - 1;
+DataInX[xi] = Emitter_SDFGrid_Grid.Load(int4(col, row, plane, MipLevel)); 
+minv = min(DataInX[xi], minv);
+maxv = max(DataInX[xi], maxv);
+// coefficients
+float1 Cx0 =   6.f * DataInX[0];
+float1 Cx1 = -11.f * DataInX[0] + 18.f * DataInX[1] - 9.f * DataInX[2] + 2.f * DataInX[3];
+float1 Cx2 =   6.f * DataInX[0] - 15.f * DataInX[1] +12.f * DataInX[2] - 3.f * DataInX[3];
+float1 Cx3 =        -DataInX[0] +  3.f * DataInX[1] - 3.f * DataInX[2] +       DataInX[3];
+DataInY[yj] = (1.f/6.f) * (Cx0 + t * ( Cx1 +  t * ( Cx2 + t * Cx3 ) ));
+float1 Cy0 =   6.f * DataInY[0];
+float1 Cy1 = -11.f * DataInY[0] + 18.f * DataInY[1] - 9.f * DataInY[2] + 2.f * DataInY[3];
+float1 Cy2 =   6.f * DataInY[0] - 15.f * DataInY[1] +12.f * DataInY[2] - 3.f * DataInY[3];
+float1 Cy3 =        -DataInY[0] +  3.f * DataInY[1] - 3.f * DataInY[2] +       DataInY[3];
+DataInZ[zk] = (1.f/6.f) * (Cy0 + u * ( Cy1 +  u * ( Cy2 + u * Cy3 ) ));
+float1 Cz0 =   6.f * DataInZ[0];
+float1 Cz1 = -11.f * DataInZ[0] + 18.f * DataInZ[1] - 9.f * DataInZ[2] + 2.f * DataInZ[3];
+float1 Cz2 =   6.f * DataInZ[0] - 15.f * DataInZ[1] +12.f * DataInZ[2] - 3.f * DataInZ[3];
+float1 Cz3 =        -DataInZ[0] +  3.f * DataInZ[1] - 3.f * DataInZ[2] +       DataInZ[3];
+float1 TriCubicValue = (1.f/6.f) * (Cz0 + v * ( Cz1 +  v * ( Cz2 + v * Cz3 ) ));
+// for the fluid sims, a nice look can be achieved with BlendAmount = 0.25f;
+// float BlendAmount = 0.0f;
+// return lerp(TriCubicValue, TriLinearValue, BlendAmount);
+return  min(max(TriCubicValue, minv), maxv);
+Emitter_SimRT_TextureSize;
+Emitter_SimRT_MipLevels;
+Emitter_SimRT_RWTexture;
+Emitter_SimRT_Texture;
+Emitter_SimRT_TextureSampler;
+Emitter_SimRT_RWTexture[int3(IndexX, IndexY, IndexZ)] = Value;
+Value = Emitter_SimRT_Texture.Load(int4(IndexX, IndexY, IndexZ, 0));
+Value = Emitter_SimRT_Texture.Load(int4(IndexX, IndexY, IndexZ, MipLevel));
+Value = Emitter_SimRT_Texture.SampleLevel(Emitter_SimRT_TextureSampler, UVW, MipLevel);
+Width = Emitter_SimRT_TextureSize.x;
+Height = Emitter_SimRT_TextureSize.y;
+Slices = Emitter_SimRT_TextureSize.z;
+OutMipLevels = Emitter_SimRT_MipLevels;
+IndexX = Linear % Emitter_SimRT_TextureSize.x;
+IndexY = (Linear / Emitter_SimRT_TextureSize.x) % Emitter_SimRT_TextureSize.y;
+IndexZ = Linear / (Emitter_SimRT_TextureSize.x * Emitter_SimRT_TextureSize.y);
+LinearToIndex_Emitter_SimRT(ExecIndex(), IndexX, IndexY, IndexZ);
+int3 Texel;
+ExecToIndex_Emitter_SimRT(Texel.x, Texel.y, Texel.z);
+Unit.x = (float(Texel.x) + 0.5f) / float(Emitter_SimRT_TextureSize.x);
+Unit.y = (float(Texel.y) + 0.5f) / float(Emitter_SimRT_TextureSize.y);
+Unit.z = (float(Texel.z) + 0.5f) / float(Emitter_SimRT_TextureSize.z);
+Emitter_GeneratedMesh_NumSections;
+Emitter_GeneratedMesh_NumTriangles;
+Emitter_GeneratedMesh_NumVertices;
+Emitter_GeneratedMesh_NumTexCoords;
+Emitter_GeneratedMesh_PositionOffset;
+Emitter_GeneratedMesh_TangentBasisOffset;
+Emitter_GeneratedMesh_TexCoordOffset;
+Emitter_GeneratedMesh_ColorOffset;
+Emitter_GeneratedMesh_SectionBuffer;
+Emitter_GeneratedMesh_IndexBuffer;
+Emitter_GeneratedMesh_VertexBuffer;
+////////////////////////////////////////////////////////
+// Helper functions
+{ return (Vertex * 3) + Emitter_GeneratedMesh_PositionOffset; }
+{ return (Vertex * 2) + Emitter_GeneratedMesh_TangentBasisOffset; }
+{ return (Vertex * 2) + (TexCoord * 2) + Emitter_GeneratedMesh_TexCoordOffset; }
+{ return Vertex + Emitter_GeneratedMesh_ColorOffset;}
+return (Emitter_GeneratedMesh_PositionOffset != -1) && (Vertex >= 0) && (Vertex < Emitter_GeneratedMesh_NumVertices) ? Emitter_GeneratedMesh_GetPositionOffsetUnsafe(Vertex) : -1;
+return (Emitter_GeneratedMesh_TangentBasisOffset != -1) && (Vertex >= 0) && (Vertex < Emitter_GeneratedMesh_NumVertices) ? Emitter_GeneratedMesh_GetTangentBasisOffsetUnsafe(Vertex) : -1;
+return (Emitter_GeneratedMesh_TexCoordOffset != -1) && (Vertex >= 0) && (Vertex < Emitter_GeneratedMesh_NumVertices) && (TexCoord >= 0) && (TexCoord <= Emitter_GeneratedMesh_NumTexCoords) ? Emitter_GeneratedMesh_GetTexCoordOffsetUnsafe(Vertex, TexCoord) : -1;
+return (Emitter_GeneratedMesh_ColorOffset != -1) && (Vertex >= 0) && (Vertex < Emitter_GeneratedMesh_NumVertices) ? Emitter_GeneratedMesh_GetColorOffsetUnsafe(Vertex) : -1;
+float4 Unpacked;
+Unpacked.x = (Packed >> 0) & 0xff;
+Unpacked.y = (Packed >> 8) & 0xff;
+Unpacked.z = (Packed >> 16) & 0xff;
+Unpacked.w = (Packed >> 24) & 0xff;
+return Unpacked / 127.5f - 1;
+uint Packed;
+Packed  = (int(Tangent.x * 127.499f) & 0xff) << 0;
+Packed |= (int(Tangent.y * 127.499f) & 0xff) << 8;
+Packed |= (int(Tangent.z * 127.499f) & 0xff) << 16;
+Packed |= TangentSign << 24;
+return Packed;
+Unpacked = Unpacked FMANUALFETCH_COLOR_COMPONENT_SWIZZLE;
+return Unpacked / 255.0f;
+Color = Color FMANUALFETCH_COLOR_COMPONENT_SWIZZLE;
+Color = clamp((Color * 255.0f) + 0.5f, 0.0f, 255.0f);
+Packed  = uint(Color.x) << 0;
+Packed |= uint(Color.y) << 8;
+Packed |= uint(Color.z) << 16;
+Packed |= uint(Color.w) << 24;
+uint Offset = Emitter_GeneratedMesh_GetPositionOffsetUnsafe(Vertex);
+Emitter_GeneratedMesh_VertexBuffer[Offset + 0] = asuint(Position.x);
+Emitter_GeneratedMesh_VertexBuffer[Offset + 1] = asuint(Position.y);
+Emitter_GeneratedMesh_VertexBuffer[Offset + 2] = asuint(Position.z);
+uint Offset = Emitter_GeneratedMesh_GetTangentBasisOffsetUnsafe(Vertex);
+uint TangentSign = dot(cross(TangentX, TangentZ), TangentY) < 0 ? 0x80 : 0x7f;
+Emitter_GeneratedMesh_VertexBuffer[Offset + 0] = Emitter_GeneratedMesh_PackTangent(TangentX, TangentSign);
+Emitter_GeneratedMesh_VertexBuffer[Offset + 1] = Emitter_GeneratedMesh_PackTangent(TangentZ, TangentSign);
+uint Offset = Emitter_GeneratedMesh_GetTexCoordOffsetUnsafe(Vertex, TexCoordIndex);
+Emitter_GeneratedMesh_VertexBuffer[Offset + 0] = asuint(TexCoord.x);
+Emitter_GeneratedMesh_VertexBuffer[Offset + 1] = asuint(TexCoord.y);
+uint Offset = Emitter_GeneratedMesh_GetColorOffsetUnsafe(Vertex);
+Emitter_GeneratedMesh_VertexBuffer[Offset] = Emitter_GeneratedMesh_PackColor(Color);
+// Mutable Functions
+TriangleIndex = -1;
+NumAllocated = 0;
+int MaxTriangles = Emitter_GeneratedMesh_SectionBuffer[SectionIndex * 2 + 0];
+InterlockedAdd(Emitter_GeneratedMesh_SectionBuffer[SectionIndex * 2 + 1], NumTriangles, TriangleIndex);
+NumAllocated = min(MaxTriangles - TriangleIndex, NumTriangles);
+int Correction = min(NumTriangles - NumAllocated, NumTriangles);
+InterlockedAdd(Emitter_GeneratedMesh_SectionBuffer[SectionIndex * 2 + 1], -Correction);
+//bSuccess = true;
+Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 0] = (uint)Index0;
+Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 1] = (uint)Index1;
+Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 2] = (uint)Index2;
+//bSuccess = false;
+uint Offset = Emitter_GeneratedMesh_GetPositionOffset(Vertex);
+uint Offset = Emitter_GeneratedMesh_GetTangentBasisOffset(Vertex);
+uint Offset = Emitter_GeneratedMesh_GetTexCoordOffset(Vertex, TexCoordIndex);
+uint Offset = Emitter_GeneratedMesh_GetColorOffset(Vertex);
+//bool bDummy;
+SetVertexPosition_Emitter_GeneratedMesh_UEImpureCall(true, Vertex, Position);//, bDummy);
+SetVertexTangentBasis_Emitter_GeneratedMesh_UEImpureCall(true, Vertex, TangentX, TangentY, TangentZ);//, bDummy);
+SetVertexTexCoord_Emitter_GeneratedMesh_UEImpureCall(true, Vertex, 0, TexCoord);//, bDummy);
+SetVertexColor_Emitter_GeneratedMesh_UEImpureCall(true, Vertex, Color);//, bDummy);
+InterlockedAdd(Emitter_GeneratedMesh_SectionBuffer[SectionIndex * 2 + 1], 1, TriangleIndex);
+InterlockedAdd(Emitter_GeneratedMesh_SectionBuffer[SectionIndex * 2 + 1], -1);
+Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 0] = (uint)TriangleIndex * 3 + 0;
+Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 1] = (uint)TriangleIndex * 3 + 1;
+Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 2] = (uint)TriangleIndex * 3 + 2;
+Emitter_GeneratedMesh_SetVertexPositionUnsafe(TriangleIndex * 3 + 0, Position0);
+Emitter_GeneratedMesh_SetVertexPositionUnsafe(TriangleIndex * 3 + 1, Position1);
+Emitter_GeneratedMesh_SetVertexPositionUnsafe(TriangleIndex * 3 + 2, Position2);
+Emitter_GeneratedMesh_SetVertexTangentBasisUnsafe(TriangleIndex * 3 + 0, TangentX0, TangentY0, TangentZ0);
+Emitter_GeneratedMesh_SetVertexTangentBasisUnsafe(TriangleIndex * 3 + 1, TangentX1, TangentY1, TangentZ1);
+Emitter_GeneratedMesh_SetVertexTangentBasisUnsafe(TriangleIndex * 3 + 2, TangentX2, TangentY2, TangentZ2);
+Emitter_GeneratedMesh_SetVertexTexCoordUnsafe(TriangleIndex * 3 + 0, TexCoord0, 0);
+Emitter_GeneratedMesh_SetVertexTexCoordUnsafe(TriangleIndex * 3 + 1, TexCoord1, 0);
+Emitter_GeneratedMesh_SetVertexTexCoordUnsafe(TriangleIndex * 3 + 2, TexCoord2, 0);
+Emitter_GeneratedMesh_SetVertexColorUnsafe(TriangleIndex * 3 + 0, Color0);
+Emitter_GeneratedMesh_SetVertexColorUnsafe(TriangleIndex * 3 + 1, Color1);
+Emitter_GeneratedMesh_SetVertexColorUnsafe(TriangleIndex * 3 + 2, Color2);
+// Imutable Functions
+bValid = true;
+Index0 = (int)Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 0];
+Index1 = (int)Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 1];
+Index2 = (int)Emitter_GeneratedMesh_IndexBuffer[TriangleIndex * 3 + 2];
+bValid = false;
+Index0 = 0;
+Index1 = 0;
+Index2 = 0;
+Position.x = asfloat(Emitter_GeneratedMesh_VertexBuffer[Offset + 0]);
+Position.y = asfloat(Emitter_GeneratedMesh_VertexBuffer[Offset + 1]);
+Position.z = asfloat(Emitter_GeneratedMesh_VertexBuffer[Offset + 2]);
+Position = 0;
+float4 TangentX = Emitter_GeneratedMesh_UnpackTangent(Emitter_GeneratedMesh_VertexBuffer[Offset + 0]);
+float4 TangentZ = Emitter_GeneratedMesh_UnpackTangent(Emitter_GeneratedMesh_VertexBuffer[Offset + 1]);
+float3 TangentY = cross(TangentZ.xyz, TangentX.xyz) * TangentZ.w;
+OutTangentX = cross(TangentY, TangentZ.xyz) * TangentZ.w;
+OutTangentY = TangentY;
+OutTangentZ = TangentZ.xyz;
+OutTangentX = float3(1,0,0);
+OutTangentY = float3(0,1,0);
+OutTangentZ = float3(0,0,1);
+TexCoord.x = asfloat(Emitter_GeneratedMesh_VertexBuffer[Offset + 0]);
+TexCoord.y = asfloat(Emitter_GeneratedMesh_VertexBuffer[Offset + 1]);
+TexCoord = 0;
+Color = Emitter_GeneratedMesh_UnpackColor(Emitter_GeneratedMesh_VertexBuffer[Offset]);
+Color = float4(0,0,0,1);
+bool bDummy;
+GetVertexPosition_Emitter_GeneratedMesh(Vertex, bDummy, Position);
+GetVertexTangentBasis_Emitter_GeneratedMesh(Vertex, bDummy, TangentX, TangentY, TangentZ);
+GetVertexTexCoord_Emitter_GeneratedMesh(Vertex, 0, bDummy, TexCoord);
+GetVertexColor_Emitter_GeneratedMesh(Vertex, bDummy, Color);
+int In_AttributeIndex = 0;
+Emitter_KernelGrid_OutputGrid[int3(In_IndexX, In_IndexY, In_AttributeIndex)] = In_Value;
+Out_NumCellsX = Emitter_KernelGrid_NumCells.x;
+Out_NumCellsY = Emitter_KernelGrid_NumCells.y;
+Out_Val = Emitter_KernelGrid_Grid.Load(int4(In_IndexX, In_IndexY, In_AttributeIndex, 0));
+Out_Index = In_Unit * Emitter_RasterizationGrid_NumCells - .5;
+Out_NumCellsX = Emitter_RasterizationGrid_NumCells.x;
+Out_NumCellsY = Emitter_RasterizationGrid_NumCells.y;
+Out_NumCellsZ = Emitter_RasterizationGrid_NumCells.z;
+val = 0;
+int3 TileOffset = Emitter_RasterizationGrid_PerAttributeData[In_AttributeIndex].xyz;
+InterlockedMin(Emitter_RasterizationGrid_OutputIntGrid[int3(In_IndexX + TileOffset.x, In_IndexY + TileOffset.y, In_IndexZ + TileOffset.z)], Emitter_RasterizationGridFloatToInt(In_Value), val);
+Original_Value = 0.0;
+int OriginalIntValue;
+InterlockedMin(Emitter_RasterizationGrid_OutputIntGrid[int3(In_IndexX + TileOffset.x, In_IndexY + TileOffset.y, In_IndexZ + TileOffset.z)], Emitter_RasterizationGridFloatToInt(In_Value), OriginalIntValue);
+Original_Value = Emitter_RasterizationGridIntToFloat(OriginalIntValue);
+Out_IndexX = GDispatchThreadId.x;
+Out_IndexY = GDispatchThreadId.y;
+Out_IndexZ = GDispatchThreadId.z;
+const uint Linear = GLinearThreadId;
+Out_IndexX = Linear % Emitter_RasterizationGrid_NumCells.x;
+Out_IndexY = (Linear / Emitter_RasterizationGrid_NumCells.x) % Emitter_RasterizationGrid_NumCells.y;
+Out_IndexZ = Linear / (Emitter_RasterizationGrid_NumCells.x * Emitter_RasterizationGrid_NumCells.y);
+Out_Val = 0;
+Out_Val =  Emitter_RasterizationGridIntToFloat(Emitter_RasterizationGrid_IntGrid.Load(int4(In_IndexX + TileOffset.x, In_IndexY + TileOffset.y, In_IndexZ + TileOffset.z, 0)));
+    int RegisterIndex = Emitter_Reader_AttributeIndices[0].x;
+    int NumParticles = Emitter_Reader_InstanceCountOffset != 0xffffffff ? RWInstanceCounts[Emitter_Reader_InstanceCountOffset] : 0;
+    if(RegisterIndex != -1 && ParticleIndex >= 0 && ParticleIndex < NumParticles)
+        Out_Valid = true;
+        BRANCH
+        if (Emitter_Reader_AttributeCompressed[0].x)
+                Out_Value.x = float(Emitter_Reader_InputHalfBuffer[(RegisterIndex + 0)*Emitter_Reader_ParticleStrideHalf + ParticleIndex]);
+                Out_Value.y = float(Emitter_Reader_InputHalfBuffer[(RegisterIndex + 1)*Emitter_Reader_ParticleStrideHalf + ParticleIndex]);
+                Out_Value.z = float(Emitter_Reader_InputHalfBuffer[(RegisterIndex + 2)*Emitter_Reader_ParticleStrideHalf + ParticleIndex]);
+        else
+#endif //NIAGARA_COMPRESSED_ATTRIBUTES_ENABLED
+                Out_Value.x = float(Emitter_Reader_InputFloatBuffer[(RegisterIndex + 0)*Emitter_Reader_ParticleStrideFloat + ParticleIndex]);
+                Out_Value.y = float(Emitter_Reader_InputFloatBuffer[(RegisterIndex + 1)*Emitter_Reader_ParticleStrideFloat + ParticleIndex]);
+                Out_Value.z = float(Emitter_Reader_InputFloatBuffer[(RegisterIndex + 2)*Emitter_Reader_ParticleStrideFloat + ParticleIndex]);
+    else
+        Out_Valid = false;
+        Out_Value = (float3)0;
+    int RegisterIndex = Emitter_Reader_AttributeIndices[0].y;
+        if (Emitter_Reader_AttributeCompressed[0].y)
+        Out_Value = (float2)0;
+Out_IndexX = Linear % Emitter_SDFGrid_NumCells.x;
+Out_IndexY = (Linear / Emitter_SDFGrid_NumCells.x) % Emitter_SDFGrid_NumCells.y;
+Out_IndexZ = Linear / (Emitter_SDFGrid_NumCells.x * Emitter_SDFGrid_NumCells.y);
+Emitter_SDFGrid_OutputGrid[float3(IndexX, IndexY, IndexZ)].r = Value;
+Out_NumCellsX = Emitter_SDFGrid_NumCells.x;
+Out_NumCellsY = Emitter_SDFGrid_NumCells.y;
+Out_NumCellsZ = Emitter_SDFGrid_NumCells.z;
+Value = Emitter_SDFGrid_Grid.Load(int4(IndexX, IndexY, IndexZ, 0)).r;
+    Out_Val = 0;
+    const float TmpVal = Emitter_SDFGrid_Grid.Load(int4(In_IndexX, In_IndexY, In_IndexZ, 0));
+    if (In_AttributeIndex == 0)
+        Out_Val = TmpVal.r;
+//Generated by UNiagaraDataInterfaceGrid2DCollection::GenerateSetupHLSL
+// Argument Name "Map" Type "NiagaraParameterMap"
+// Argument Name "TargetDataInterface" Type "NiagaraDataInterfaceGrid2DCollection"
+SetupFromIterationSource_MapSimStage1_BuildKernelArray_GeneratedSetup_Func_(Context);
+//Generated by UNiagaraDataInterfaceGrid2DCollection::GenerateTeardownHLSL
+TeardownFromIterationSource_MapSimStage1_BuildKernelArray_GeneratedTeardown_Func_(Context);
+//Generated by UNiagaraDataInterfaceGrid3DCollection::GenerateSetupHLSL
+// Argument Name "TargetDataInterface" Type "NiagaraDataInterfaceGrid3DCollection"
+SetupFromIterationSource_MapSimStage4_SmoothinX_GeneratedSetup_Func_(Context);
+//Generated by UNiagaraDataInterfaceGrid3DCollection::GenerateTeardownHLSL
+//Generated by UNiagaraDataInterfaceGrid3DCollection::GenerateIterationSourceNamespaceWriteAttributesHLSL
+int CurrAttributeIndex;
+int X, Y, Z;
+ExecutionIndexToGridIndex_Emitter_SDFGrid(X, Y, Z);
+// Name "Emitter.SDFGrid.SDF" Type "NiagaraFloat" Var "Map.Emitter.SDFGrid.SDF"
+SetFloatValue_Emitter_SDFGrid_UEImpureCall_AttributeSDF(X, Y, Z,  Context.MapSimStage4_SmoothinX.Emitter.SDFGrid.SDF);
+TeardownFromIterationSource_MapSimStage4_SmoothinX_GeneratedTeardown_Func_(Context);
+TeardownFromIterationSource_MapSimStage4_SmoothinX_GeneratedWriteAttributesEmitter_SDFGrid_Func_(Context);
+SetupFromIterationSource_MapSimStage5_SmoothinY_GeneratedSetup_Func_(Context);
+SetFloatValue_Emitter_SDFGrid_UEImpureCall_AttributeSDF(X, Y, Z,  Context.MapSimStage5_SmoothinY.Emitter.SDFGrid.SDF);
+TeardownFromIterationSource_MapSimStage5_SmoothinY_GeneratedTeardown_Func_(Context);
+TeardownFromIterationSource_MapSimStage5_SmoothinY_GeneratedWriteAttributesEmitter_SDFGrid_Func_(Context);
+//Generated by UNiagaraDataInterfaceGrid3DCollection::GenerateIterationSourceNamespaceReadAttributesHLSL
+// Variable Name "Emitter.SDFGrid.SDF" Type "NiagaraFloat" Var "Map.Emitter.SDFGrid.SDF"
+GetPreviousFloatValue_Emitter_SDFGrid_AttributeSDF(X, Y, Z, Context.MapSimStage6_SmoothinZandOutput.Emitter.SDFGrid.SDF);
+SetupFromIterationSource_MapSimStage6_SmoothinZandOutput_GeneratedSetup_Func_(Context);
+SetupFromIterationSource_MapSimStage6_SmoothinZandOutput_GeneratedReadAttributesEmitter_SDFGrid_Func_(Context);
+SetFloatValue_Emitter_SDFGrid_UEImpureCall_AttributeSDF(X, Y, Z,  Context.MapSimStage6_SmoothinZandOutput.Emitter.SDFGrid.SDF);
+TeardownFromIterationSource_MapSimStage6_SmoothinZandOutput_GeneratedTeardown_Func_(Context);
+TeardownFromIterationSource_MapSimStage6_SmoothinZandOutput_GeneratedWriteAttributesEmitter_SDFGrid_Func_(Context);
+GetPreviousFloatValue_Emitter_SDFGrid_AttributeSDF(X, Y, Z, Context.MapSimStage7_Output.Emitter.SDFGrid.SDF);
+SetupFromIterationSource_MapSimStage7_Output_GeneratedSetup_Func_(Context);
+SetupFromIterationSource_MapSimStage7_Output_GeneratedReadAttributesEmitter_SDFGrid_Func_(Context);
+SetFloatValue_Emitter_SDFGrid_UEImpureCall_AttributeSDF(X, Y, Z,  Context.MapSimStage7_Output.Emitter.SDFGrid.SDF);
+TeardownFromIterationSource_MapSimStage7_Output_GeneratedTeardown_Func_(Context);
+TeardownFromIterationSource_MapSimStage7_Output_GeneratedWriteAttributesEmitter_SDFGrid_Func_(Context);
+Context.MapSimStage1_BuildKernelArray.Emitter.Grid3D_InitializeConvolutionKernel.Radius = Emitter_Grid3D_InitializeConvolutionKernel_Radius;
+Context.MapSimStage2_FillRasterizationGridReader.Emitter.RasterizationGrid3D_Initialize.dx = Emitter_RasterizationGrid3D_Initialize_dx;
+Context.MapSimStage2_FillRasterizationGridReader.Emitter.RasterizationGrid3D_Initialize.HalfBandwidth = Emitter_RasterizationGrid3D_Initialize_HalfBandwidth;
+Context.MapSimStage2_FillRasterizationGridReader.Emitter.WorldToUnit = Emitter_WorldToUnit;
+Context.MapSimStage2_FillRasterizationGridReader.User.ParticleSizeMult = User_ParticleSizeMult;
+Context.MapSimStage2_FillRasterizationGridReader.Emitter.SourceIsLocalSpace = Emitter_SourceIsLocalSpace;
+Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemLocalToWorld = Engine_Owner_SystemLocalToWorld;
+Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemWorldToLocal = Engine_Owner_SystemWorldToLocal;
+Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemLocalToWorldNoScale = Engine_Owner_SystemLocalToWorldNoScale;
+Context.MapSimStage2_FillRasterizationGridReader.Engine.Owner.SystemWorldToLocalNoScale = Engine_Owner_SystemWorldToLocalNoScale;
+Context.MapSimStage3_FillRasterizationGridNDC.Emitter.RasterizationGrid3D_Initialize.dx = Emitter_RasterizationGrid3D_Initialize_dx;
+Context.MapSimStage3_FillRasterizationGridNDC.Emitter.RasterizationGrid3D_Initialize.HalfBandwidth = Emitter_RasterizationGrid3D_Initialize_HalfBandwidth;
+Context.MapSimStage3_FillRasterizationGridNDC.User.ParticleSizeMult = User_ParticleSizeMult;
+Context.MapSimStage3_FillRasterizationGridNDC.Emitter.WorldToUnit = Emitter_WorldToUnit;
+Context.MapSimStage4_SmoothinX.Emitter.SDFGrid.SDF = Emitter_SDFGrid_SDF;
+Context.MapSimStage5_SmoothinY.Emitter.SDFGrid.SDF = Emitter_SDFGrid_SDF;
+Context.MapSimStage6_SmoothinZandOutput.Emitter.SDFGrid.SDF = Emitter_SDFGrid_SDF;
+Context.MapSimStage7_Output.Emitter.SDF_dx = Emitter_SDF_dx;
+Context.MapSimStage7_Output.Emitter.SDFGrid.SDF = Emitter_SDFGrid_SDF;
+Context.MapSimStage8_GenerateMesh.Emitter.SDF_dx = Emitter_SDF_dx;
+Context.MapSimStage8_GenerateMesh.Emitter.UnitToWorld = Emitter_UnitToWorld;
+Context.MapSimStage8_GenerateMesh.Emitter.WorldToUnit = Emitter_WorldToUnit;
+Context.MapSimStage8_GenerateMesh.Engine.Owner.Position = Engine_Owner_Position;
+Context.MapSimStage8_GenerateMesh.Engine.Emitter.TotalSpawnedParticles = Engine_Emitter_TotalSpawnedParticles;
+Context.MapSimStage8_GenerateMesh.Emitter.RandomSeed = Emitter_RandomSeed;
+Context.MapSimStage8_GenerateMesh.Engine.Emitter.InstanceSeed = Engine_Emitter_InstanceSeed;
+Context.MapSimStage8_GenerateMesh.Engine.System.RandomSeed = Engine_System_RandomSeed;
+Context.MapSpawn.Engine.Emitter.ID.ID = 1;
+Context.MapUpdate.Engine.Emitter.ID.ID = 1;
+#elif ((SimulationStageIndex == 1)) // MapSimStage1_BuildKernelArray
+SetupFromIterationSource_MapSimStage1_BuildKernelArray(Context);
+#elif ((SimulationStageIndex == 4)) // MapSimStage4_SmoothinX
+SetupFromIterationSource_MapSimStage4_SmoothinX(Context);
+#elif ((SimulationStageIndex == 5)) // MapSimStage5_SmoothinY
+SetupFromIterationSource_MapSimStage5_SmoothinY(Context);
+#elif ((SimulationStageIndex == 6)) // MapSimStage6_SmoothinZandOutput
+SetupFromIterationSource_MapSimStage6_SmoothinZandOutput(Context);
+#elif ((SimulationStageIndex == 7)) // MapSimStage7_Output
+SetupFromIterationSource_MapSimStage7_Output(Context);
+#elif ((SimulationStageIndex == 2)) // MapSimStage2_FillRasterizationGridReader
+#elif ((SimulationStageIndex == 3)) // MapSimStage3_FillRasterizationGridNDC
+#elif ((SimulationStageIndex == 8)) // MapSimStage8_GenerateMesh
+const bool bValid = bIsValidInstance;
+const int WriteIndex = OutputIndex(0, false, bValid);
+// If a stage doesn't kill particles, StoreUpdateVariables() never calls AcquireIndex(), so the
+// count isn't updated. In that case we must manually copy the original count here.
+RWInstanceCounts[WriteInstanceCountOffset] = GSpawnStartInstance + NumSpawnedInstances; 
+TeardownFromIterationSource_MapSimStage1_BuildKernelArray(Context);
+TeardownFromIterationSource_MapSimStage4_SmoothinX(Context);
+TeardownFromIterationSource_MapSimStage5_SmoothinY(Context);
+TeardownFromIterationSource_MapSimStage6_SmoothinZandOutput(Context);
+TeardownFromIterationSource_MapSimStage7_Output(Context);
+#elif SimulationStageIndex == 1 // MapSimStage1_BuildKernelArray
+const uint MaxInstances = SimulationStage_GetInstanceCount();
+GLinearThreadId = all(GDispatchThreadId < DispatchThreadIdBounds) ? GLinearThreadId : MaxInstances;
+GSpawnStartInstance = MaxInstances;
+const bool bRunUpdateLogic = (GLinearThreadId < GSpawnStartInstance) && (SimStart != 1);
+const bool bRunSpawnLogic = (GLinearThreadId < GSpawnStartInstance) && (SimStart == 1);
+SimulateMapSimStage1_BuildKernelArray(Context);
+#elif SimulationStageIndex == 2 // MapSimStage2_FillRasterizationGridReader
+SimulateMapSimStage2_FillRasterizationGridReader(Context);
+#elif SimulationStageIndex == 3 // MapSimStage3_FillRasterizationGridNDC
+SimulateMapSimStage3_FillRasterizationGridNDC(Context);
+#elif SimulationStageIndex == 4 // MapSimStage4_SmoothinX
+SimulateMapSimStage4_SmoothinX(Context);
+#elif SimulationStageIndex == 5 // MapSimStage5_SmoothinY
+SimulateMapSimStage5_SmoothinY(Context);
+#elif SimulationStageIndex == 6 // MapSimStage6_SmoothinZandOutput
+SimulateMapSimStage6_SmoothinZandOutput(Context);
+#elif SimulationStageIndex == 7 // MapSimStage7_Output
+SimulateMapSimStage7_Output(Context);
+#elif SimulationStageIndex == 8 // MapSimStage8_GenerateMesh
+SimulateMapSimStage8_GenerateMesh(Context);
+;*≈‹)yOèY_P∑C∞∫:
+C;ÒGéñK
+HdÓï;ÑÏÅz™z±
+ˇ†LœZ;Ár
+%∞2Çø;
+Q;!ÎÙ2ÿ4CW{ÂkVƒ9∏›(å
+_\õ=õ):;l˙<
+;%ûEÆVπÁ\>≠@M
+ád˘Ôn;…G¶ﬁ=m˙ÄD(M
+;%ûEÆVπÁ\>≠@å
+ád˘Ôn;…G¶ﬁ=m˙ÄD(å
+ád˘Ôn;…G¶ﬁ=m˙ÄD(
+‰S∫Ì=M9O†<ù.Ü;mî
+(∂Äq2π‰Ö%Xù;9Q‹O%l]üå
+Bà;r‚=µç¶l
+float Emitter_CurrentLoopDuration;
+float PREV_Emitter_CurrentLoopDuration;
+float LifetimeSafe;
+float NonUpdatedAge;
+float UpdatedAge;
+FParamMap0_Local_ParticleState ParticleState;
+float CurrentLoopDuration;
+void InitializeParticle_TransformVector_Emitter_Func_(float3 In_InVector, int In_SourceSpace, int In_DestinationSpace, bool In_ApplyScale, out float3 Out_OutVector, inout FSimulationContext Context);
+void CustomHlsl9F14A6AE80252C6E7EEC2CBCB99F6AFCD412BDBF_Func_(float In_InFloat, out float Out_OutFloat);
+bool Constant20 = false;
+Out_IsDeterministic = Constant20;
+int Constant32 = 0;
+bool Result3 = NiagaraAll(In_SourceSpace == Constant32);
+bool Result4 = NiagaraAll(In_DestinationSpace == Constant33);
+bool Result5 = Result3 && Result4;
+int Constant34 = 1;
+bool Result6 = NiagaraAll(In_SourceSpace == Constant34);
+int Constant35 = 1;
+bool Result7 = NiagaraAll(In_DestinationSpace == Constant35);
+bool Result8 = Result6 && Result7;
+bool Result9 = Result5 || Result8;
+int Constant36 = 2;
+bool Result10 = NiagaraAll(In_SourceSpace == Constant36);
+int Constant37 = 2;
+bool Result11 = NiagaraAll(In_DestinationSpace == Constant37);
+bool Result12 = Result10 && Result11;
+bool Result13 = Result9 || Result12;
+bool Result14 = Result3 && Result11;
+bool Result15 = Result10 && Result4;
+bool Result16 = Result14 || Result15;
+bool Result17 = In_bLocalSpace && Result16;
+bool Result18 = Result13 || Result17;
+bool Result19 = !In_bLocalSpace;
+bool Result20 = Result3 && Result7;
+bool Result21 = Result6 && Result4;
+bool Result22 = Result20 || Result21;
+bool Result23 = Result19 && Result22;
+bool Result24 = Result18 || Result23;
+bool Result25 = In_bLocalSpace && Result20;
+bool Result26 = Result10 && Result7;
+bool Result28 = Result19 && Result15;
+bool Result29 = Result27 || Result28;
+Out_bUseOriginal = Result24;
+Out_LocalToWorld = Result29;
+bool Constant31 = false;
+TransformBase_Func_(In_SourceSpace, In_DestinationSpace, Matrix_IfResult, Matrix001_IfResult, Constant31, TransformBase_Func_Output_bUseOriginal, TransformBase_Func_Output_OutTransform, TransformBase_Func_Output_LocalToWorld, Context);
+float3 Result30 = mul(float4(In_InVector,0.0),TransformBase_Func_Output_OutTransform).xyz;
+Vector_IfResult = Result30;
+Context.MapSpawn.Particles.Lifetime = Context.MapSpawn.InitializeParticle.Lifetime;
+float Constant25 = 1;
+Context.MapSpawn.Particles.Mass = Constant25;
+float Constant26 = 200;
+Output1.x = Constant26;
+Output1.y = Constant26;
+float3 Constant27 = float3(0,0,0);
+SimulationPosition_v1_1_Particle_Func_(Constant27, SimulationPosition_v1_1_Particle_Func_Output_SimulationPosition, Context);
+float3 Constant28 = float3(0,0,130);
+bool Constant30 = false;
+float3 InitializeParticle_TransformVector_Emitter_Func_Output_OutVector;
+InitializeParticle_TransformVector_Emitter_Func_(Constant28, Context.MapSpawn.InitializeParticle.PositionOffsetCoordinateSpace, Constant29, Constant30, InitializeParticle_TransformVector_Emitter_Func_Output_OutVector, Context);
+float3 Result31 = SimulationPosition_v1_1_Particle_Func_Output_SimulationPosition + InitializeParticle_TransformVector_Emitter_Func_Output_OutVector;
+Context.MapSpawn.Particles.Position = Result31;
+float CustomHlsl9F14A6AE80252C6E7EEC2CBCB99F6AFCD412BDBF_Func_Output_OutFloat;
+CustomHlsl9F14A6AE80252C6E7EEC2CBCB99F6AFCD412BDBF_Func_(In_Value, CustomHlsl9F14A6AE80252C6E7EEC2CBCB99F6AFCD412BDBF_Func_Output_OutFloat);
+Out_ClampedValue = CustomHlsl9F14A6AE80252C6E7EEC2CBCB99F6AFCD412BDBF_Func_Output_OutFloat;
+float Result32 = Context.MapUpdate.Particles.Age + Context.MapUpdate.ParticleState.DeltaTime;
+float Constant39 = 1e-05;
+float Result33 = max(Context.MapUpdate.ParticleState.Lifetime, Constant39);
+Context.MapUpdate.Local.ParticleState.NonUpdatedAge = Context.MapUpdate.Particles.Age;
+Context.MapUpdate.Local.ParticleState.UpdatedAge = Result32;
+Context.MapUpdate.Local.ParticleState.Lifetime = Context.MapUpdate.ParticleState.Lifetime;
+Context.MapUpdate.Local.ParticleState.LifetimeSafe = Result33;
+bool Result34 = NiagaraAll(Context.MapUpdate.Local.ParticleState.NonUpdatedAge == Constant40);
+Context.MapUpdate.Transient.FirstFrame = Result34;
+Context.MapUpdate.OUTPUT_VAR.ParticleState.FirstFrame = Result34;
+float Constant41 = 1e-06;
+bool Result35 = NiagaraAll(Context.MapUpdate.Local.ParticleState.Lifetime > Constant41);
+bool Result36 = Context.MapUpdate.Transient.FirstFrame && Result35;
+bool Result37 = NiagaraAll(Context.MapUpdate.Local.ParticleState.UpdatedAge < Context.MapUpdate.Local.ParticleState.LifetimeSafe);
+bool Result38 = Result36 || Result37;
+bool Result39 = Context.MapUpdate.DataInstance.Alive && Result38;
+float Result40 = Context.MapUpdate.Local.ParticleState.UpdatedAge / Context.MapUpdate.Local.ParticleState.LifetimeSafe;
+SaturateFloat_Particle_Func_(Result40, SaturateFloat_Particle_Func_Output_ClampedValue, Context);
+Context.MapUpdate.DataInstance.Alive = Result39;
+Context.MapUpdate.Particles.Age = Context.MapUpdate.Local.ParticleState.UpdatedAge;
+Context.MapUpdate.Particles.NormalizedAge = SaturateFloat_Particle_Func_Output_ClampedValue;
+bool Constant42 = false;
+bool Constant43 = true;
+float3 Result47 = In_Velocity - In_AdvectionVelocity;
+float Result48 = In_Drag * In_InverseMass;
+float Constant54 = (0.0);
+float NiagaraFloat_SelectResult = Constant54;
+NiagaraFloat_SelectResult = In_Drag;
+NiagaraFloat_SelectResult = Result48;
+float Constant55 = 0;
+float Result49 = max(NiagaraFloat_SelectResult, Constant55);
+float Result50 = Result49 * In_DeltaTime;
+float Constant56 = 1;
+float Result51 = Result50 + Constant56;
+float3 Result52 = Result47 / Result51;
+float3 Result53 = Result52 + In_AdvectionVelocity;
+Out_Output = Result53;
+float Constant52 = 1e-05;
+float Result41 = max(Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime, Constant52);
+float Result42 = Reciprocal(Result41);
+Context.MapUpdate.Local.SolveForcesAndVelocity.InverseDeltaTime = Result42;
+float Constant53 = 1e-06;
+float Result43 = max(Context.MapUpdate.Local.SolveForcesAndVelocity.Mass, Constant53);
+float Result44 = Reciprocal(Result43);
+float3 Result45 = Result44 * Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce;
+Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce = Result45;
+Context.MapUpdate.Local.SolveForcesAndVelocity.InverseMass = Result44;
+float3 Result46 = Context.MapUpdate.Local.SolveForcesAndVelocity.PhysicsForce * Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime + Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity = Result46;
+float3 Result54 = DragVelocity_Particle_Func_Output_Output - Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity;
+Context.MapUpdate.Local.SolveForcesAndVelocity.DragVelocity = Result54;
+float Constant57 = 1000;
+float3 Constant58 = float3(0,0,0);
+float Constant59 = 9999;
+float3 Result55 = Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Velocity * Context.MapUpdate.Local.SolveForcesAndVelocity.DeltaTime;
+float3 Result56 = Result55 + Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position;
+Context.MapUpdate.OUTPUT_VAR.SolveForcesAndVelocity.Position = Result56;
+float3 Constant60 = float3(0,0,0);
+float Constant61 = 0;
+ForceVector_IfResult = Constant60;
+Drag_IfResult = Constant61;
+float3 Result57 = Context.MapUpdate.Particles.Position - Context.MapUpdate.Particles.Previous.Position;
+float Result58 = length(Result57);
+float Constant62 = 0.3333;
+float Result59 = Result58 * Constant62;
+float Constant63 = 1e+08;
+float Result60 = Modulo(Context.MapUpdate.Particles.DistanceTraveled, Constant63);
+float Result61 = Result59 + Result60;
+Context.MapUpdate.Particles.DistanceTraveled = Result61;
+Context.MapSpawn.Emitter.CurrentLoopDuration = lerp(PREV_Emitter_CurrentLoopDuration, Emitter_CurrentLoopDuration, SpawnInterp);
+float Constant2 = 1;
+Context.MapSpawn.Particles.Mass = Constant2;
+float2 Constant3 = float2(0.0, 0.0);
+Context.MapSpawn.Particles.SpriteSize = Constant3;
+float3 Constant4 = float3(0.0, 0.0, 0.0);
+Context.MapSpawn.Particles.Position = Constant4;
+float Constant5 = 0;
+Context.MapSpawn.Particles.Age = Constant5;
+float Constant6 = (0.0);
+Context.MapSpawn.Particles.NormalizedAge = Constant6;
+float3 Constant7 = float3(0,0,0);
+Context.MapSpawn.Particles.Velocity = Constant7;
+Context.MapSpawn.Particles.Presolve.Velocity = Constant8;
+Context.MapSpawn.Particles.Presolve.Position = Constant9;
+Context.MapSpawn.Particles.Presolve.PhysicsForce = Constant10;
+float3 Constant11 = float3(0,0,0);
+Context.MapSpawn.Particles.Previous.Position = Constant11;
+float Constant12 = 0;
+Context.MapSpawn.Particles.DistanceTraveled = Constant12;
+Context.MapSpawn.InitializeParticle.Lifetime = Context.MapSpawn.Emitter.CurrentLoopDuration;
+int Constant13 = (0);
+float Constant14 = 0;
+float Constant15 = 1;
+int Constant16 = -1;
+int Constant17 = 0;
+int Constant18 = (0);
+int Constant19 = (0);
+CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_(Constant13, Constant14, Constant15, Constant16, Constant17, Constant18, Constant19, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_RandomFloat, CalculateRandomRangeFloat_ScriptUsage4_Particle_Particle_RandomnessMode_NewEnumerator0_FixedRandomSeed_false_EvaluationType_NewEnumerator0_OverrideSeed_false_Func_Output_IsDeterministic, Context);
+float Constant21 = 200;
+float3 Constant22 = float3(0,0,130);
+Context.MapSpawn.InitializeParticle.PositionOffsetCoordinateSpace = Constant23;
+bool Constant24 = false;
+bool Constant38 = true;
+Context.MapUpdate.DataInstance.Alive = Constant38;
+EnterStatScope(2 /**ParticleState_Emitter_Func_*/);
+float3 Constant44 = float3(0,0,0);
+Context.MapUpdate.Transient.PhysicsForce = Constant44;
+float3 Constant45 = float3(0,0,0);
+Context.MapUpdate.Transient.AdvectionVelocity = Constant45;
+float Constant46 = 0;
+Context.MapUpdate.Transient.PhysicsDrag = Constant46;
+bool Constant47 = true;
+Context.MapUpdate.Transient.DragIgnoreMass = Constant47;
+float Constant48 = 1000;
+float3 Constant49 = float3(0,0,0);
+float Constant50 = 9999;
+bool Constant51 = true;
+Context.MapUpdate.SolveForcesAndVelocity.WritetoIntrinsicProperties = Constant51;
+EnterStatScope(3 /**SolveForcesAndVelocity_Emitter_Func_*/);
+Context.MapSpawn.Emitter.CurrentLoopDuration = Emitter_CurrentLoopDuration;
+Context.MapSpawn.Engine.Emitter.ID.ID = 2;
+Context.MapUpdate.Array.Lifetime = 1;
+Context.MapUpdate.Particles.Lifetime = InputDataFloat(0, 1, InstanceIdx);
+Context.MapUpdate.Engine.Emitter.ID.ID = 2;
+OutputDataFloat(0, 1, WriteIndex, Context.MapUpdate.Particles.Lifetime);
+| enter_stat_scope();
+| R[0] = inputdata_float();
+| O[100] = inputdata_float();
+| O[89] = inputdata_float();
+| O[90] = inputdata_int32();
+| O[331] = inputdata_float();
+| O[24] = inputdata_float();
+| O[97] = inputdata_float();
+| R[0] = acquireindex(C[3]);
+| O[330] = mul(I[4], I[1]);
+| external_func_call(C[0], C[1], C[2], C[3]R[65535]);
+| exit_stat_scope();
+| O[329] = mul(I[3], I[0]);
+| O[100] = max(O[329], O[330]);
+| O[331] = mul(I[5], I[2]);
+| O[89] = max(O[331], O[100]);
+| O[100] = maxi(I[6], C[2]);
+| O[24] = i2f_div1(O[100], O[89]);
+| O[100] = div(O[329], O[24]);
+| O[100] = floor(O[100]);
+| O[97] = f2i(O[100]);
+| O[100] = div(O[330], O[24]);
+| O[99] = f2i(O[100]);
+| O[100] = div(O[331], O[24]);
+| O[90] = f2i(O[100]);
+| O[100] = i2f_mul(O[99], O[24]);
+| O[100] = sub(O[100], O[330]);
+| O[100] = abs(O[100]);
+| O[89] = cmpgt(O[329], O[331]);
+| O[89] = cmpgt_logic_and(O[329], O[330], O[89]);
+| O[100] = cmpgt_logic_and(O[100], C[4], O[89]);
+| O[89] = addi(O[99], C[2]);
+| O[99] = select(O[100], O[89], O[99]);
+| O[100] = i2f_mul(O[90], O[24]);
+| O[100] = sub(O[100], O[331]);
+| O[89] = addi(O[90], C[2]);
+| O[90] = select(O[100], O[89], O[90]);
+| O[100] = i2f_mul(O[97], O[24]);
+| O[100] = sub(O[100], O[329]);
+| O[89] = cmpgt(O[330], O[331]);
+| O[89] = cmpgt_logic_and(O[330], O[329], O[89]);
+| O[89] = addi(O[97], C[2]);
+| O[97] = select(O[100], O[89], O[97]);
+| O[100] = select(O[100], O[89], O[90]);
+| O[89] = i2f_mul(O[97], O[24]);
+| O[89] = sub(O[89], O[329]);
+| O[89] = abs(O[89]);
+| O[90] = cmpgt(O[331], O[330]);
+| O[90] = cmpgt_logic_and(O[331], O[329], O[90]);
+| O[89] = cmpgt_logic_and(O[89], C[4], O[90]);
+| O[90] = addi(O[97], C[2]);
+| O[90] = select(O[89], O[90], O[97]);
+| O[89] = i2f_mul(O[99], O[24]);
+| O[89] = sub(O[89], O[330]);
+| O[97] = cmpgt(O[331], O[330]);
+| O[97] = cmpgt_logic_and(O[331], O[329], O[97]);
+| O[89] = cmpgt_logic_and(O[89], C[4], O[97]);
+| O[97] = addi(O[99], C[2]);
+| O[89] = select(O[89], O[97], O[99]);
+| O[93] = i2f_mul(O[90], O[24]);
+| O[99] = i2f_mul(O[89], O[24]);
+| O[24] = i2f_mul(O[100], O[24]);
+| O[90] = i2f(O[90]);
+| O[89] = i2f(O[89]);
+| O[100] = i2f(O[100]);
+| O[97] = f2i(O[90]);
+| O[95] = f2i(O[89]);
+| O[117] = f2i(O[100]);
+| external_func_call(C[5], O[97], O[95], O[117]R[65535]);
+| O[97] = div(O[93], O[90]);
+| outputdata_float(0, 15, R[0], O[93]);
+| outputdata_int32(0, 25, R[0], C[10]);
+| O[93] = div(O[99], O[89]);
+| outputdata_float(0, 13, R[0], O[93]);
+| outputdata_float(0, 16, R[0], O[99]);
+| outputdata_float(0, 24, R[0], C[9]);
+| outputdata_float(0, 166, R[0], C[9]);
+| outputdata_float(0, 186, R[0], C[9]);
+| outputdata_float(0, 191, R[0], C[9]);
+| outputdata_float(0, 196, R[0], C[9]);
+| outputdata_float(0, 201, R[0], C[9]);
+| outputdata_float(0, 234, R[0], C[9]);
+| outputdata_float(0, 239, R[0], C[9]);
+| outputdata_float(0, 244, R[0], C[9]);
+| outputdata_float(0, 249, R[0], C[9]);
+| outputdata_float(0, 250, R[0], C[9]);
+| outputdata_float(0, 255, R[0], C[9]);
+| outputdata_float(0, 260, R[0], C[9]);
+| outputdata_float(0, 265, R[0], C[9]);
+| outputdata_float(0, 282, R[0], C[9]);
+| outputdata_float(0, 287, R[0], C[9]);
+| outputdata_float(0, 292, R[0], C[9]);
+| outputdata_float(0, 297, R[0], C[9]);
+| O[99] = div(O[24], O[100]);
+| outputdata_float(0, 14, R[0], O[99]);
+| outputdata_float(0, 17, R[0], O[24]);
+| O[90] = f2i(O[90]);
+| outputdata_int32(0, 11, R[0], O[90]);
+| O[24] = f2i(O[89]);
+| O[100] = f2i(O[100]);
+| outputdata_float(0, 0, R[0], C[8]);
+| outputdata_float(0, 1, R[0], C[8]);
+| outputdata_float(0, 2, R[0], C[8]);
+| outputdata_float(0, 3, R[0], C[8]);
+| outputdata_float(0, 4, R[0], C[8]);
+| outputdata_float(0, 5, R[0], C[8]);
+| outputdata_float(0, 6, R[0], C[8]);
+| outputdata_float(0, 7, R[0], C[8]);
+| outputdata_float(0, 8, R[0], C[8]);
+| outputdata_float(0, 9, R[0], C[8]);
+| outputdata_float(0, 10, R[0], C[8]);
+| outputdata_float(0, 11, R[0], C[8]);
+| outputdata_float(0, 18, R[0], C[8]);
+| outputdata_float(0, 19, R[0], C[8]);
+| outputdata_float(0, 20, R[0], C[8]);
+| outputdata_float(0, 21, R[0], C[8]);
+| outputdata_float(0, 22, R[0], C[8]);
+| outputdata_float(0, 23, R[0], C[8]);
+| outputdata_float(0, 25, R[0], C[8]);
+| outputdata_float(0, 26, R[0], C[8]);
+| outputdata_float(0, 27, R[0], C[8]);
+| outputdata_float(0, 28, R[0], C[8]);
+| outputdata_float(0, 29, R[0], C[8]);
+| outputdata_float(0, 30, R[0], C[8]);
+| outputdata_float(0, 31, R[0], C[8]);
+| outputdata_float(0, 32, R[0], C[8]);
+| outputdata_float(0, 33, R[0], C[8]);
+| outputdata_float(0, 34, R[0], C[8]);
+| outputdata_float(0, 35, R[0], C[8]);
+| outputdata_float(0, 36, R[0], C[8]);
+| outputdata_float(0, 37, R[0], C[8]);
+| outputdata_float(0, 38, R[0], C[8]);
+| outputdata_float(0, 39, R[0], C[8]);
+| outputdata_float(0, 40, R[0], C[8]);
+| outputdata_float(0, 41, R[0], C[8]);
+| outputdata_float(0, 42, R[0], C[8]);
+| outputdata_float(0, 43, R[0], C[8]);
+| outputdata_float(0, 44, R[0], C[8]);
+| outputdata_float(0, 45, R[0], C[8]);
+| outputdata_float(0, 46, R[0], C[8]);
+| outputdata_float(0, 47, R[0], C[8]);
+| outputdata_float(0, 48, R[0], C[8]);
+| outputdata_float(0, 49, R[0], C[8]);
+| outputdata_float(0, 50, R[0], C[8]);
+| outputdata_float(0, 51, R[0], C[8]);
+| outputdata_float(0, 52, R[0], C[8]);
+| outputdata_float(0, 53, R[0], C[8]);
+| outputdata_float(0, 54, R[0], C[8]);
+| outputdata_float(0, 55, R[0], C[8]);
+| outputdata_float(0, 56, R[0], C[8]);
+| outputdata_float(0, 57, R[0], C[8]);
+| outputdata_float(0, 58, R[0], C[8]);
+| outputdata_float(0, 59, R[0], C[8]);
+| outputdata_float(0, 60, R[0], C[8]);
+| outputdata_float(0, 61, R[0], C[8]);
+| outputdata_float(0, 62, R[0], C[8]);
+| outputdata_float(0, 63, R[0], C[8]);
+| outputdata_float(0, 64, R[0], C[8]);
+| outputdata_float(0, 65, R[0], C[8]);
+| outputdata_float(0, 66, R[0], C[8]);
+| outputdata_float(0, 67, R[0], C[8]);
+| outputdata_float(0, 68, R[0], C[8]);
+| outputdata_float(0, 69, R[0], C[8]);
+| outputdata_float(0, 70, R[0], C[8]);
+| outputdata_float(0, 71, R[0], C[8]);
+| outputdata_float(0, 79, R[0], C[8]);
+| outputdata_float(0, 81, R[0], C[8]);
+| outputdata_float(0, 82, R[0], C[8]);
+| outputdata_float(0, 83, R[0], C[8]);
+| outputdata_float(0, 84, R[0], C[8]);
+| outputdata_float(0, 85, R[0], C[8]);
+| outputdata_float(0, 86, R[0], C[8]);
+| outputdata_float(0, 87, R[0], C[8]);
+| outputdata_float(0, 88, R[0], C[8]);
+| outputdata_float(0, 89, R[0], C[8]);
+| outputdata_float(0, 90, R[0], C[8]);
+| outputdata_float(0, 91, R[0], C[8]);
+| outputdata_float(0, 92, R[0], C[8]);
+| outputdata_float(0, 93, R[0], C[8]);
+| outputdata_float(0, 94, R[0], C[8]);
+| outputdata_float(0, 95, R[0], C[8]);
+| outputdata_float(0, 96, R[0], C[8]);
+| outputdata_float(0, 100, R[0], C[8]);
+| outputdata_float(0, 101, R[0], C[8]);
+| outputdata_float(0, 102, R[0], C[8]);
+| outputdata_float(0, 103, R[0], C[8]);
+| outputdata_float(0, 104, R[0], C[8]);
+| outputdata_float(0, 105, R[0], C[8]);
+| outputdata_float(0, 106, R[0], C[8]);
+| outputdata_float(0, 107, R[0], C[8]);
+| outputdata_float(0, 108, R[0], C[8]);
+| outputdata_float(0, 109, R[0], C[8]);
+| outputdata_float(0, 110, R[0], C[8]);
+| outputdata_float(0, 111, R[0], C[8]);
+| outputdata_float(0, 112, R[0], C[8]);
+| outputdata_float(0, 113, R[0], C[8]);
+| outputdata_float(0, 114, R[0], C[8]);
+| outputdata_float(0, 115, R[0], C[8]);
+| outputdata_float(0, 116, R[0], C[8]);
+| outputdata_float(0, 117, R[0], C[8]);
+| outputdata_float(0, 118, R[0], C[8]);
+| outputdata_float(0, 119, R[0], C[8]);
+| outputdata_float(0, 120, R[0], C[8]);
+| outputdata_float(0, 121, R[0], C[8]);
+| outputdata_float(0, 122, R[0], C[8]);
+| outputdata_float(0, 123, R[0], C[8]);
+| outputdata_float(0, 124, R[0], C[8]);
+| outputdata_float(0, 125, R[0], C[8]);
+| outputdata_float(0, 126, R[0], C[8]);
+| outputdata_float(0, 127, R[0], C[8]);
+| outputdata_float(0, 128, R[0], C[8]);
+| outputdata_float(0, 129, R[0], C[8]);
+| outputdata_float(0, 130, R[0], C[8]);
+| outputdata_float(0, 131, R[0], C[8]);
+| outputdata_float(0, 132, R[0], C[8]);
+| outputdata_float(0, 133, R[0], C[8]);
+| outputdata_float(0, 134, R[0], C[8]);
+| outputdata_float(0, 135, R[0], C[8]);
+| outputdata_float(0, 136, R[0], C[8]);
+| outputdata_float(0, 137, R[0], C[8]);
+| outputdata_float(0, 138, R[0], C[8]);
+| outputdata_float(0, 139, R[0], C[8]);
+| outputdata_float(0, 140, R[0], C[8]);
+| outputdata_float(0, 141, R[0], C[8]);
+| outputdata_float(0, 142, R[0], C[8]);
+| outputdata_float(0, 143, R[0], C[8]);
+| outputdata_float(0, 144, R[0], C[8]);
+| outputdata_float(0, 145, R[0], C[8]);
+| outputdata_float(0, 146, R[0], C[8]);
+| outputdata_float(0, 147, R[0], C[8]);
+| outputdata_float(0, 148, R[0], C[8]);
+| outputdata_float(0, 149, R[0], C[8]);
+| outputdata_float(0, 150, R[0], C[8]);
+| outputdata_float(0, 151, R[0], C[8]);
+| outputdata_float(0, 152, R[0], C[8]);
+| outputdata_float(0, 153, R[0], C[8]);
+| outputdata_float(0, 154, R[0], C[8]);
+| outputdata_float(0, 155, R[0], C[8]);
+| outputdata_float(0, 156, R[0], C[8]);
+| outputdata_float(0, 157, R[0], C[8]);
+| outputdata_float(0, 158, R[0], C[8]);
+| outputdata_float(0, 159, R[0], C[8]);
+| outputdata_float(0, 160, R[0], C[8]);
+| outputdata_float(0, 161, R[0], C[8]);
+| outputdata_float(0, 162, R[0], C[8]);
+| outputdata_float(0, 163, R[0], C[8]);
+| outputdata_float(0, 164, R[0], C[8]);
+| outputdata_float(0, 165, R[0], C[8]);
+| outputdata_float(0, 167, R[0], C[8]);
+| outputdata_float(0, 168, R[0], C[8]);
+| outputdata_float(0, 169, R[0], C[8]);
+| outputdata_float(0, 170, R[0], C[8]);
+| outputdata_float(0, 171, R[0], C[8]);
+| outputdata_float(0, 172, R[0], C[8]);
+| outputdata_float(0, 173, R[0], C[8]);
+| outputdata_float(0, 174, R[0], C[8]);
+| outputdata_float(0, 175, R[0], C[8]);
+| outputdata_float(0, 176, R[0], C[8]);
+| outputdata_float(0, 177, R[0], C[8]);
+| outputdata_float(0, 178, R[0], C[8]);
+| outputdata_float(0, 179, R[0], C[8]);
+| outputdata_float(0, 180, R[0], C[8]);
+| outputdata_float(0, 181, R[0], C[8]);
+| outputdata_float(0, 182, R[0], C[8]);
+| outputdata_float(0, 183, R[0], C[8]);
+| outputdata_float(0, 184, R[0], C[8]);
+| outputdata_float(0, 185, R[0], C[8]);
+| outputdata_float(0, 187, R[0], C[8]);
+| outputdata_float(0, 188, R[0], C[8]);
+| outputdata_float(0, 189, R[0], C[8]);
+| outputdata_float(0, 190, R[0], C[8]);
+| outputdata_float(0, 192, R[0], C[8]);
+| outputdata_float(0, 193, R[0], C[8]);
+| outputdata_float(0, 194, R[0], C[8]);
+| outputdata_float(0, 195, R[0], C[8]);
+| outputdata_float(0, 197, R[0], C[8]);
+| outputdata_float(0, 198, R[0], C[8]);
+| outputdata_float(0, 199, R[0], C[8]);
+| outputdata_float(0, 200, R[0], C[8]);
+| outputdata_float(0, 202, R[0], C[8]);
+| outputdata_float(0, 203, R[0], C[8]);
+| outputdata_float(0, 204, R[0], C[8]);
+| outputdata_float(0, 205, R[0], C[8]);
+| outputdata_float(0, 206, R[0], C[8]);
+| outputdata_float(0, 207, R[0], C[8]);
+| outputdata_float(0, 208, R[0], C[8]);
+| outputdata_float(0, 209, R[0], C[8]);
+| outputdata_float(0, 210, R[0], C[8]);
+| outputdata_float(0, 211, R[0], C[8]);
+| outputdata_float(0, 212, R[0], C[8]);
+| outputdata_float(0, 213, R[0], C[8]);
+| outputdata_float(0, 214, R[0], C[8]);
+| outputdata_float(0, 215, R[0], C[8]);
+| outputdata_float(0, 216, R[0], C[8]);
+| outputdata_float(0, 217, R[0], C[8]);
+| outputdata_float(0, 218, R[0], C[8]);
+| outputdata_float(0, 219, R[0], C[8]);
+| outputdata_float(0, 220, R[0], C[8]);
+| outputdata_float(0, 221, R[0], C[8]);
+| outputdata_float(0, 222, R[0], C[8]);
+| outputdata_float(0, 223, R[0], C[8]);
+| outputdata_float(0, 224, R[0], C[8]);
+| outputdata_float(0, 225, R[0], C[8]);
+| outputdata_float(0, 226, R[0], C[8]);
+| outputdata_float(0, 227, R[0], C[8]);
+| outputdata_float(0, 228, R[0], C[8]);
+| outputdata_float(0, 229, R[0], C[8]);
+| outputdata_float(0, 230, R[0], C[8]);
+| outputdata_float(0, 231, R[0], C[8]);
+| outputdata_float(0, 232, R[0], C[8]);
+| outputdata_float(0, 233, R[0], C[8]);
+| outputdata_float(0, 235, R[0], C[8]);
+| outputdata_float(0, 236, R[0], C[8]);
+| outputdata_float(0, 237, R[0], C[8]);
+| outputdata_float(0, 238, R[0], C[8]);
+| outputdata_float(0, 240, R[0], C[8]);
+| outputdata_float(0, 241, R[0], C[8]);
+| outputdata_float(0, 242, R[0], C[8]);
+| outputdata_float(0, 243, R[0], C[8]);
+| outputdata_float(0, 245, R[0], C[8]);
+| outputdata_float(0, 246, R[0], C[8]);
+| outputdata_float(0, 247, R[0], C[8]);
+| outputdata_float(0, 248, R[0], C[8]);
+| outputdata_float(0, 251, R[0], C[8]);
+| outputdata_float(0, 252, R[0], C[8]);
+| outputdata_float(0, 253, R[0], C[8]);
+| outputdata_float(0, 254, R[0], C[8]);
+| outputdata_float(0, 256, R[0], C[8]);
+| outputdata_float(0, 257, R[0], C[8]);
+| outputdata_float(0, 258, R[0], C[8]);
+| outputdata_float(0, 259, R[0], C[8]);
+| outputdata_float(0, 261, R[0], C[8]);
+| outputdata_float(0, 262, R[0], C[8]);
+| outputdata_float(0, 263, R[0], C[8]);
+| outputdata_float(0, 264, R[0], C[8]);
+| outputdata_float(0, 266, R[0], C[8]);
+| outputdata_float(0, 267, R[0], C[8]);
+| outputdata_float(0, 268, R[0], C[8]);
+| outputdata_float(0, 269, R[0], C[8]);
+| outputdata_float(0, 270, R[0], C[8]);
+| outputdata_float(0, 271, R[0], C[8]);
+| outputdata_float(0, 272, R[0], C[8]);
+| outputdata_float(0, 273, R[0], C[8]);
+| outputdata_float(0, 274, R[0], C[8]);
+| outputdata_float(0, 275, R[0], C[8]);
+| outputdata_float(0, 276, R[0], C[8]);
+| outputdata_float(0, 277, R[0], C[8]);
+| outputdata_float(0, 278, R[0], C[8]);
+| outputdata_float(0, 279, R[0], C[8]);
+| outputdata_float(0, 280, R[0], C[8]);
+| outputdata_float(0, 281, R[0], C[8]);
+| outputdata_float(0, 283, R[0], C[8]);
+| outputdata_float(0, 284, R[0], C[8]);
+| outputdata_float(0, 285, R[0], C[8]);
+| outputdata_float(0, 286, R[0], C[8]);
+| outputdata_float(0, 288, R[0], C[8]);
+| outputdata_float(0, 289, R[0], C[8]);
+| outputdata_float(0, 290, R[0], C[8]);
+| outputdata_float(0, 291, R[0], C[8]);
+| outputdata_float(0, 293, R[0], C[8]);
+| outputdata_float(0, 294, R[0], C[8]);
+| outputdata_float(0, 295, R[0], C[8]);
+| outputdata_float(0, 296, R[0], C[8]);
+| outputdata_float(0, 298, R[0], C[8]);
+| outputdata_float(0, 299, R[0], C[8]);
+| outputdata_int32(0, 13, R[0], O[100]);
+| external_func_call(C[5]O[89], O[90], O[100]);
+| outputdata_float(0, 12, R[0], O[97]);
+| outputdata_int32(0, 6, R[0], C[5]);
+| outputdata_int32(0, 10, R[0], C[5]);
+| O[99] = i2f(O[89]);
+| O[93] = i2f(O[90]);
+| O[97] = i2f(O[100]);
+| O[95] = f2i(O[99]);
+| O[117] = f2i(O[93]);
+| O[0] = f2i(O[97]);
+| external_func_call(C[2], O[95], O[117], O[0]R[65535]);
+| O[99] = div(O[329], O[99]);
+| outputdata_float(0, 76, R[0], O[329]);
+| outputdata_float(0, 97, R[0], O[329]);
+| outputdata_float(0, 300, R[0], O[329]);
+| outputdata_int32(0, 0, R[0], C[7]);
+| O[93] = div(O[330], O[93]);
+| outputdata_float(0, 74, R[0], O[93]);
+| outputdata_float(0, 77, R[0], O[330]);
+| outputdata_float(0, 98, R[0], O[330]);
+| outputdata_float(0, 301, R[0], O[330]);
+| outputdata_int32(0, 1, R[0], C[0]);
+| outputdata_int32(0, 2, R[0], C[0]);
+| outputdata_int32(0, 3, R[0], C[0]);
+| outputdata_int32(0, 4, R[0], C[0]);
+| outputdata_int32(0, 5, R[0], C[0]);
+| outputdata_int32(0, 7, R[0], C[0]);
+| outputdata_int32(0, 8, R[0], C[0]);
+| outputdata_int32(0, 14, R[0], C[0]);
+| outputdata_int32(0, 20, R[0], C[0]);
+| outputdata_int32(0, 21, R[0], C[0]);
+| outputdata_int32(0, 22, R[0], C[0]);
+| outputdata_int32(0, 23, R[0], C[0]);
+| outputdata_int32(0, 24, R[0], C[0]);
+| outputdata_int32(0, 26, R[0], C[0]);
+| outputdata_int32(0, 27, R[0], C[0]);
+| outputdata_int32(0, 28, R[0], C[0]);
+| O[97] = div(O[331], O[97]);
+| outputdata_float(0, 75, R[0], O[97]);
+| O[97] = addi(C[1], C[2]);
+| O[97] = i2f_mul(O[97], O[99]);
+| outputdata_float(0, 72, R[0], O[99]);
+| outputdata_float(0, 73, R[0], O[99]);
+| outputdata_float(0, 80, R[0], O[99]);
+| external_func_call(C[2], O[97]R[65535]);
+| outputdata_int32(0, 12, R[0], O[24]);
+| external_func_call(C[1], O[89], O[90], O[100]R[65535]);
+| outputdata_float(0, 78, R[0], O[331]);
+| outputdata_float(0, 99, R[0], O[331]);
+| outputdata_float(0, 302, R[0], O[331]);
+| outputdata_int32(0, 9, R[0], C[1]);
+| outputdata_int32(0, 15, R[0], C[1]);
+| outputdata_int32(0, 17, R[0], O[90]);
+| outputdata_int32(0, 18, R[0], O[100]);
+| external_func_call(C[6]O[100]);
+| outputdata_int32(0, 16, R[0], O[89]);
+| outputdata_int32(0, 19, R[0], O[100]);
+| done();
+| O[14] = inputdata_float();
+| O[26] = inputdata_float();
+| O[10] = inputdata_int32();
+| O[1] = inputdata_int32();
+| O[12] = inputdata_int32();
+| O[11] = inputdata_float();
+| O[4] = inputdata_float();
+| O[18] = inputdata_float();
+| O[19] = inputdata_int32();
+| O[186] = inputdata_float();
+| O[276] = inputdata_float();
+| O[275] = inputdata_int32();
+| O[274] = inputdata_int32();
+| O[268] = inputdata_int32();
+| O[267] = inputdata_int32();
+| O[266] = inputdata_int32();
+| O[101] = inputdata_int32();
+| O[262] = inputdata_int32();
+| O[102] = inputdata_float();
+| O[263] = inputdata_float();
+| O[103] = inputdata_float();
+| O[264] = inputdata_float();
+| O[105] = inputdata_float();
+| O[21] = inputdata_float();
+| O[183] = inputdata_float();
+| O[104] = inputdata_float();
+| O[302] = inputdata_float();
+| O[301] = inputdata_float();
+| O[300] = inputdata_float();
+| O[299] = inputdata_float();
+| O[298] = inputdata_float();
+| O[297] = inputdata_float();
+| O[296] = inputdata_float();
+| O[295] = inputdata_int32();
+| O[294] = inputdata_int32();
+| O[193] = inputdata_int32();
+| O[192] = inputdata_int32();
+| O[191] = inputdata_float();
+| O[56] = inputdata_float();
+| O[243] = inputdata_float();
+| O[55] = inputdata_float();
+| O[71] = inputdata_float();
+| O[242] = inputdata_float();
+| O[54] = inputdata_float();
+| O[70] = inputdata_int32();
+| O[235] = inputdata_float();
+| O[234] = inputdata_float();
+| O[320] = inputdata_float();
+| O[319] = inputdata_float();
+| O[318] = inputdata_int32();
+| O[160] = inputdata_int32();
+| O[317] = inputdata_float();
+| O[316] = inputdata_float();
+| O[315] = inputdata_float();
+| O[314] = inputdata_int32();
+| O[156] = inputdata_int32();
+| O[313] = inputdata_int32();
+| O[312] = inputdata_float();
+| O[311] = inputdata_int32();
+| O[310] = inputdata_float();
+| O[152] = inputdata_int32();
+| O[153] = inputdata_float();
+| O[154] = inputdata_float();
+| R[64] = inputdata_float();
+| R[65] = inputdata_float();
+| R[66] = inputdata_float();
+| R[67] = inputdata_float();
+| R[68] = inputdata_float();
+| R[69] = inputdata_float();
+| R[70] = inputdata_float();
+| R[71] = inputdata_float();
+| R[72] = inputdata_float();
+| R[73] = inputdata_float();
+| R[74] = inputdata_float();
+| R[75] = inputdata_float();
+| R[76] = inputdata_float();
+| R[77] = inputdata_float();
+| R[78] = inputdata_float();
+| R[79] = inputdata_float();
+| R[80] = inputdata_int32();
+| R[81] = inputdata_int32();
+| R[82] = inputdata_float();
+| R[83] = inputdata_int32();
+| R[84] = inputdata_float();
+| R[85] = inputdata_float();
+| R[86] = inputdata_float();
+| R[0] = acquireindex(C[15]);
+| O[10] = cmpeq_select(I[34], C[0], C[1], I[36]);
+| O[26] = add(C[2], I[37]);
+| O[14] = div_f2i(O[26], O[10]);
+| O[14] = maxi(O[14], C[3]);
+| O[1] = i2f_mul(O[14], O[10]);
+| O[26] = sub(O[26], O[1]);
+| O[1] = addi(O[14], I[58]);
+| outputdata_int32(0, 22, R[0], O[1]);
+| outputdata_int32(0, 28, R[0], O[1]);
+| O[1] = add(I[34], C[2]);
+| outputdata_float(0, 148, R[0], O[1]);
+| outputdata_float(0, 157, R[0], O[1]);
+| O[14] = cmpgti(O[14], C[3]);
+| O[10] = select(O[14], O[10], O[10]);
+| O[26] = select(O[14], O[26], O[26]);
+| O[14] = div(O[26], O[10]);
+| outputdata_float(0, 150, R[0], O[10]);
+| outputdata_float(0, 153, R[0], O[14]);
+| outputdata_float(0, 159, R[0], O[10]);
+| outputdata_float(0, 299, R[0], O[14]);
+| O[14] = cmplei(I[57], C[3]);
+| O[1] = select(O[14], C[3], I[56]);
+| O[10] = select(O[14], C[3], I[57]);
+| O[14] = cmpneqi(I[83], C[3]);
+| O[14] = cmplei_logic_and(O[10], C[4], O[14]);
+| O[186] = select(O[14], I[83], O[1]);
+| O[12] = select(O[14], C[4], O[10]);
+| O[14] = add(I[68], I[68]);
+| O[19] = add(I[69], I[69]);
+| O[11] = add(I[70], I[70]);
+| O[10] = mul(I[69], O[19]);
+| O[1] = mul(I[69], O[11]);
+| O[18] = mul(I[70], O[11]);
+| O[4] = mul(I[71], O[19]);
+| O[276] = mul(I[71], O[11]);
+| O[294] = mad_sub1(I[69], O[19], O[18], C[5]);
+| O[234] = mul_sub0(I[68], O[19], O[276]);
+| O[242] = mad(I[68], O[11], O[4]);
+| O[298] = mad(I[68], O[19], O[276]);
+| O[54] = mad_sub1(I[68], O[14], O[18], C[5]);
+| O[243] = mul_sub1(I[71], O[14], O[1]);
+| O[302] = mul_sub0(I[68], O[11], O[4]);
+| O[193] = mad(I[71], O[14], O[1]);
+| O[14] = mul_add(I[68], O[14], O[10]);
+| O[192] = sub(C[5], O[14]);
+| O[264] = mul(I[81], I[74]);
+| O[297] = mul(C[6], O[264]);
+| O[301] = mul(I[79], I[72]);
+| O[276] = mul_mad1(C[7], O[301], C[7], C[0]);
+| O[21] = mul(I[80], I[73]);
+| O[1] = mul_mad1(C[7], C[0], C[7], O[21]);
+| O[10] = mul_mad1(C[7], C[0], C[7], C[0]);
+| O[14] = mul_mad1(C[7], C[0], C[7], C[0]);
+| O[14] = mad_add(C[7], C[0], O[14], C[5]);
+| O[11] = mad_add(C[7], C[0], O[1], C[0]);
+| O[1] = mad_add(C[7], O[264], O[10], C[0]);
+| O[14] = add(O[14], C[0]);
+| O[4] = mad(C[0], C[0], O[301]);
+| O[19] = add_mad1(C[0], C[0], C[0], C[0]);
+| O[10] = add_mad1(C[0], C[0], C[0], O[297]);
+| O[275] = add_mad1(O[21], C[0], C[0], C[0]);
+| O[266] = add_mad1(C[0], C[0], C[0], O[297]);
+| O[18] = add_mad1(C[0], C[0], C[0], C[0]);
+| O[101] = add_mad1(O[264], C[0], C[0], O[297]);
+| O[104] = mad_mad0(C[7], C[0], O[276], O[14], C[0]);
+| O[300] = add_mad1(O[11], C[0], O[14], C[0]);
+| O[276] = add_mad1(O[1], C[0], O[14], O[297]);
+| O[183] = mul_mad1(O[4], O[294], O[19], O[234]);
+| O[1] = mul_mad1(O[4], O[298], O[19], O[54]);
+| O[11] = mul_mad1(O[4], O[302], O[19], O[193]);
+| O[4] = mul_mad1(O[4], C[0], O[19], C[0]);
+| O[19] = mad(C[0], C[5], C[0]);
+| O[19] = mad_add(O[10], C[0], O[4], O[19]);
+| O[4] = mad(C[0], C[0], C[0]);
+| O[105] = mul_mad1(O[4], O[294], O[275], O[234]);
+| O[267] = mul_mad1(O[4], O[298], O[275], O[54]);
+| O[268] = mul_mad1(O[4], O[302], O[275], O[193]);
+| O[4] = mul_mad1(O[4], C[0], O[275], C[0]);
+| O[275] = mad(C[0], C[5], C[0]);
+| O[263] = mad_add(O[266], C[0], O[4], O[275]);
+| O[103] = mul_mad1(O[4], O[294], O[18], O[234]);
+| O[262] = mul_mad1(O[4], O[298], O[18], O[54]);
+| O[102] = mul_mad1(O[4], O[302], O[18], O[193]);
+| O[4] = mul_mad1(O[4], C[0], O[18], C[0]);
+| O[18] = mad(C[0], C[5], C[0]);
+| O[274] = mad_add(O[101], C[0], O[4], O[18]);
+| O[275] = mul_mad1(O[104], O[294], O[300], O[234]);
+| O[18] = mul_mad1(O[104], O[298], O[300], O[54]);
+| O[4] = mul_mad1(O[104], O[302], O[300], O[193]);
+| O[104] = mul_mad1(O[104], C[0], O[300], C[0]);
+| O[104] = mad(O[276], C[0], O[104]);
+| O[14] = mad_add(O[14], C[5], C[0], O[104]);
+| O[1] = mad_add(O[10], O[243], O[1], C[0]);
+| O[11] = mad_add(O[10], O[192], O[11], C[0]);
+| O[70] = mad(I[61], I[64], I[65]);
+| O[10] = mad_mad0(O[10], O[242], O[183], O[19], O[70]);
+| O[71] = mad(I[62], I[64], I[66]);
+| O[1] = mad(O[19], O[71], O[1]);
+| O[56] = mad(I[63], I[64], I[67]);
+| O[11] = mad(O[19], O[56], O[11]);
+| O[19] = mad(O[19], C[5], C[0]);
+| O[267] = mad_add(O[266], O[243], O[267], C[0]);
+| O[268] = mad_add(O[266], O[192], O[268], C[0]);
+| O[266] = mad_mad0(O[266], O[242], O[105], O[263], O[70]);
+| O[267] = mad(O[263], O[71], O[267]);
+| O[268] = mad(O[263], O[56], O[268]);
+| O[263] = mad(O[263], C[5], C[0]);
+| O[262] = mad_add(O[101], O[243], O[262], C[0]);
+| O[102] = mad_add(O[101], O[192], O[102], C[0]);
+| O[101] = mad_mad0(O[101], O[242], O[103], O[274], O[70]);
+| O[262] = mad(O[274], O[71], O[262]);
+| O[102] = mad(O[274], O[56], O[102]);
+| O[103] = mad(O[274], C[5], C[0]);
+| O[18] = mad_add(O[276], O[243], O[18], C[0]);
+| O[4] = mad_add(O[276], O[192], O[4], C[0]);
+| O[274] = mad_mad0(O[276], O[242], O[275], O[14], O[70]);
+| O[275] = mad(O[14], O[71], O[18]);
+| O[276] = mad(O[14], O[56], O[4]);
+| O[14] = mad(O[14], C[5], C[0]);
+| outputdata_float(0, 96, R[0], O[14]);
+| outputdata_float(0, 249, R[0], O[14]);
+| O[14] = neg(O[70]);
+| O[296] = neg(O[71]);
+| O[105] = neg(O[56]);
+| O[191] = rcp(O[301]);
+| O[299] = rcp(O[21]);
+| O[300] = rcp(O[264]);
+| O[4] = neg(O[297]);
+| O[18] = mul_mad1(O[14], O[294], O[296], O[298]);
+| O[104] = mul_mad1(O[14], O[234], O[296], O[54]);
+| O[183] = mul_mad1(O[14], O[242], O[296], O[243]);
+| O[295] = mul_mad1(O[14], C[0], O[296], C[0]);
+| O[319] = mad_add(O[105], C[0], O[295], C[5]);
+| O[160] = mad_add(O[105], O[193], O[104], C[0]);
+| O[295] = mad_add(O[105], O[192], O[183], C[0]);
+| O[104] = neg(C[0]);
+| O[183] = mad_mad0(O[105], O[302], O[18], O[319], O[104]);
+| O[18] = neg(C[0]);
+| O[320] = add_add(O[234], C[0], C[0]);
+| O[310] = add_add(O[242], C[0], C[0]);
+| O[235] = add_add(O[54], C[0], C[0]);
+| O[314] = add_add(O[243], C[0], C[0]);
+| O[55] = add_add(O[193], C[0], C[0]);
+| O[318] = add_add(O[192], C[0], C[0]);
+| O[154] = mad_add(O[319], O[18], O[160], C[0]);
+| O[295] = mad_add(O[319], O[4], O[295], C[0]);
+| O[153] = mad_add(O[319], C[5], C[0], C[0]);
+| O[152] = mul_mad1(O[294], O[191], O[320], C[0]);
+| O[311] = mul_mad1(O[294], C[0], O[320], O[299]);
+| O[312] = mul_mad1(O[294], C[0], O[320], C[0]);
+| O[320] = mul_mad1(O[294], C[0], O[320], C[0]);
+| O[319] = add(C[0], C[0]);
+| O[313] = mad_add(O[310], C[0], O[320], O[319]);
+| O[156] = mul_mad1(O[298], O[191], O[235], C[0]);
+| O[315] = mul_mad1(O[298], C[0], O[235], O[299]);
+| O[316] = mul_mad1(O[298], C[0], O[235], C[0]);
+| O[235] = mul_mad1(O[298], C[0], O[235], C[0]);
+| O[320] = add(C[0], C[0]);
+| O[317] = mad_add(O[314], C[0], O[235], O[320]);
+| O[160] = mul_mad1(O[302], O[191], O[55], C[0]);
+| O[319] = mul_mad1(O[302], C[0], O[55], O[299]);
+| O[320] = mul_mad1(O[302], C[0], O[55], C[0]);
+| O[55] = mul_mad1(O[302], C[0], O[55], C[0]);
+| O[235] = add(C[0], C[0]);
+| O[235] = mad_add(O[318], C[0], O[55], O[235]);
+| O[191] = mul_mad1(O[183], O[191], O[154], C[0]);
+| O[299] = mul_mad1(O[183], C[0], O[154], O[299]);
+| O[55] = mul_mad1(O[183], C[0], O[154], C[0]);
+| O[183] = mul_mad1(O[183], C[0], O[154], C[0]);
+| O[183] = mad_add(O[295], C[0], O[183], O[153]);
+| O[311] = mad_add(O[310], C[0], O[311], C[0]);
+| O[312] = mad_add(O[310], O[300], O[312], C[0]);
+| O[310] = mad_mad0(O[310], C[0], O[152], O[313], C[6]);
+| outputdata_float(0, 132, R[0], O[310]);
+| outputdata_float(0, 282, R[0], O[310]);
+| O[311] = mad(O[313], C[6], O[311]);
+| outputdata_float(0, 133, R[0], O[311]);
+| outputdata_float(0, 283, R[0], O[311]);
+| O[312] = mad(O[313], C[6], O[312]);
+| outputdata_float(0, 134, R[0], O[312]);
+| outputdata_float(0, 284, R[0], O[312]);
+| O[313] = add(O[313], C[0]);
+| outputdata_float(0, 135, R[0], O[313]);
+| outputdata_float(0, 285, R[0], O[313]);
+| O[315] = mad_add(O[314], C[0], O[315], C[0]);
+| O[316] = mad_add(O[314], O[300], O[316], C[0]);
+| O[314] = mad_mad0(O[314], C[0], O[156], O[317], C[6]);
+| outputdata_float(0, 136, R[0], O[314]);
+| outputdata_float(0, 286, R[0], O[314]);
+| O[315] = mad(O[317], C[6], O[315]);
+| outputdata_float(0, 137, R[0], O[315]);
+| outputdata_float(0, 287, R[0], O[315]);
+| O[316] = mad(O[317], C[6], O[316]);
+| outputdata_float(0, 138, R[0], O[316]);
+| outputdata_float(0, 288, R[0], O[316]);
+| O[317] = add(O[317], C[0]);
+| outputdata_float(0, 139, R[0], O[317]);
+| outputdata_float(0, 289, R[0], O[317]);
+| O[319] = mad_add(O[318], C[0], O[319], C[0]);
+| O[320] = mad_add(O[318], O[300], O[320], C[0]);
+| O[318] = mad_mad0(O[318], C[0], O[160], O[235], C[6]);
+| outputdata_float(0, 140, R[0], O[318]);
+| outputdata_float(0, 290, R[0], O[318]);
+| O[319] = mad(O[235], C[6], O[319]);
+| outputdata_float(0, 141, R[0], O[319]);
+| outputdata_float(0, 291, R[0], O[319]);
+| O[320] = mad(O[235], C[6], O[320]);
+| outputdata_float(0, 142, R[0], O[320]);
+| outputdata_float(0, 292, R[0], O[320]);
+| O[235] = add(O[235], C[0]);
+| outputdata_float(0, 143, R[0], O[235]);
+| outputdata_float(0, 293, R[0], O[235]);
+| O[299] = mad_add(O[295], C[0], O[299], C[0]);
+| O[300] = mad_add(O[295], O[300], O[55], C[0]);
+| O[295] = mad_mad0(O[295], C[0], O[191], O[183], C[6]);
+| outputdata_float(0, 144, R[0], O[295]);
+| outputdata_float(0, 294, R[0], O[295]);
+| O[299] = mad(O[183], C[6], O[299]);
+| outputdata_float(0, 145, R[0], O[299]);
+| outputdata_float(0, 295, R[0], O[299]);
+| O[300] = mad(O[183], C[6], O[300]);
+| outputdata_float(0, 146, R[0], O[300]);
+| outputdata_float(0, 296, R[0], O[300]);
+| O[183] = add(O[183], C[0]);
+| outputdata_float(0, 147, R[0], O[183]);
+| outputdata_float(0, 297, R[0], O[183]);
+| O[183] = mul_mad1(O[14], O[294], O[296], O[298]);
+| O[299] = mul_mad1(O[14], O[234], O[296], O[54]);
+| O[300] = mul_mad1(O[14], O[242], O[296], O[243]);
+| O[14] = mul_mad1(O[14], C[0], O[296], C[0]);
+| O[14] = mad_add(O[105], C[0], O[14], C[5]);
+| O[55] = mad_add(O[105], O[193], O[299], C[0]);
+| O[191] = mad_add(O[105], O[192], O[300], C[0]);
+| O[105] = mad_mad0(O[105], O[302], O[183], O[14], O[104]);
+| O[295] = add_add(O[234], C[0], C[0]);
+| O[296] = add_add(O[242], C[0], C[0]);
+| O[299] = add_add(O[54], C[0], C[0]);
+| O[300] = add_add(O[243], C[0], C[0]);
+| O[104] = add_add(O[193], C[0], C[0]);
+| O[183] = add_add(O[192], C[0], C[0]);
+| O[18] = mad_add(O[14], O[18], O[55], C[0]);
+| O[4] = mad_add(O[14], O[4], O[191], C[0]);
+| O[14] = mad_add(O[14], C[5], C[0], C[0]);
+| O[55] = add(O[298], C[0]);
+| O[191] = add(O[302], C[0]);
+| O[235] = add(O[54], C[0]);
+| O[193] = add(O[193], C[0]);
+| O[243] = add(O[243], C[0]);
+| O[192] = add(O[192], C[0]);
+| outputdata_float(0, 29, R[0], O[55]);
+| outputdata_float(0, 45, R[0], O[55]);
+| outputdata_float(0, 187, R[0], O[55]);
+| outputdata_float(0, 203, R[0], O[55]);
+| outputdata_float(0, 30, R[0], O[191]);
+| outputdata_float(0, 46, R[0], O[191]);
+| outputdata_float(0, 188, R[0], O[191]);
+| outputdata_float(0, 204, R[0], O[191]);
+| O[54] = mul_mad1(C[0], O[294], C[0], O[234]);
+| outputdata_float(0, 32, R[0], O[234]);
+| outputdata_float(0, 48, R[0], O[234]);
+| outputdata_float(0, 190, R[0], O[234]);
+| outputdata_float(0, 206, R[0], O[234]);
+| O[55] = mul_mad1(C[0], O[55], C[0], O[235]);
+| outputdata_float(0, 33, R[0], O[235]);
+| outputdata_float(0, 49, R[0], O[235]);
+| outputdata_float(0, 191, R[0], O[235]);
+| outputdata_float(0, 207, R[0], O[235]);
+| O[191] = mul_mad1(C[0], O[191], C[0], O[193]);
+| outputdata_float(0, 34, R[0], O[193]);
+| outputdata_float(0, 50, R[0], O[193]);
+| outputdata_float(0, 192, R[0], O[193]);
+| outputdata_float(0, 208, R[0], O[193]);
+| O[193] = mul_mad1(C[0], C[0], C[0], C[0]);
+| outputdata_float(0, 36, R[0], O[242]);
+| outputdata_float(0, 52, R[0], O[242]);
+| outputdata_float(0, 194, R[0], O[242]);
+| outputdata_float(0, 210, R[0], O[242]);
+| outputdata_float(0, 37, R[0], O[243]);
+| outputdata_float(0, 53, R[0], O[243]);
+| outputdata_float(0, 195, R[0], O[243]);
+| outputdata_float(0, 211, R[0], O[243]);
+| outputdata_float(0, 38, R[0], O[192]);
+| outputdata_float(0, 54, R[0], O[192]);
+| outputdata_float(0, 196, R[0], O[192]);
+| outputdata_float(0, 212, R[0], O[192]);
+| O[242] = mad_add(O[297], O[242], O[54], O[70]);
+| outputdata_float(0, 40, R[0], O[242]);
+| outputdata_float(0, 56, R[0], O[242]);
+| outputdata_float(0, 198, R[0], O[242]);
+| outputdata_float(0, 214, R[0], O[242]);
+| O[243] = mad_add(O[297], O[243], O[55], O[71]);
+| outputdata_float(0, 41, R[0], O[243]);
+| outputdata_float(0, 57, R[0], O[243]);
+| outputdata_float(0, 199, R[0], O[243]);
+| outputdata_float(0, 215, R[0], O[243]);
+| O[192] = mad_add(O[297], O[192], O[191], O[56]);
+| outputdata_float(0, 42, R[0], O[192]);
+| outputdata_float(0, 58, R[0], O[192]);
+| outputdata_float(0, 200, R[0], O[192]);
+| outputdata_float(0, 216, R[0], O[192]);
+| O[297] = mad_add(O[297], C[0], O[193], C[5]);
+| outputdata_float(0, 43, R[0], O[297]);
+| outputdata_float(0, 59, R[0], O[297]);
+| outputdata_float(0, 201, R[0], O[297]);
+| outputdata_float(0, 217, R[0], O[297]);
+| O[191] = mul_mad1(C[7], O[301], C[7], C[0]);
+| O[192] = mul_mad1(C[7], C[0], C[7], O[21]);
+| O[193] = mul_mad1(C[7], C[0], C[7], C[0]);
+| O[297] = mul_mad1(C[7], C[0], C[7], C[0]);
+| O[191] = mad(C[7], C[0], O[191]);
+| outputdata_float(0, 230, R[0], O[191]);
+| O[192] = mad(C[7], C[0], O[192]);
+| outputdata_float(0, 231, R[0], O[192]);
+| O[193] = mad(C[7], O[264], O[193]);
+| outputdata_float(0, 232, R[0], O[193]);
+| O[297] = mad_add(C[7], C[0], O[297], C[5]);
+| outputdata_float(0, 233, R[0], O[297]);
+| O[297] = rcp(O[301]);
+| outputdata_float(0, 170, R[0], O[297]);
+| outputdata_float(0, 218, R[0], O[301]);
+| outputdata_float(0, 300, R[0], O[301]);
+| O[301] = rcp(O[21]);
+| outputdata_float(0, 175, R[0], O[301]);
+| outputdata_float(0, 223, R[0], O[21]);
+| outputdata_float(0, 301, R[0], O[21]);
+| O[21] = rcp(O[264]);
+| outputdata_float(0, 180, R[0], O[21]);
+| outputdata_float(0, 228, R[0], O[264]);
+| outputdata_float(0, 302, R[0], O[264]);
+| O[301] = add(C[0], C[0]);
+| O[297] = add(C[0], C[0]);
+| O[21] = add(C[0], C[0]);
+| external_func_call(O[294], O[295], O[296], O[297], O[298], O[299], O[300], O[301], O[302], O[104], O[183], O[21], O[105], O[18], O[4], O[14]O[191], O[192], O[193], O[264]);
+| outputdata_float(0, 21, R[0], O[191]);
+| outputdata_float(0, 22, R[0], O[192]);
+| outputdata_float(0, 23, R[0], O[193]);
+| outputdata_float(0, 28, R[0], O[294]);
+| outputdata_float(0, 44, R[0], O[294]);
+| outputdata_float(0, 100, R[0], O[294]);
+| outputdata_float(0, 101, R[0], O[295]);
+| outputdata_float(0, 102, R[0], O[296]);
+| outputdata_float(0, 103, R[0], O[297]);
+| outputdata_float(0, 104, R[0], O[298]);
+| outputdata_float(0, 105, R[0], O[299]);
+| outputdata_float(0, 106, R[0], O[300]);
+| outputdata_float(0, 107, R[0], O[301]);
+| outputdata_float(0, 108, R[0], O[302]);
+| outputdata_float(0, 109, R[0], O[104]);
+| outputdata_float(0, 110, R[0], O[183]);
+| outputdata_float(0, 111, R[0], O[21]);
+| outputdata_float(0, 112, R[0], O[105]);
+| outputdata_float(0, 113, R[0], O[18]);
+| outputdata_float(0, 114, R[0], O[4]);
+| outputdata_float(0, 115, R[0], O[14]);
+| outputdata_float(0, 116, R[0], O[294]);
+| outputdata_float(0, 117, R[0], O[295]);
+| outputdata_float(0, 118, R[0], O[296]);
+| outputdata_float(0, 119, R[0], O[297]);
+| outputdata_float(0, 120, R[0], O[298]);
+| outputdata_float(0, 121, R[0], O[299]);
+| outputdata_float(0, 122, R[0], O[300]);
+| outputdata_float(0, 123, R[0], O[301]);
+| outputdata_float(0, 124, R[0], O[302]);
+| outputdata_float(0, 125, R[0], O[104]);
+| outputdata_float(0, 126, R[0], O[183]);
+| outputdata_float(0, 127, R[0], O[21]);
+| outputdata_float(0, 128, R[0], O[105]);
+| outputdata_float(0, 129, R[0], O[18]);
+| outputdata_float(0, 130, R[0], O[4]);
+| outputdata_float(0, 131, R[0], O[14]);
+| outputdata_float(0, 163, R[0], O[191]);
+| outputdata_float(0, 164, R[0], O[192]);
+| outputdata_float(0, 165, R[0], O[193]);
+| outputdata_float(0, 186, R[0], O[294]);
+| outputdata_float(0, 202, R[0], O[294]);
+| outputdata_float(0, 250, R[0], O[294]);
+| outputdata_float(0, 251, R[0], O[295]);
+| outputdata_float(0, 252, R[0], O[296]);
+| outputdata_float(0, 253, R[0], O[297]);
+| outputdata_float(0, 254, R[0], O[298]);
+| outputdata_float(0, 255, R[0], O[299]);
+| outputdata_float(0, 256, R[0], O[300]);
+| outputdata_float(0, 257, R[0], O[301]);
+| outputdata_float(0, 258, R[0], O[302]);
+| outputdata_float(0, 259, R[0], O[104]);
+| outputdata_float(0, 260, R[0], O[183]);
+| outputdata_float(0, 261, R[0], O[21]);
+| outputdata_float(0, 262, R[0], O[105]);
+| outputdata_float(0, 263, R[0], O[18]);
+| outputdata_float(0, 264, R[0], O[4]);
+| outputdata_float(0, 265, R[0], O[14]);
+| outputdata_float(0, 266, R[0], O[294]);
+| outputdata_float(0, 267, R[0], O[295]);
+| outputdata_float(0, 268, R[0], O[296]);
+| outputdata_float(0, 269, R[0], O[297]);
+| outputdata_float(0, 270, R[0], O[298]);
+| outputdata_float(0, 271, R[0], O[299]);
+| outputdata_float(0, 272, R[0], O[300]);
+| outputdata_float(0, 273, R[0], O[301]);
+| outputdata_float(0, 274, R[0], O[302]);
+| outputdata_float(0, 275, R[0], O[104]);
+| outputdata_float(0, 276, R[0], O[183]);
+| outputdata_float(0, 277, R[0], O[21]);
+| outputdata_float(0, 278, R[0], O[105]);
+| outputdata_float(0, 279, R[0], O[18]);
+| outputdata_float(0, 280, R[0], O[4]);
+| outputdata_float(0, 281, R[0], O[14]);
+| O[18] = mul_mad1(O[10], C[6], O[266], C[6]);
+| O[4] = mul_mad1(O[1], C[6], O[267], C[6]);
+| O[14] = mul_mad1(O[11], C[6], O[268], C[6]);
+| O[18] = mad_add(O[101], C[6], O[18], O[274]);
+| O[4] = mad_add(O[262], C[6], O[4], O[275]);
+| O[14] = mad_add(O[102], C[6], O[14], O[276]);
+| O[264] = mul(O[264], C[8]);
+| outputdata_float(0, 24, R[0], O[264]);
+| outputdata_float(0, 166, R[0], O[264]);
+| O[18] = mad(I[61], I[64], O[18]);
+| outputdata_float(0, 18, R[0], O[18]);
+| outputdata_float(0, 160, R[0], O[18]);
+| O[4] = mad(I[62], I[64], O[4]);
+| outputdata_float(0, 19, R[0], O[4]);
+| outputdata_float(0, 161, R[0], O[4]);
+| O[14] = mad(I[63], I[64], O[14]);
+| outputdata_float(0, 20, R[0], O[14]);
+| outputdata_float(0, 162, R[0], O[14]);
+| O[14] = clamp(I[60], C[0], C[9]);
+| outputdata_float(0, 154, R[0], O[14]);
+| O[14] = cmpneqi(I[54], C[10]);
+| O[14] = cmpnei_logic_and(I[54], C[11], O[14]);
+| O[14] = cmpeqi_logic_and(O[12], C[3], O[14]);
+| O[14] = cmplei_logic_and(I[55], O[12], O[14]);
+| O[4] = cmpeqi(I[54], C[12]);
+| O[4] = cmpeqi_logic_or(I[54], C[4], O[4]);
+| O[4] = cmpeqi_logic_and(O[186], C[4], O[4]);
+| O[4] = b2i(O[4]);
+| O[4] = cmpeqi_select(O[4], C[3], O[186], C[12]);
+| O[18] = select(O[14], O[4], I[54]);
+| O[4] = select(O[14], O[12], I[55]);
+| O[14] = cmpneqi(O[12], C[3]);
+| O[14] = cmpnei_logic_and(O[186], C[3], O[14]);
+| O[264] = cmpneqi(O[18], C[11]);
+| O[264] = cmpnei_logic_and(O[18], C[10], O[264]);
+| O[14] = logic_and(O[14], O[264]);
+| O[14] = cmplei_logic_and(O[4], C[12], O[14]);
+| O[18] = select(O[14], C[12], O[18]);
+| O[4] = select(O[14], C[12], O[4]);
+| O[14] = cmpeqi(O[12], C[4]);
+| O[14] = cmpeqi(I[85], C[3]);
+| O[14] = cmpnei_logic_and(O[18], C[3], O[14]);
+| O[14] = cmpnei_logic_and(O[4], C[3], O[14]);
+| O[14] = cmplei_logic_and(O[4], C[10], O[14]);
+| O[18] = select(O[14], C[10], O[18]);
+| outputdata_int32(0, 20, R[0], O[18]);
+| O[14] = select(O[14], C[10], O[4]);
+| outputdata_int32(0, 6, R[0], I[41]);
+| outputdata_int32(0, 21, R[0], O[14]);
+| O[14] = mul(I[76], C[2]);
+| O[4] = mul(I[75], C[2]);
+| O[4] = mul_mad1(O[14], O[14], O[4], O[4]);
+| O[14] = mul(I[77], C[2]);
+| O[14] = mad_sqrt(O[14], O[14], O[4]);
+| O[14] = fmod_add(I[33], C[13], O[14]);
+| outputdata_float(0, 151, R[0], O[14]);
+| O[14] = sub_neg(O[26], C[2]);
+| outputdata_float(0, 155, R[0], O[14]);
+| outputdata_float(0, 152, R[0], O[26]);
+| outputdata_float(0, 298, R[0], O[26]);
+| O[26] = neg_cmplt(O[26], C[0]);
+| O[14] = cmpge_logic_and(O[14], C[0], O[26]);
+| O[26] = f2i_maxi(I[78], C[12]);
+| O[14] = b2i(O[14]);
+| O[14] = cmpeqi_select(O[14], C[3], C[3], O[26]);
+| outputdata_int32(0, 23, R[0], O[14]);
+| O[14] = cmpeq_select(I[5], C[0], C[14], I[6]);
+| outputdata_float(0, 10, R[0], O[14]);
+| O[14] = add(I[5], C[2]);
+| outputdata_float(0, 9, R[0], O[14]);
+| outputdata_float(0, 79, R[0], O[14]);
+| O[14] = cmpneqi(I[42], C[10]);
+| O[14] = cmpnei_logic_and(I[42], C[11], O[14]);
+| O[26] = cmplei_logic_and(I[43], O[12], O[14]);
+| O[14] = cmpeqi(I[42], C[12]);
+| O[14] = cmpeqi_logic_or(I[42], C[4], O[14]);
+| O[14] = cmpeqi_logic_and(O[186], C[4], O[14]);
+| O[14] = cmpeqi_select(O[14], C[3], O[186], C[12]);
+| O[14] = select(O[26], O[14], I[42]);
+| O[4] = select(O[26], O[12], I[43]);
+| O[26] = cmpeqi(O[12], C[4]);
+| O[26] = cmpnei_logic_and(O[186], C[3], O[26]);
+| O[18] = cmpneqi(O[14], C[11]);
+| O[18] = cmpnei_logic_and(O[14], C[10], O[18]);
+| O[26] = logic_and(O[26], O[18]);
+| O[26] = cmplei_logic_and(O[4], C[12], O[26]);
+| O[14] = select(O[26], C[12], O[14]);
+| O[4] = select(O[26], C[12], O[4]);
+| O[26] = cmpneqi(O[4], C[3]);
+| O[26] = cmpnei_logic_and(O[14], C[3], O[26]);
+| O[26] = cmpeqi_logic_and(I[84], C[3], O[26]);
+| O[26] = cmplei_logic_and(O[4], C[10], O[26]);
+| O[14] = select(O[26], C[10], O[14]);
+| O[26] = select(O[26], C[10], O[4]);
+| O[4] = mul(I[76], C[2]);
+| O[18] = mul(I[75], C[2]);
+| O[18] = mul_mad1(O[4], O[4], O[18], O[18]);
+| O[4] = mul(I[77], C[2]);
+| O[4] = mad_sqrt(O[4], O[4], O[18]);
+| O[18] = fmod_add(I[7], C[13], O[4]);
+| O[105] = neg(C[6]);
+| O[4] = mad(I[79], O[105], C[0]);
+| O[264] = mad(I[80], O[105], C[0]);
+| O[21] = mul(I[81], C[6]);
+| O[105] = mad(I[81], O[105], O[21]);
+| O[183] = mad(I[80], C[6], C[0]);
+| O[104] = mad(I[81], C[6], O[21]);
+| O[21] = mad(I[79], C[6], C[0]);
+| external_func_call(C[3], C[15], C[15], O[4], O[264], O[105], O[21], O[183], O[104]);
+| outputdata_int32(0, 9, R[0], I[44]);
+| outputdata_int32(0, 25, R[0], C[15]);
+| O[4] = mul_mad1(O[1], O[1], O[10], O[10]);
+| O[4] = mad_mad0(O[11], O[11], O[4], O[19], O[19]);
+| outputdata_float(0, 84, R[0], O[19]);
+| outputdata_float(0, 237, R[0], O[19]);
+| O[4] = sqrt(O[4]);
+| O[19] = mul_mad1(O[267], O[267], O[266], O[266]);
+| O[19] = mad_mad0(O[268], O[268], O[19], O[263], O[263]);
+| outputdata_float(0, 88, R[0], O[263]);
+| outputdata_float(0, 241, R[0], O[263]);
+| O[19] = sqrt(O[19]);
+| O[263] = mul_mad1(O[262], O[262], O[101], O[101]);
+| O[263] = mad_mad0(O[102], O[102], O[263], O[103], O[103]);
+| outputdata_float(0, 92, R[0], O[103]);
+| outputdata_float(0, 245, R[0], O[103]);
+| O[263] = sqrt(O[263]);
+| O[4] = mul(O[4], C[6]);
+| O[19] = mul(O[19], C[6]);
+| O[263] = mul(O[263], C[6]);
+| O[105] = mul_mad1(O[10], C[6], O[266], C[6]);
+| O[264] = mul_mad1(O[1], C[6], O[267], C[6]);
+| O[103] = mul_mad1(O[11], C[6], O[268], C[6]);
+| outputdata_float(0, 89, R[0], O[101]);
+| outputdata_float(0, 242, R[0], O[101]);
+| outputdata_float(0, 90, R[0], O[262]);
+| outputdata_float(0, 243, R[0], O[262]);
+| outputdata_float(0, 91, R[0], O[102]);
+| outputdata_float(0, 244, R[0], O[102]);
+| O[101] = mad_add(O[101], C[6], O[105], O[274]);
+| O[262] = mad_add(O[262], C[6], O[264], O[275]);
+| O[102] = mad_add(O[102], C[6], O[103], O[276]);
+| external_func_call(C[12], I[86], O[101], O[262], O[102], I[68], I[69], I[70], I[71], O[4], O[19], O[263], C[5], C[0], C[0], C[5]);
+| outputdata_float(0, 81, R[0], O[10]);
+| outputdata_float(0, 234, R[0], O[10]);
+| outputdata_float(0, 82, R[0], O[1]);
+| outputdata_float(0, 235, R[0], O[1]);
+| outputdata_float(0, 83, R[0], O[11]);
+| outputdata_float(0, 236, R[0], O[11]);
+| O[10] = mul_mad1(O[10], C[6], O[266], C[6]);
+| outputdata_float(0, 85, R[0], O[266]);
+| outputdata_float(0, 238, R[0], O[266]);
+| O[1] = mul_mad1(O[1], C[6], O[267], C[6]);
+| outputdata_float(0, 86, R[0], O[267]);
+| outputdata_float(0, 239, R[0], O[267]);
+| O[11] = mul_mad1(O[11], C[6], O[268], C[6]);
+| outputdata_float(0, 87, R[0], O[268]);
+| outputdata_float(0, 240, R[0], O[268]);
+| O[10] = add(O[274], O[10]);
+| outputdata_float(0, 93, R[0], O[274]);
+| outputdata_float(0, 246, R[0], O[274]);
+| O[1] = add(O[275], O[1]);
+| outputdata_float(0, 94, R[0], O[275]);
+| outputdata_float(0, 247, R[0], O[275]);
+| O[11] = add(O[276], O[11]);
+| outputdata_float(0, 95, R[0], O[276]);
+| outputdata_float(0, 248, R[0], O[276]);
+| external_func_call(C[12], I[86], O[10], O[1], O[11], I[68], I[69], I[70], I[71], O[4], O[19], I[46], I[47], C[6], C[0], C[0], C[5]);
+| outputdata_int32(0, 0, R[0], C[18]);
+| outputdata_int32(0, 12, R[0], I[47]);
+| O[11] = cmpeq_select(I[0], C[0], C[16], I[1]);
+| outputdata_int32(0, 10, R[0], I[45]);
+| O[1] = add(C[2], I[3]);
+| O[10] = div_f2i(O[1], O[11]);
+| O[10] = maxi(O[10], C[3]);
+| O[4] = i2f_mul(O[10], O[11]);
+| O[1] = sub(O[1], O[4]);
+| O[4] = addi(O[10], I[40]);
+| outputdata_int32(0, 3, R[0], O[4]);
+| O[10] = cmpgti(O[10], C[3]);
+| O[11] = select(O[10], O[11], O[11]);
+| O[10] = select(O[10], O[1], O[1]);
+| O[1] = div(O[10], O[11]);
+| outputdata_float(0, 1, R[0], O[11]);
+| outputdata_float(0, 27, R[0], C[6]);
+| outputdata_float(0, 169, R[0], C[6]);
+| outputdata_float(0, 182, R[0], C[6]);
+| outputdata_float(0, 183, R[0], C[6]);
+| outputdata_float(0, 184, R[0], C[6]);
+| O[11] = clamp(I[60], C[0], C[9]);
+| outputdata_float(0, 5, R[0], O[11]);
+| O[11] = cmpneqi(I[38], C[10]);
+| O[11] = cmpnei_logic_and(I[38], C[11], O[11]);
+| O[11] = cmpeqi_logic_and(O[12], C[3], O[11]);
+| O[4] = cmplei_logic_and(I[39], O[12], O[11]);
+| O[11] = cmpeqi(I[38], C[12]);
+| O[11] = cmpeqi_logic_or(I[38], C[4], O[11]);
+| O[11] = cmpeqi_logic_and(O[186], C[4], O[11]);
+| O[11] = b2i(O[11]);
+| O[11] = cmpeqi_select(O[11], C[3], O[186], C[12]);
+| O[11] = select(O[4], O[11], I[38]);
+| O[4] = select(O[4], O[12], I[39]);
+| O[19] = cmpneqi(O[186], C[3]);
+| outputdata_int32(0, 26, R[0], O[186]);
+| outputdata_int32(0, 27, R[0], O[12]);
+| O[12] = cmpeqi_logic_and(O[12], C[4], O[19]);
+| O[19] = cmpneqi(O[11], C[11]);
+| O[19] = cmpnei_logic_and(O[11], C[10], O[19]);
+| O[12] = logic_and(O[12], O[19]);
+| O[12] = cmplei_logic_and(O[4], C[12], O[12]);
+| O[11] = select(O[12], C[12], O[11]);
+| O[12] = select(O[12], C[12], O[4]);
+| outputdata_int32(0, 7, R[0], O[14]);
+| O[14] = cmpneqi(O[11], C[3]);
+| O[14] = cmpnei_logic_and(O[12], C[3], O[14]);
+| O[14] = cmpeqi_logic_and(I[82], C[3], O[14]);
+| O[4] = cmpneqi(O[11], C[11]);
+| outputdata_float(0, 11, R[0], O[18]);
+| O[4] = cmpnei_logic_and(O[11], C[10], O[4]);
+| O[14] = logic_and(O[14], O[4]);
+| O[14] = cmplei_logic_and(O[12], C[10], O[14]);
+| O[11] = select(O[14], C[10], O[11]);
+| outputdata_int32(0, 1, R[0], O[11]);
+| outputdata_int32(0, 5, R[0], C[3]);
+| outputdata_int32(0, 14, R[0], C[3]);
+| outputdata_int32(0, 24, R[0], C[3]);
+| O[14] = select(O[14], C[10], O[12]);
+| O[12] = add(C[2], I[21]);
+| outputdata_float(0, 60, R[0], O[12]);
+| outputdata_int32(0, 2, R[0], O[14]);
+| O[12] = mul(I[75], C[2]);
+| O[12] = mul_mad1(O[14], O[14], O[12], O[12]);
+| O[14] = mad_sqrt(O[14], O[14], O[12]);
+| outputdata_int32(0, 8, R[0], O[26]);
+| O[26] = fmod_add(I[2], C[13], O[14]);
+| outputdata_int32(0, 11, R[0], I[46]);
+| O[14] = mul(C[17], I[59]);
+| O[12] = rcp(O[14]);
+| O[11] = sub_mul(C[5], I[4], O[12]);
+| outputdata_float(0, 6, R[0], O[11]);
+| outputdata_float(0, 7, R[0], O[12]);
+| outputdata_float(0, 3, R[0], O[10]);
+| O[10] = cmplt_select(O[10], C[0], C[0], C[5]);
+| outputdata_float(0, 4, R[0], O[1]);
+| outputdata_float(0, 25, R[0], C[0]);
+| outputdata_float(0, 26, R[0], C[0]);
+| outputdata_float(0, 31, R[0], C[0]);
+| outputdata_float(0, 35, R[0], C[0]);
+| outputdata_float(0, 39, R[0], C[0]);
+| outputdata_float(0, 47, R[0], C[0]);
+| outputdata_float(0, 51, R[0], C[0]);
+| outputdata_float(0, 55, R[0], C[0]);
+| outputdata_float(0, 61, R[0], C[0]);
+| outputdata_float(0, 156, R[0], C[0]);
+| outputdata_float(0, 167, R[0], C[0]);
+| outputdata_float(0, 168, R[0], C[0]);
+| outputdata_float(0, 171, R[0], C[0]);
+| outputdata_float(0, 172, R[0], C[0]);
+| outputdata_float(0, 173, R[0], C[0]);
+| outputdata_float(0, 174, R[0], C[0]);
+| outputdata_float(0, 176, R[0], C[0]);
+| outputdata_float(0, 177, R[0], C[0]);
+| outputdata_float(0, 178, R[0], C[0]);
+| outputdata_float(0, 179, R[0], C[0]);
+| outputdata_float(0, 181, R[0], C[0]);
+| outputdata_float(0, 189, R[0], C[0]);
+| outputdata_float(0, 193, R[0], C[0]);
+| outputdata_float(0, 197, R[0], C[0]);
+| outputdata_float(0, 205, R[0], C[0]);
+| outputdata_float(0, 209, R[0], C[0]);
+| outputdata_float(0, 213, R[0], C[0]);
+| outputdata_float(0, 219, R[0], C[0]);
+| outputdata_float(0, 220, R[0], C[0]);
+| outputdata_float(0, 221, R[0], C[0]);
+| outputdata_float(0, 222, R[0], C[0]);
+| outputdata_float(0, 224, R[0], C[0]);
+| outputdata_float(0, 225, R[0], C[0]);
+| outputdata_float(0, 226, R[0], C[0]);
+| outputdata_float(0, 227, R[0], C[0]);
+| outputdata_float(0, 229, R[0], C[0]);
+| O[1] = add(I[0], C[2]);
+| outputdata_float(0, 0, R[0], O[1]);
+| outputdata_float(0, 185, R[0], C[5]);
+| O[14] = mul_mad0(O[14], O[10], C[2], I[4]);
+| outputdata_float(0, 2, R[0], O[26]);
+| O[26] = floor(O[14]);
+| O[10] = f2i(O[26]);
+| outputdata_int32(0, 4, R[0], O[10]);
+| O[14] = sub(O[14], O[26]);
+| outputdata_float(0, 8, R[0], O[14]);
+| outputdata_float(0, 12, R[0], I[8]);
+| outputdata_float(0, 13, R[0], I[9]);
+| outputdata_float(0, 14, R[0], I[10]);
+| outputdata_float(0, 15, R[0], I[11]);
+| outputdata_float(0, 16, R[0], I[12]);
+| outputdata_float(0, 17, R[0], I[13]);
+| outputdata_float(0, 62, R[0], I[14]);
+| outputdata_float(0, 63, R[0], I[15]);
+| outputdata_float(0, 64, R[0], I[16]);
+| outputdata_float(0, 65, R[0], I[17]);
+| outputdata_float(0, 66, R[0], I[18]);
+| outputdata_float(0, 67, R[0], I[19]);
+| outputdata_float(0, 68, R[0], I[20]);
+| outputdata_float(0, 69, R[0], I[30]);
+| outputdata_float(0, 70, R[0], I[31]);
+| outputdata_float(0, 71, R[0], I[32]);
+| outputdata_float(0, 72, R[0], I[22]);
+| outputdata_float(0, 73, R[0], I[23]);
+| outputdata_float(0, 74, R[0], I[24]);
+| outputdata_float(0, 75, R[0], I[25]);
+| outputdata_float(0, 76, R[0], I[26]);
+| outputdata_float(0, 77, R[0], I[27]);
+| outputdata_float(0, 78, R[0], I[28]);
+| outputdata_float(0, 80, R[0], I[29]);
+| outputdata_float(0, 97, R[0], I[30]);
+| outputdata_float(0, 98, R[0], I[31]);
+| outputdata_float(0, 99, R[0], I[32]);
+| outputdata_float(0, 149, R[0], I[35]);
+| outputdata_float(0, 158, R[0], I[35]);
+| outputdata_int32(0, 13, R[0], I[48]);
+| outputdata_int32(0, 15, R[0], I[49]);
+| outputdata_int32(0, 16, R[0], I[50]);
+| outputdata_int32(0, 17, R[0], I[51]);
+| outputdata_int32(0, 18, R[0], I[52]);
+| outputdata_int32(0, 19, R[0], I[53]);
+ı≥Ûü¸;%Eº<=]˜›≤å
+dl7dJ ﬂ@ù5íé;pgPå
+‡;‹Oå˙RF
+ i≠•⁄VHÅ
+;höÄL∞ú(TX
+lµ=nJàN˚;sî„Eå
+zÄ˙E¶Sy;7=
+∫3~ÂË)tOÆ+;g"Ò
+.B7qU5˚I∏Ü;qX
+*BÏ€Ï;å
+¡É*ûóˆ•Ä.;ƒ—
+

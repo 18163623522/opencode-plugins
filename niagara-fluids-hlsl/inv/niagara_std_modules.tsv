@@ -1,0 +1,424 @@
+Modules/Spawn/Location/SkeletalMeshLocation.uasset	SkeletalMeshLocation	—	
+Modules/Arrays/FillBoolArray.uasset	FillBoolArray	Utility to fill array values using dynamic inputs.	—
+Modules/Arrays/FillColorArray.uasset	FillColorArray	Utility to fill array values using dynamic inputs.	—
+Modules/Arrays/FillFloatArray.uasset	FillFloatArray	Utility to fill array values using dynamic inputs.	—
+Modules/Arrays/FillIntArray.uasset	FillIntArray	Utility to fill array values using dynamic inputs.	—
+Modules/Spawn/Location/SkeletalMeshSkeletonLocation.uasset	SkeletalMeshSkeletonLocation	J|bg	Module.Set Mesh Orientation to Bone Orientation
+Modules/Arrays/FillPositionArray.uasset	FillPositionArray	Utility to fill array values using dynamic inputs.	—
+Modules/Arrays/FillQuaternionArray.uasset	FillQuaternionArray	z|q	Utility to fill array values using dynamic inputs.
+Modules/Arrays/FillVector2DArray.uasset	FillVector2DArray	Utility to fill array values using dynamic inputs.	—
+Modules/Arrays/FillVector4Array.uasset	FillVector4Array	Utility to fill array values using dynamic inputs.	—
+Modules/Spawn/Location/SkeletalMeshSurfaceLocation.uasset	SkeletalMeshSurfaceLocation	—	Module.Inherit Velocity From Mesh Amount
+Modules/Arrays/FillVectorArray.uasset	FillVectorArray	Utility to fill array values using dynamic inputs.	—
+Modules/AttributeReader/SampleParticlesFromOtherEmitter.uasset	SampleParticlesFromOtherEmitter	When this module sets Particles.Velocity it is recommended that you add "Solve Forces And Velocity" to the particle update stack. 	—
+Modules/Spawn/Location/SocketLocation.uasset	SocketLocation	B|B	Spawn particles from the location of a socket.
+Modules/AttributeReader/SpawnParticlesFromOtherEmitter.uasset	SpawnParticlesFromOtherEmitter	U|B	Returns the current number of particles in the buffer.  Note: When reading from self this will be the previous frames data.
+Modules/Spawn/Location/SpawnParticlesInGrid.uasset	SpawnParticlesInGrid	f|x	Emitter.Module.Grid Location Spawn Count
+Modules/AttributeReader/UpdateParticlesFromOtherEmitter.uasset	UpdateParticlesFromOtherEmitter	Sample the attributes of particles in another emitter. 	—
+Modules/Audio/EInitialAudioParamType.uasset	EInitialAudioParamType	—	—
+Modules/Audio/InitializeAudioPlayer.uasset	InitializeAudioPlayer	Default value for Module.Audio Player if no other module has set it previously in the stack.	—
+Modules/Spawn/Location/Spawn_MS_VertexAnimationTools_MorphTarget_Particles.uasset	Spawn_MS_VertexAnimationTools_MorphTarget_Particles	l|d$@	This function spawns a particle for each vertex captured by Epic's Vertex Animation Script's Morph Target option.
+Modules/Audio/PlayAudio.uasset	PlayAudio	This function plays a sound at the given location after the simulation has ticked.	—
+Modules/Audio/PlayLoopingAudio.uasset	PlayLoopingAudio	This dependency is only needed if you want to use the default linked Emitter.AudioPlayer data interface, otherwise this can be dismissed.	—
+Modules/Audio/PlayPersistentAudio.uasset	PlayPersistentAudio	Module.Number Of Nearest Particles To Play Audio	—
+Modules/Audio/SetInitialAudioParameter.uasset	SetInitialAudioParameter	Sets a bool parameter for one-shot audio invocations.	—
+Modules/Audio/UpdatePersistentAudio.uasset	UpdatePersistentAudio	Updates an active persistent audio component property or sets a sound cue parameter on it. Make sure to use the same data interface that spawned the audio effect in the first place, otherwise the handle will not find anything.	—
+Modules/Spawn/Location/SphereLocation.uasset	SphereLocation	H|j	Note: This is the old version of Sphere Location. It has been "soft deprecated" so as not to break existing content, and should be replaced with the new version (by adding a new version manually)  in any new content. This old version will eventually be fully deprecated.
+Modules/Beams/BeamEmitterSetup.uasset	BeamEmitterSetup	Setup Module for Beam Emitters which manages startpoints, endpoints, and tangents. 	—
+Modules/Beams/BeamWidth.uasset	BeamWidth	Controls the width of the spawned beam and writes to Particles.RibbonWidth. Use a curve indexed into the Particles.RibbonLinkOrder as provided from the default spawn beam module to vary width along the length of the beam. 	—
+Modules/Beams/BeamWidthScale.uasset	BeamWidthScale	—	—
+Modules/Beams/ScaleBeamWidth.uasset	ScaleBeamWidth	Default value for Module.Beam Width Scale if no other module has set it previously in the stack.	—
+Modules/Beams/SpawnBeam.uasset	SpawnBeam	728 | 1	Places particles along a bezier spline or simply along a line between two points. Useful for sprite spacing along a beam style path, or to be used with the ribbon renderer for a classic style beam. Spawn beam creates a static beam that does not recalculate the start and endpoints each frame.
+Modules/Spawn/Location/SphereLocation_System.uasset	SphereLocation_System	H|j	Spawn particles in a sphere shape, with options for hemisphere shaping and density functions.
+Modules/Beams/UpdateBeam.uasset	UpdateBeam	Places particles along a bezier spline. Useful for sprite spacing along a beam style path, or to be used with the ribbon renderer for a classic style beam. Update beam recalculates the spline positions each frame, to allow for beams with dynamically changing start and endpoints.	—
+Modules/CascadeConversion/CascadeConversion_InitialMeshRotation.uasset	CascadeConversion_InitialMeshRotation	640 | 1	The axis-angle rotation to be applied to the mesh particle.
+Modules/CascadeConversion/CascadeConversion_LightProperties.uasset	CascadeConversion_LightProperties	640 | 1	Used to drive the radius of the light when using a Light renderer.
+Modules/CascadeConversion/CascadeConversion_Orbit.uasset	CascadeConversion_Orbit	Orbit module requires Orbit Solver module to finalize calculation of acculumated values.	—
+Modules/CascadeConversion/CascadeConversion_SolveOrbit.uasset	CascadeConversion_SolveOrbit	Default value for Particles.Position if no other module has set it previously in the stack.	—
+Modules/Collision/AddRotationalVelocity.uasset	AddRotationalVelocity	640 | 1	Please add Solve Rotational Forces And Velocity to the bottom of your particle update script. 
+Modules/Collision/AlignParticlesWithCollisionPlane.uasset	AlignParticlesWithCollisionPlane	Module.Collision Normal's Convergence Rate	—
+Modules/Collision/AnalyticalCollisionQuery.uasset	AnalyticalCollisionQuery	Pleas add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Collision/CalculateLinePlaneInt.uasset	CalculateLinePlaneInt	Output.Module.Distance To Closest Position on Plane	—
+Modules/Collision/Collision.uasset	Collision	p|y	Module.Allow Offscreen Depth Buffer Collision Particles To Live After a Bounce
+Modules/Collision/CollisionLinearImpulse.uasset	CollisionLinearImpulse	Dampens the incoming collision velocity on each bounce by this scale factor.	—
+Modules/Collision/CollisionQuery.uasset	CollisionQuery	Module.Bypass Physical Material Properties	—
+Modules/Collision/CollisionQueryAndResponse.uasset	CollisionQueryAndResponse	Module.Kill Particles Lodged Within Meshes	—
+Modules/Collision/CollisionRest.uasset	CollisionRest	Default value for Particles.Velocity if no other module has set it previously in the stack.	—
+Modules/Collision/DebugCollisionEvents.uasset	DebugCollisionEvents	Insert this module in order to debug collision events as per-particle parameters.	—
+Modules/Collision/FindTangentialVelocityOnSphere.uasset	FindTangentialVelocityOnSphere	—	—
+Modules/Collision/InitialRotationalVelocity.uasset	InitialRotationalVelocity	Please ensure that SolveRotationalForcesAndVelocity is present at the end of your particle update script.	—
+Modules/Spawn/Location/StaticMeshLocation.uasset	StaticMeshLocation	B|B	Module.Initialize Particle Position To Sampled Position
+Modules/Collision/InitializeNeighborGrid.uasset	InitializeNeighborGrid	Module.Coordinate Space For Rotation and Offset	—
+Modules/Collision/NiagaraDistanceFieldCollisions.uasset	NiagaraDistanceFieldCollisions	Queries the global distance field for a given world position.	—
+Modules/Collision/PBD_IntraParticleCollision.uasset	PBD_IntraParticleCollision	Emitter.Use Persistent ID-Based Neighbor Grid	—
+Modules/Collision/PopulateNeighborGrid.uasset	PopulateNeighborGrid	Emitter.Use Persistent ID-Based Neighbor Grid	—
+Modules/Collision/RayTrace.uasset	RayTrace	Traces a ray against the world using a specific channel and return the first blocking hit.	—
+Modules/Spawn/Location/SystemLocation.uasset	SystemLocation	—	Spawn particles from the system location.
+Modules/Collision/SceneDepthTest.uasset	SceneDepthTest	Projects a given world position to view space and then queries the depth buffer with that position.	—
+Modules/Collision/SetupRigidBodyDI.uasset	SetupRigidBodyDI	Search the scene for rigid bodies to use for later distance field queries. 	—
+Modules/Constraints/CalculateLinkConstraint.uasset	CalculateLinkConstraint	Calculate the constraints necessary to iteratively solve a chain of segments. This is a slow-to-converge method meant as an example of how an iterative approach in a simulation stage can converge on a solution.	—
+Modules/Constraints/MaintainA_SetDistanceBetweenPoints.uasset	MaintainA_SetDistanceBetweenPoints	This module takes in two positions. One is the particles position and another is a target position. The module will project a point in space away from the initial position to a location on a vector between the two points at the set length described by the "Ideal Distance" input. For certain situations you may want to switch the target position and the particle position variables.	—
+Modules/Constraints/PendulumConstraint.uasset	PendulumConstraint	Module.Calculate and Output Potential Energy	—
+Modules/Constraints/PendulumSetup.uasset	PendulumSetup	Module.Pendulum Pivot Offset Coordinate Space	—
+Modules/Spawn/Location/TorusLocation.uasset	TorusLocation	l|h0	Module.Normalized Angle Around Torus Axis
+Modules/Debug/SpriteBasedLine.uasset	SpriteBasedLine	This module creates new particle position, size and alignment attributes that can be used to stretch a sprite from point A to B. 	—
+Modules/Decal/Decal_Attributes.uasset	Decal_Attributes	This module is intended to be used with a Decal Renderer.  	—
+Modules/Emitter/EmitterBounds.uasset	EmitterBounds	t|+	This module allows for setting the emitter bounds manually. It can be used both in the Spawn and Update context.
+Modules/Emitter/EmitterLifeCycle.uasset	EmitterLifeCycle	E|6	Manages Emitter.Age, looping, and will disable the emitter when you've gone past the last loop. Note that a MaxLoopCount of 0 will loop forever.
+Modules/Spawn/Location/V2/GridLocation.uasset	GridLocation	T9|l	Emitter.SpawnParticlesInGrid.Grid Location X Count
+Modules/Emitter/EmitterState.uasset	EmitterState	E|6M	Delays the execution of the next life cycle by this amount. Can be established using a random number and each loop will choose a new delay.
+Modules/Emitter/SpawnBurst_Instantaneous.uasset	SpawnBurst_Instantaneous	f|x	Spawns a burst of particles instantaneously.
+Modules/Emitter/SpawnParticlesFromSimCache.uasset	SpawnParticlesFromSimCache	f|x	Spawns a burst of particles instantaneously.
+Modules/Emitter/SpawnPerFrame.uasset	SpawnPerFrame	This can cause significant performance problems and is framerate dependent so not a predictable behavior. Use with Caution.	—
+Modules/Emitter/SpawnPerUnit.uasset	SpawnPerUnit	640 | 1	Spawns particles based on distance traveled in Unreal units (cm.)
+Modules/Spawn/Location/V2/RotateAroundPoint.uasset	RotateAroundPoint	G|u	Local.Module.Line Segment Start Position
+Modules/Emitter/SpawnRate.uasset	SpawnRate	Spawns particles continuously at a particular rate.	—
+Modules/Events/GenerateCollisionEvent.uasset	GenerateCollisionEvent	X|/	Module.Boolean to Send as Localspace Flag
+Modules/Events/GenerateDeathEvent.uasset	GenerateDeathEvent	Module.Boolean to Send as Localspace Flag	—
+Modules/Events/GenerateLocationEvent.uasset	GenerateLocationEvent	9|-0	Module.Boolean to Send as Localspace Flag
+Modules/Events/ReceiveCollisionEvent.uasset	ReceiveCollisionEvent	F|4	Module.Add Velocity Along Collision Normal
+Modules/Events/ReceiveDeathEvent.uasset	ReceiveDeathEvent	Module.Write Payload to Particle Attributes	—
+Modules/Events/ReceiveLocationEvent.uasset	ReceiveLocationEvent	Module.Write Payload to Particle Attributes	—
+Modules/ExportParticleData/ExportParticleDataToBlueprint.uasset	ExportParticleDataToBlueprint	X|B	Module.Vector to Send (As Struct Position)
+Modules/Landscape/SampleLandscape.uasset	SampleLandscape	Landscape data is sometimes not available at Time=Zero. When using Burst spawning, set the Spawn Time to 0.001.	—
+Modules/Light/Light_Attributes.uasset	Light_Attributes	This module is intended to be used with a Light Renderer.  	—
+Modules/Masks/ConeMask.uasset	ConeMask	Returns a black and white value. If the particle position lies within a cone defined by the parameters.	—
+Modules/Masks/V2/ConeMask.uasset	ConeMask	Smoothly transitions from 1.0 if the sample position lies within a spherical cone to 0.0 if it falls outside of it. 	—
+Modules/Masks/V2/RegionMask.uasset	RegionMask	The position of the particle. This is its own type for LWC support.	—
+Modules/Math/AvoidCone.uasset	AvoidCone	Local.Module.Constraint - Closest Point to Particle	—
+Modules/Math/AvoidDistanceFieldSurfaces_GPU.uasset	AvoidDistanceFieldSurfaces_GPU	Local.Module.Nearest Position (World Space)	—
+Modules/Math/ConeSphereIntersection.uasset	ConeSphereIntersection	Find a random position in the intersection between a cone and a sphere.	—
+Modules/Math/ConstrainVectorToCone.uasset	ConstrainVectorToCone	e|p	Constrains a vector to a direction within a cone. The vector will be rotated toward the nearest valid vector within the cone if the input vector rests outside of it. Note that this module only writes to an output vector.
+Modules/Math/FadeOverTime.uasset	FadeOverTime	640 | 1	Particle state sets a transient bool called "FirstFrame" which is used to initialize  the CurrentValue variable that's output from this module.
+Modules/Math/FindClosestPointOnLineSegment.uasset	FindClosestPointOnLineSegment	Local.Module.Line Segment Start Position	—
+Modules/Math/FindClosestPointOnTriangle.uasset	FindClosestPointOnTriangle	Local.Module.Distance PointProjectedOntoPlane	—
+Modules/Math/FindScreenSpaceBoundingBox.uasset	FindScreenSpaceBoundingBox	Various debug elements will be drawn to the screen. Some are best viewed by a second viewport while the main camera moves through the scene.	—
+Modules/Math/Flight_Orientation.uasset	Flight_Orientation	Module.Course Redirection Convergence Rate	—
+Modules/Math/MatchVelocity_ViaForce.uasset	MatchVelocity_ViaForce	Adds force to a particle to align it's velocity with a target velocity.	—
+Modules/Math/MinMaxOpWithValidChecks.uasset	MinMaxOpWithValidChecks	Finds the min and max of two float 4's. It also takes into account whether the float 4s are valid. If one of the two valid bools are false then the invalid float4 values are ignored. 	—
+Modules/Math/MoveToNearestDistanceFieldSurface_GPU.uasset	MoveToNearestDistanceFieldSurface_GPU	Module.Use Global Distance Field Search This Frame	—
+Modules/Math/PlaceParticlesOnA_Rectangle.uasset	PlaceParticlesOnA_Rectangle	Place particles on a plane defined by it's transform. Useful for arbitrary plane distributions.	—
+Modules/Math/PlaceParticlesOnDepthBuffer_GPU.uasset	PlaceParticlesOnDepthBuffer_GPU	Shoots a ray from the camera to the incoming particle position. The first opaque z depth buffer surface that's hit is returned. 	—
+Modules/Math/PureRoll_Orientation.uasset	PureRoll_Orientation	Update mesh orientation at a rotation rate that mimics a sphere rolling across a surface. 	—
+Modules/Math/RayTraceDistanceField_GPU.uasset	RayTraceDistanceField_GPU	Local.Module.Normalized Incoming Direction Vector	—
+Modules/Math/ReadDistanceField_GPU.uasset	ReadDistanceField_GPU	Samples the global distance field and outputs the gradient, the distance to nearest surface, and an is valid values to Output parameters.	—
+Modules/Math/SlerpVector.uasset	SlerpVector	Performs a spherical lerp operation from point A to B via "Alpha" and then scales the resulting vector.	—
+Modules/Spawn/Location/V2/ShapeLocation.uasset	ShapeLocation	F|J	This makes it easier to link across scripts but existing scripts which use the Output will need to  be relinked to the Particle attribute version.
+Modules/Math/SolveFloatSpringConstraint.uasset	SolveFloatSpringConstraint	640 | 1	Module.Desired Minimum Separation Distance
+Modules/Math/SpherePlaneIntersection.uasset	SpherePlaneIntersection	Find any position in which a plane intersects a sphere. 	—
+Modules/Math/SpherePlaneIntersection_System.uasset	SpherePlaneIntersection_System	Find any position in which a plane intersects a sphere. 	—
+Modules/Math/TrackDistanceTraveled.uasset	TrackDistanceTraveled	This module finds the delta between the current and previous frame's position. Position is often only updated in the solver Placing this module after the solver will ensure that an updated position is used in the tracking algorithm. 	—
+Modules/Math/WedgeLocation.uasset	WedgeLocation	Distribute particles through a 3D wedge shape.	—
+Modules/Mesh/ApplyTraverseSkeletalMeshUpdate.uasset	ApplyTraverseSkeletalMeshUpdate	a|m	Set intrinisic variables based off of values calculated by the Traverse Skeletal Mesh Module.
+Modules/Mesh/InitializeTraverseSkeletalMesh.uasset	InitializeTraverseSkeletalMesh	624 | 1	Module.Initial Particle Traversal Direction
+Modules/Mesh/PrepareTraverseSkeletalMesh.uasset	PrepareTraverseSkeletalMesh	Velocity should be integrated into position before running the mesh traversal code.	—
+Modules/Mesh/TraverseSkeletalMesh.uasset	TraverseSkeletalMesh	6|H	Local.Module.Normalized Bent Search Vector
+Modules/PostSolvers/CalculateAccurateVelocity.uasset	CalculateAccurateVelocity	Calculate an accurate velocity from a previous and current position. Useful if a constraint was applied which altered the expected position of a particle outside the framework of the solver.	—
+Modules/RVT/SampleRuntimeVirtualTexture.uasset	SampleRuntimeVirtualTexture	All RVT channels are available as module outputs.	—
+Modules/Ribbons/FN_InitializeRibbonAttributes.uasset	FN_InitializeRibbonAttributes	Controls the width of the spawned ribbon and writes to Particles.RibbonWidth	—
+Modules/Ribbons/RibbonWidth.uasset	RibbonWidth	—	—
+Modules/Ribbons/RibbonWidthScale.uasset	RibbonWidthScale	—	—
+Modules/Ribbons/ScaleRibbonWidth.uasset	ScaleRibbonWidth	Sets the ribbon width for a particle, in UE4 units.	—
+Modules/Scalability/EmitterScalability.uasset	EmitterScalability	Emitter Scalability modules must come before EmitterLifeCycle handling.	—
+Modules/Scalability/NumInstancesCull.uasset	NumInstancesCull	All scalability modules must come before emitter life cycle handling.	—
+Modules/Scalability/SystemScalability.uasset	SystemScalability	Handles common scalability features for Systems.	—
+Modules/Solvers/ApplyInitialForces.uasset	ApplyInitialForces	Module.Apply Rotational Force to Rotational Velocity	—
+Modules/Solvers/ApplyRotationVector.uasset	ApplyRotationVector	Converts a Rotational Velocity vector into a quat and multiplies it against the existing orientation quat. 	—
+Modules/Solvers/SolveForcesAndVelocity.uasset	SolveForcesAndVelocity	624 | 1	Module.Manually Enable Drag Local Offset
+Modules/Solvers/SolveRotationalForcesAndVelocity.uasset	SolveRotationalForcesAndVelocity	Accepts Physics.RotationalForce and applies that to the Particles.Meshorientation quaternion. Not used to solve standard mesh rotation rate modules, only when applying rotational force.	—
+Modules/Spawn/Decal/InitialDecalOrientation.uasset	InitialDecalOrientation	Rotates the orientation quat on any axis. A value of 1 represents a full rotation on a given axis. 	—
+Modules/Spawn/Initialization/InitializeParticle.uasset	InitializeParticle	640 | 1	As of 5.3, This version is now fully deprecated and a conversion script will run to attempt to map the existing inputs to the new module. Most configurations should successfully transfer. Double check behavior after the new version is added.
+Modules/Spawn/Initialization/InitializeRibbon.uasset	InitializeRibbon	Initialize common ribbon attributes. If a value is unchecked, pass through a previously set value for that attribute.	—
+Modules/Spawn/Initialization/V2/InitializeParticle.uasset	InitializeParticle	Initialize common particle attributes using common settings and options.	—
+Modules/Spawn/Location/BoxLocation.uasset	BoxLocation	The source coordinate space of the location offset. Can be set to Local, World, Or Simulation.	—
+Modules/Spawn/Location/ConeLocation.uasset	ConeLocation	The source coordinate space of the location offset. Can be set to Local, World, Or Simulation.	—
+Modules/Spawn/Location/CurlNoiseLocation.uasset	CurlNoiseLocation	Default value for Module.CurlNoise if no other module has set it previously in the stack.	—
+Modules/Spawn/Location/CylinderLocation.uasset	CylinderLocation	n|EA	Spawn particles in a cylinder shape, with lathe style controls to adjust the profile of the cylinder.
+Modules/Spawn/Location/CylinderLocation_System.uasset	CylinderLocation_System	n|EA	Spawn particles in a cylinder shape, with lathe style controls to adjust the profile of the cylinder.
+Modules/Spawn/Location/ENiagaraGridPlacementType.uasset	ENiagaraGridPlacementType	—	—
+Modules/Spawn/Location/GenerateGridRibbonIDs.uasset	GenerateGridRibbonIDs	Local.Module.GridLocationInitial Grid Spacing	—
+Modules/Spawn/Location/GridLocation.uasset	GridLocation	Emitter.SpawnParticlesInGrid.Grid Location X Count	—
+Modules/Spawn/Location/RotateAroundPoint.uasset	RotateAroundPoint	This module will find a position on a forward vector aligned circle around a user defined center point. The radius and position along the circle can be modified over time. 	—
+Modules/Spawn/Location/V2/SkeletalMeshLocation.uasset	SkeletalMeshLocation	d|+	Module.Initialize Particle Position To Sampled Position
+Modules/Spawn/Location/SampleParticlesFromSimCache.uasset	SampleParticlesFromSimCache	Module.Applied Rotational Velocity Scale	—
+Modules/Spawn/Location/SkeletalMeshLocation.uasset	SkeletalMeshLocation	—	—
+Modules/Spawn/Location/SkeletalMeshSkeletonLocation.uasset	SkeletalMeshSkeletonLocation	Module.Set Mesh Orientation to Bone Orientation	—
+Modules/Spawn/Location/SkeletalMeshSurfaceLocation.uasset	SkeletalMeshSurfaceLocation	Module.Inherit Velocity From Mesh Amount	—
+Modules/Spawn/Location/SocketLocation.uasset	SocketLocation	s|q	Spawn particles from the location of a socket.
+Modules/Spawn/Location/V2/SphereLocation.uasset	SphereLocation	l|h0	Spawn particles in a sphere shape, with options for hemisphere shaping and density functions.
+Modules/Spawn/Location/SpawnParticlesInGrid.uasset	SpawnParticlesInGrid	f|x	Emitter.Module.Grid Location Spawn Count
+Modules/Spawn/Location/Spawn_MS_VertexAnimationTools_MorphTarget_Particles.uasset	Spawn_MS_VertexAnimationTools_MorphTarget_Particles	This function spawns a particle for each vertex captured by Epic's Vertex Animation Script's Morph Target option.	—
+Modules/Spawn/Location/SphereLocation.uasset	SphereLocation	n|EsE	Note: This is the old version of Sphere Location. It has been "soft deprecated" so as not to break existing content, and should be replaced with the new version (by adding a new version manually)  in any new content. This old version will eventually be fully deprecated.
+Modules/Spawn/Location/SphereLocation_System.uasset	SphereLocation_System	n|EsE	Spawn particles in a sphere shape, with options for hemisphere shaping and density functions.
+Modules/Spawn/MeshInterface/Initialize_MeshReproductionSprite.uasset	Initialize_MeshReproductionSprite	D|N	Module.Kill Particles Based on the Min Particle Size Restriction
+Modules/Spawn/Location/StaticMeshLocation.uasset	StaticMeshLocation	H|h	Module.Initialize Particle Position To Sampled Position
+Modules/Spawn/Location/SystemLocation.uasset	SystemLocation	Spawn particles from the system location.	—
+Modules/Spawn/Location/TorusLocation.uasset	TorusLocation	n|EsE	Module.Normalized Angle Around Torus Axis
+Modules/Spawn/MeshInterface/SampleSkeletalMeshSkeleton.uasset	SampleSkeletalMeshSkeleton	B|B	Module.Sampled Position Coordinate Space
+Modules/Spawn/Location/V2/GridLocation.uasset	GridLocation	Emitter.SpawnParticlesInGrid.Grid Location X Count	—
+Modules/Spawn/Location/V2/RotateAroundPoint.uasset	RotateAroundPoint	G|u	Local.Module.Line Segment Start Position
+Modules/Spawn/MeshInterface/SampleSkeletalMeshSurface.uasset	SampleSkeletalMeshSurface	n|w	Sample a Skeletal mesh and write the sampled mesh attributes to particle parameters for use later in the script.
+Modules/Spawn/MeshInterface/SampleStaticMesh.uasset	SampleStaticMesh	x9|B	Static Mesh Location no longer depends on this sampling module and enables many new features. 
+Modules/Spawn/Location/V2/ShapeLocation.uasset	ShapeLocation	n|EsE	This makes it easier to link across scripts but existing scripts which use the Output will need to  be relinked to the Particle attribute version.
+Modules/Spawn/MeshInterface/SampleStaticMesh_PositionOnly.uasset	SampleStaticMesh_PositionOnly	x9|B	Sample a Static mesh and write the sampled mesh attributes to particle parameters for use later in the script.
+Modules/Spawn/MeshInterface/Surface/SampleSkeletalMeshSurface.uasset	SampleSkeletalMeshSurface	&d|0	Module.Sampled Position Coordinate Space
+Modules/Spawn/Location/V2/SkeletalMeshLocation.uasset	SkeletalMeshLocation	d|+	Module.Initialize Particle Position To Sampled Position
+Modules/Spawn/Location/V2/SphereLocation.uasset	SphereLocation	n|EsE	Spawn particles in a sphere shape, with options for hemisphere shaping and density functions.
+Modules/Spawn/MeshInterface/Initialize_MeshReproductionSprite.uasset	Initialize_MeshReproductionSprite	640 | 1	Module.Kill Particles Based on the Min Particle Size Restriction
+Modules/Spawn/MeshInterface/SampleSkeletalMeshSkeleton.uasset	SampleSkeletalMeshSkeleton	Module.Sampled Position Coordinate Space	—
+Modules/Spawn/Orientation/InitialMeshRotation.uasset	InitialMeshRotation	—	Defines a mesh particle's initial rotation.
+Modules/Spawn/MeshInterface/SampleSkeletalMeshSurface.uasset	SampleSkeletalMeshSurface	Sample a Skeletal mesh and write the sampled mesh attributes to particle parameters for use later in the script.	—
+Modules/Spawn/MeshInterface/SampleStaticMesh.uasset	SampleStaticMesh	Static Mesh Location no longer depends on this sampling module and enables many new features. 	—
+Modules/Spawn/MeshInterface/SampleStaticMesh_PositionOnly.uasset	SampleStaticMesh_PositionOnly	Sample a Static mesh and write the sampled mesh attributes to particle parameters for use later in the script.	—
+Modules/Spawn/MeshInterface/Surface/SampleSkeletalMeshSurface.uasset	SampleSkeletalMeshSurface	H|h	Module.Sampled Position Coordinate Space
+Modules/Spawn/Orientation/V2/InitialMeshOrientation.uasset	InitialMeshOrientation	N|K	This version had a subtle rotation bug when using the "rotation vector" input, in certain edge cases. Most were fine, but consider upgrading this module for future proofing, and double check your rotations are correct after upgrading.
+Modules/Spawn/Orientation/InitialMeshRotation.uasset	InitialMeshRotation	Defines a mesh particle's initial rotation.	—
+Modules/Spawn/Orientation/V2/InitialMeshOrientation.uasset	InitialMeshOrientation	This version had a subtle rotation bug when using the "rotation vector" input, in certain edge cases. Most were fine, but consider upgrading this module for future proofing, and double check your rotations are correct after upgrading.	—
+Modules/Spawn/Orientation/V3/InitialMeshOrientation.uasset	InitialMeshOrientation	Align a mesh to a vector or rotate it into place using the rotation vector.	—
+Modules/Spawn/Velocity/AddVelocity.uasset	AddVelocity	El|/	Combined linear, from point, and cone velocity into one module.
+Modules/Spawn/Velocity/AddVelocityFromPoint.uasset	AddVelocityFromPoint	Add velocity from an arbitrary point in space with optional falloff. Uses the vector  between the velocity origin and the Particles.Position to determine the velocity vector. If positions have been unitialized (that is, the particle position and the velocity origin are on top of each other or very nearly so), the module will inject random velocity. For the most accurate results, it's best to place this module after your location modules so the particle positions have already been initialized.	—
+Modules/Spawn/Orientation/V3/InitialMeshOrientation.uasset	InitialMeshOrientation	7|-mW	Align a mesh to a vector or rotate it into place using the rotation vector.
+Modules/Spawn/Velocity/AddVelocityInCone.uasset	AddVelocityInCone	Module.Use Velocity Falloff On Cone Axis	—
+Modules/Spawn/Velocity/LinearForce.uasset	LinearForce	When true, the linear force will be added to Transient.PhysicsForce.	—
+Modules/Spawn/Velocity/PointForce.uasset	PointForce	Add's force from an arbitrary point in space with optional falloff. Uses the vector  between the velocity origin and the Particles.Position to determine the force vector. If positions have been unitialized (that is, the particle position and the velocity origin are on top of each other or very nearly so), the module will inject random velocity. For the most accurate results, it's best to place this module after your location modules so the particle positions have already been initialized.	—
+Modules/Spawn/Velocity/ScaleVelocity.uasset	ScaleVelocity	Default value for Module.Coordinate Space if no other module has set it previously in the stack.	—
+Modules/Spawn/Velocity/StaticMeshVelocity.uasset	StaticMeshVelocity	640 | 1	Module.Inherit Velocity From Mesh Amount
+Modules/System/CompleteIfUnused.uasset	CompleteIfUnused	640 | 1	Will complete the whole System if the total number of particles for all emitters is zero for longer than the given time.
+Modules/System/SystemLifeCycle.uasset	SystemLifeCycle	Manages the System.Age value as well as the System.ExecutionState as the child emitters update their states.	—
+Modules/System/SystemState.uasset	SystemState	Manages the System.Age value as well as the System.ExecutionState as the child emitters update their states.	—
+Modules/Spawn/Velocity/AddVelocity.uasset	AddVelocity	El|/	Combined linear, from point, and cone velocity into one module.
+Modules/Update/BlendSpace/BlendSpace.uasset	BlendSpace	Module.Mesh Orientation Blend (World <-> Local)	—
+Modules/Update/BlendSpace/BlendSpaceHelper.uasset	BlendSpaceHelper	Default value for Engine.Owner.Velocity. Disabled for Engine Parameters.	—
+Modules/Update/Camera/CameraOffset.uasset	CameraOffset	Offset the particle along the vector between the particle and the camera.	—
+Modules/Update/Camera/MaintainInCameraParticleScale.uasset	MaintainInCameraParticleScale	In-camera particle size can be retained by taking into account the camera's fov, the particle's camera relative depth and the render target's size.	—
+Modules/Spawn/Velocity/AddVelocityFromPoint.uasset	AddVelocityFromPoint	—	Add velocity from an arbitrary point in space with optional falloff. Uses the vector  between the velocity origin and the Particles.Position to determine the velocity vector. If positions have been unitialized (that is, the particle position and the velocity origin are on top of each other or very nearly so), the module will inject random velocity. For the most accurate results, it's best to place this module after your location modules so the particle positions have already been initialized.
+Modules/Update/Camera/ScaleAttributesByCameraDistance.uasset	ScaleAttributesByCameraDistance	This function returns the position of the currently active camera.	—
+Modules/Update/Camera/ViewMask.uasset	ViewMask	In addition, tag particles with a bool signifying if they are inside or outside the view.	—
+Modules/Spawn/Velocity/AddVelocityInCone.uasset	AddVelocityInCone	O|l	Module.Use Velocity Falloff On Cone Axis
+Modules/Update/Camera/ViewRecycler.uasset	ViewRecycler	9|I7	Module.Recycle Particles When Lifetime Has Elapsed
+Modules/Spawn/Velocity/LinearForce.uasset	LinearForce	6V|B	When true, the linear force will be added to Transient.PhysicsForce.
+Modules/Update/Color/Color.uasset	Color	Directly sets Particles.Color, with scale factors for the Float3 Color and Scalar Alpha components.	—
+Modules/Update/Color/ScaleColor.uasset	ScaleColor	By Default, accepts the initial color as determined in the particle spawn script (Cached off as Particles.Initial.Color), and scales the RGB and Alpha components separately.	—
+Modules/Update/Color/ScaleColorBySpeed.uasset	ScaleColorBySpeed	Removed an 1-x operation that inadvertently flipped the meaning of min and max.  	—
+Modules/Update/Color/ScaleColorByVelocity.uasset	ScaleColorByVelocity	Default value for Local.Module.VelocityScaleFactor if no other module has set it previously in the stack.	—
+Modules/Spawn/Velocity/PointForce.uasset	PointForce	—	Add's force from an arbitrary point in space with optional falloff. Uses the vector  between the velocity origin and the Particles.Position to determine the force vector. If positions have been unitialized (that is, the particle position and the velocity origin are on top of each other or very nearly so), the module will inject random velocity. For the most accurate results, it's best to place this module after your location modules so the particle positions have already been initialized.
+Modules/Update/Decal/UpdateDecalOrientation.uasset	UpdateDecalOrientation	640 | 1	Merged all the different mesh orientation module concepts into one module for ease of experimentation and discoverability.
+Modules/Update/Forces/AccelerationForce.uasset	AccelerationForce	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Update/Forces/AerodynamicDrag.uasset	AerodynamicDrag	Y|lS	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/CalculateMassByVolume.uasset	CalculateMassByVolume	—	—
+Modules/Spawn/Velocity/ScaleVelocity.uasset	ScaleVelocity	—	Default value for Module.Coordinate Space if no other module has set it previously in the stack.
+Modules/Update/Forces/CurlNoiseForce.uasset	CurlNoiseForce	Module.Curl Noise Cone Mask Falloff Angle	—
+Modules/Update/Forces/Drag.uasset	Drag	640 | 1	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/DragForce.uasset	DragForce	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Update/Forces/ENiagaraMassByVolume.uasset	ENiagaraMassByVolume	—	—
+Modules/Update/Forces/ENiagaraMassCalculationForRendererTypes.uasset	ENiagaraMassCalculationForRendererTypes	—	—
+Modules/Spawn/Velocity/StaticMeshVelocity.uasset	StaticMeshVelocity	0 | Engine_WorldDeltaTime	Module.Inherit Velocity From Mesh Amount
+Modules/Update/Forces/ENiagaraMinOrMax.uasset	ENiagaraMinOrMax	—	—
+Modules/Update/Forces/FindKineticAndPotentialEnergy.uasset	FindKineticAndPotentialEnergy	Returns a particles kinetic energy based off of the particles velocity, it's potential energy which is a sum of the force modules that write to Physics.PotentialEnergy and a total which is the sum of those two values.	—
+Modules/Update/Forces/GravityForce.uasset	GravityForce	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Update/Forces/LimitForce.uasset	LimitForce	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Update/Forces/LineAttractionForce.uasset	LineAttractionForce	When used in particle update add a Solve Forces and Velocity module to the bottom of the stack. 	—
+Modules/System/CompleteIfUnused.uasset	CompleteIfUnused	0 | Engine_WorldDeltaTime	Will complete the whole System if the total number of particles for all emitters is zero for longer than the given time.
+Modules/Update/Forces/PointAttractionForce.uasset	PointAttractionForce	T|Fo	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/SpringForce.uasset	SpringForce	Module.Desired Minimum Separation Distance	—
+Modules/Update/Forces/V2/CurlNoiseForce.uasset	CurlNoiseForce	Module.Curl Noise Cone Mask Falloff Angle	—
+Modules/System/SystemLifeCycle.uasset	SystemLifeCycle	—	Manages the System.Age value as well as the System.ExecutionState as the child emitters update their states.
+Modules/Update/Forces/V2/PointAttractionForce.uasset	PointAttractionForce	T|Fo5	Module.Attractor Position Offset Coordinate Space
+Modules/Update/Forces/VectorNoiseForce.uasset	VectorNoiseForce	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Update/Forces/VortexForce.uasset	VortexForce	Module.Vortex Origin Offset Coordinate Space	—
+Modules/System/SystemState.uasset	SystemState	nT|VB	Manages the System.Age value as well as the System.ExecutionState as the child emitters update their states.
+Modules/Update/Forces/WindForce.uasset	WindForce	-|I	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Lifetime/FirstFrame.uasset	FirstFrame	Provides a transient "FirstFrame" bool for future script operations.	—
+Modules/Update/Lifetime/KillParticles.uasset	KillParticles	Kill Particles if the boolean input into the module is true. Allows for particles to be dynamically killed based on a boolean conditional at any point in the execution stack.	—
+Modules/Update/Lifetime/KillParticlesInVolume.uasset	KillParticlesInVolume	640 | 1	Kill Particles if they are inside of a  series of analytical shapes. Can compare against a box, plane, slab (two planes facing inward), or sphere. The result can also be inverted. 
+Modules/Update/Lifetime/ParticleState.uasset	ParticleState	Module.Let Infinitely Lived Particles Die When Emitter Deactivates	—
+Modules/Update/Lifetime/UpdateAge.uasset	UpdateAge	—	—
+Modules/Update/Mass/CalculateMassAndRotationalInertiaByVolume.uasset	CalculateMassAndRotationalInertiaByVolume	p|s	Calculates the mass and rotational inertia based off of the particle's bounds and a density value. The density is measured in kilograms per cubic meters.
+Modules/Update/Mass/CalculateMassByVolume.uasset	CalculateMassByVolume	—	—
+Modules/Update/BlendSpace/BlendSpace.uasset	BlendSpace	8|5w	Module.Mesh Orientation Blend (World <-> Local)
+Modules/Update/Mass/CalculateSizeAndRotationalInertiaByMass.uasset	CalculateSizeAndRotationalInertiaByMass	p|s	Calculates the particle's Sprite Size and rotational inertia based off of user driven mass and density values. The density is measured in kilograms per cubic meters.
+Modules/Update/Mass/CalculateSizeByMass.uasset	CalculateSizeByMass	—	—
+Modules/Update/Mass/UpdateVelocityOnMassChange.uasset	UpdateVelocityOnMassChange	Alters the particle's angular and linear velocity based on the mass delta. 	—
+Modules/Update/Material/DynamicMatParams.uasset	DynamicMatParams	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.	—
+Modules/Update/Material/DynamicMatParams1.uasset	DynamicMatParams1	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.	—
+Modules/Update/BlendSpace/BlendSpaceHelper.uasset	BlendSpaceHelper	—	Default value for Engine.Owner.Velocity. Disabled for Engine Parameters.
+Modules/Update/Material/DynamicMatParams2.uasset	DynamicMatParams2	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.	—
+Modules/Update/Material/DynamicMatParams3.uasset	DynamicMatParams3	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.	—
+Modules/Update/Camera/CameraOffset.uasset	CameraOffset	e|I	Offset the particle along the vector between the particle and the camera.
+Modules/Update/Material/DynamicMaterialParameters.uasset	DynamicMaterialParameters	B|I	Write to the Dynamic Parameter vertex interpolator node in the material editor.
+Modules/Update/Material/ParticleColorParams.uasset	ParticleColorParams	Set individual particle color channels via bool parameters and scalar values.	—
+Modules/Update/Camera/MaintainInCameraParticleScale.uasset	MaintainInCameraParticleScale	—	In-camera particle size can be retained by taking into account the camera's fov, the particle's camera relative depth and the render target's size.
+Modules/Update/MeshInterface/SampleSkeletalMesh.uasset	SampleSkeletalMesh	H|h	Module.Offset Position Along Sampled Normal
+Modules/Update/MeshInterface/Update_MeshReproductionSprite.uasset	Update_MeshReproductionSprite	If "Module.Overwrite Intrinsic Variables" is set to false make sure that this module's output variables are used to drive the particle's position, alignment, etc.	—
+Modules/Update/Neighbor/CalculateNeighbors.uasset	CalculateNeighbors	Returns a Position value from a particle by NiagaraID.  Note: When reading from self this will be the previous frames data.	—
+Modules/Update/Camera/ScaleAttributesByCameraDistance.uasset	ScaleAttributesByCameraDistance	—	This function returns the position of the currently active camera.
+Modules/Update/Neighbor/NeighborBehaviours.uasset	NeighborBehaviours	The position of the particle. This is its own type for LWC support.	—
+Modules/Update/Neighbor/SampleNeighbors.uasset	SampleNeighbors	Returns a Position value from a particle by NiagaraID.  Note: When reading from self this will be the previous frames data.	—
+Modules/Update/Orientation/AlignSpriteToMeshOrientation.uasset	AlignSpriteToMeshOrientation	Module.Mesh Orientation Relative Sprite Alignment Vector	—
+Modules/Update/Orientation/GenerateMeshTorque.uasset	GenerateMeshTorque	—	—
+Modules/Update/Orientation/GenerateTorque.uasset	GenerateTorque	—	—
+Modules/Update/Orientation/InitialMeshRotationRate.uasset	InitialMeshRotationRate	Default value for Module.Roll if no other module has set it previously in the stack.	—
+Modules/Update/Orientation/MeshLookAt.uasset	MeshLookAt	—	—
+Modules/Update/Orientation/MeshRotationForce.uasset	MeshRotationForce	When used in particle update, add a "Solve Rotational Forces and Velocity" module to the bottom of the stack. 	—
+Modules/Update/Orientation/MeshRotationRate.uasset	MeshRotationRate	The axis-angle rotation to be applied to the mesh particle.	—
+Modules/Update/Orientation/OrientMeshToVector.uasset	OrientMeshToVector	Decide whether to accept whatever orientation has been calculated up to this point before the module and then accumulate that into the rotation value derived here, or simply override the incoming value and calculate a new orientation from that basis. 	—
+Modules/Update/Orientation/SpriteRotationRate.uasset	SpriteRotationRate	Rotate a sprite over time. Input is in Degrees, use the NormalizedAngleToDegrees dynamic input to remap the input range to 0-1 if desired.	—
+Modules/Update/Orientation/V2/MeshRotationForce.uasset	MeshRotationForce	When used within particle spawn, add an "Apply Initial Forces" module after this module in spawn,  and a Solve Forces and Velocity module in particle update.	—
+Modules/Update/Orientation/V2/OrientMeshToCamera.uasset	OrientMeshToCamera	Module.Locked Axis Vector Coordinate Space	—
+Modules/Update/Orientation/V2/OrientMeshToVector.uasset	OrientMeshToVector	Output.Module.Raw Orientation From Vectors	—
+Modules/Update/Camera/ViewMask.uasset	ViewMask	a|wJP	In addition, tag particles with a bool signifying if they are inside or outside the view.
+Modules/Update/Orientation/V2/UpdateMeshOrientation.uasset	UpdateMeshOrientation	This version had a subtle rotation bug when using mesh local space and non-axis aligned rotation vectors. Consider upgrading to the new version for future work.	—
+Modules/Update/Orientation/V3/UpdateMeshOrientation.uasset	UpdateMeshOrientation	640 | 1	Module.Velocity Orientation Convergence Rate
+Modules/Update/Position/ConstrainPositionToPlane.uasset	ConstrainPositionToPlane	The position of the particle. This is its own type for LWC support.	—
+Modules/Update/Position/InheritSourceMovement.uasset	InheritSourceMovement	Module.Applied Position Falloff Distance	—
+Modules/Update/Position/JitterPosition.uasset	JitterPosition	Jitters a particle in a random direction, on a delay timer.	—
+Modules/Update/Position/OffsetPosition.uasset	OffsetPosition	q|1h	Local.Module.Position Offset Coordinate Space
+Modules/Update/Position/RecreateCameraProjection.uasset	RecreateCameraProjection	640 | 1	Recreates the camera relative world position of a scene capture 2D's pixel. The projector transform fields allow one to reposition and rotate the projected positions.
+Modules/Update/Position/Update_MS_VertexAnimationTools_MorphTargets.uasset	Update_MS_VertexAnimationTools_MorphTargets	This module reads morph target texture data and outputs positions and normal vectors for a given pixel per particle index. Pipe the module's world space normal  output into the asset's material, with tangent space normals disabled within the material, to reproduce the mesh's surface.	—
+Modules/Update/Renderers/SetAlternateRendererBindings.uasset	SetAlternateRendererBindings	Depending on the selected value, the random value returned will be a different one every frame or will be different only once per spawn evaluation.	—
+Modules/Update/Renderers/Sprite/SpriteFacingAndAlignment.uasset	SpriteFacingAndAlignment	640 | 1	On the sprite renderer, setting facing or alignment to 'custom' allows these vectors to control the orientation of sprites. By default the renderer attributes are bound to Particles.SpriteFacing and Particles.SpriteAlignment. If this module is used in an emitter script, it sets the emitter versions of these attributes instead for use when the sprite source mode is set to "Emitter".
+Modules/Update/Size/MeshSizeScale.uasset	MeshSizeScale	—	—
+Modules/Update/Size/ScaleMeshSize.uasset	ScaleMeshSize	Takes the initial mesh scale as set in the spawn script, and scales it by a scale factor.	—
+Modules/Update/Size/ScaleMeshSizeBySpeed.uasset	ScaleMeshSizeBySpeed	Scales Mesh Scale by the magnitude of the velocity vector.	—
+Modules/Update/Size/ScaleSpriteSize.uasset	ScaleSpriteSize	Takes the initial particle scale as set in the spawn script, and scales it by a scale factor.	—
+Modules/Update/Size/ScaleSpriteSizeBySpeed.uasset	ScaleSpriteSizeBySpeed	Scales Sprite Size by the magnitude of the velocity vector.	—
+Modules/Update/Size/SpriteSizeScale.uasset	SpriteSizeScale	—	—
+Modules/Update/Size/SpriteSizeScaleBySpeed.uasset	SpriteSizeScaleBySpeed	—	—
+Modules/Update/Size/SpriteSizeScaleByVelocity.uasset	SpriteSizeScaleByVelocity	The source of the velocity vector which scales the sprite size. Defaults to the Particles.Velocity	—
+Modules/Update/Splines/SampleBezierSpline.uasset	SampleBezierSpline	This module will sample a user defined bezier spline and then return the sampled position, Tangent, Normal, and Binormal.	—
+Modules/Update/Splines/SampleBezierSplineLocationAndTangent.uasset	SampleBezierSplineLocationAndTangent	—	—
+Modules/Update/StateChange/TimeBasedStateMachine.uasset	TimeBasedStateMachine	640 | 1	The particle state module creates and sets Output.ParticleState.FirstFrame which is used to drive this module's "Module.Is Initialization Frame" input by default. It's recommended that you either use the particle state module or override the "Module.Is Initialization Frame" with a bool of your choosing. 
+Modules/Update/SubUV/SubUVAnimation.uasset	SubUVAnimation	This module has been "Soft Deprecated" which means it has been replaced with a new version but the existing version still works. In a future release, it will be fully deprecated. Adding a new version of "SubUVAnimation" to the stack will show the new features.	—
+Modules/Update/SubUV/V2/SubUVAnimation.uasset	SubUVAnimation	X|&	Module.Is SubUV Blending Enabled On Renderer
+Modules/Update/Textures/SamplePseudoVolumeTexture.uasset	SamplePseudoVolumeTexture	Sample a pseudo volume texture's color based on UVW coordinates. 	—
+Modules/Update/Camera/ViewRecycler.uasset	ViewRecycler	Q7|m`k?	Module.Recycle Particles When Lifetime Has Elapsed
+Modules/Update/Textures/SampleTexture.uasset	SampleTexture	Samples a texture at a specific uv location and returns the color. Currently only supported on GPU simuations.	—
+Modules/Update/Textures/SubUV_TextureSample.uasset	SubUV_TextureSample	This module samples a single texture pixel in a sub uv fashion.	—
+Modules/Update/Textures/WorldAlignedTextureSample.uasset	WorldAlignedTextureSample	Samples a texture's color based on particle position much like world aligned texture does within the material editor. 	—
+Modules/Update/Utility/ApplyOwnerScaleToAttributes.uasset	ApplyOwnerScaleToAttributes	A|+h	The XYZ scale of the non-sprite based particle.
+Modules/Update/Color/Color.uasset	Color	—	Directly sets Particles.Color, with scale factors for the Float3 Color and Scalar Alpha components.
+Modules/Update/Utility/AsyncGPUTrace.uasset	AsyncGPUTrace	Use hardware raytracing to gather hit points from a line trace.	—
+Modules/Update/Utility/CurlNoise.uasset	CurlNoise	This is a utility module. It returns a noise vector as a module output for use further down the stack. 	—
+Modules/Update/Color/ScaleColor.uasset	ScaleColor	—	By Default, accepts the initial color as determined in the particle spawn script (Cached off as Particles.Initial.Color), and scales the RGB and Alpha components separately.
+Modules/Update/Utility/DebugDraw.uasset	DebugDraw	Draw lines, boxes or spheres on particles for debugging purposes.	—
+Modules/Update/Utility/DoOnce.uasset	DoOnce	The module keeps track of wheither it's trigger condition has ever been true in previous frames. If not, the Execute attribute from this module returns true. If it has returned true in a previous frame it will return false.	—
+Modules/Update/Utility/EmitterFrameCounter.uasset	EmitterFrameCounter	Increments a counter each frame when Increment Counter is true.	—
+Modules/Update/Utility/FrameCounter.uasset	FrameCounter	640 | 1	Increments a counter upward each frame when Increment Counter is true.
+Modules/Update/Utility/IncrementOverTime.uasset	IncrementOverTime	Increase a value each frame.The counter variable increases by tick delta multiplied by a user specified rate.	—
+Modules/Update/Color/ScaleColorBySpeed.uasset	ScaleColorBySpeed	Dq|9	Removed an 1-x operation that inadvertently flipped the meaning of min and max.  
+Modules/Update/Utility/InterpolateOverTime.uasset	InterpolateOverTime	Lerps to a target value over time using a user defined rate.	—
+Modules/Update/Utility/LerpParticleAttributes.uasset	LerpParticleAttributes	qi|zB	Module.Lerp Dynamic Material Parameter 1
+Modules/Update/Color/ScaleColorByVelocity.uasset	ScaleColorByVelocity	—	Default value for Local.Module.VelocityScaleFactor if no other module has set it previously in the stack.
+Modules/Update/Utility/PartitionParticles.uasset	PartitionParticles	Local.Module.Normalized Index In Partition	—
+Modules/Update/Utility/QueryGBuffer.uasset	QueryGBuffer	Niagara runs before translucency is rendered. As a result translucent materials will not be captured when using Niagara to query the GBuffer. This can be used to your advantage as using a translucent material on your system will not accumulate within the GBuffer sampling.	—
+Modules/Update/Decal/UpdateDecalOrientation.uasset	UpdateDecalOrientation	0 | Engine_WorldDeltaTime	Merged all the different mesh orientation module concepts into one module for ease of experimentation and discoverability.
+Modules/Update/Utility/SampleGBuffer.uasset	SampleGBuffer	Niagara runs before translucency is rendered. As a result translucent materials will not be captured when using Niagara to query the GBuffer. This can be used to your advantage as using a translucent material on your system will not accumulate within the GBuffer sampling.	—
+Modules/Update/Utility/TemporalLerp_Float.uasset	TemporalLerp_Float	Interpolate over time handles floats, vectors of multiple types, colors and quats.	—
+Modules/Update/Utility/TemporalLerp_Vector.uasset	TemporalLerp_Vector	Interpolate over time handles floats, vectors of multiple types, colors and quats.	—
+Modules/Update/Utility/Timeline.uasset	Timeline	Optionally rewinds automatically when Play is unchecked, or has a manual rewind behavior if desired.	—
+Modules/Update/Forces/AccelerationForce.uasset	AccelerationForce	i|J	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Utility/VectorNoiseValue.uasset	VectorNoiseValue	Support remapping of output components individually.	—
+Modules/Update/Velocity/AlignVelocityToRandomAxis.uasset	AlignVelocityToRandomAxis	Default value for Particles.Velocity if no other module has set it previously in the stack.	—
+Modules/Update/Velocity/InheritVelocity.uasset	InheritVelocity	640 | 1	Add inherit velocity from another source, defaults to the position of the particle system which owns the emitter.
+Modules/Update/Velocity/ScaleVelocity.uasset	ScaleVelocity	Default value for Module.Coordinate Space if no other module has set it previously in the stack.	—
+Modules/Update/Velocity/VortexVelocity.uasset	VortexVelocity	640 | 1	This module works directly on velocity, which is not a recommended workflow. The "Vortex Force" module does not have these drawbacks.
+Modules/Update/Forces/AerodynamicDrag.uasset	AerodynamicDrag	p|p'	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/CalculateMassByVolume.uasset	CalculateMassByVolume	—	
+Modules/Update/Forces/CurlNoiseForce.uasset	CurlNoiseForce	c|J:8	Module.Curl Noise Cone Mask Falloff Angle
+Modules/Update/Forces/Drag.uasset	Drag	0 | Engine_WorldDeltaTime	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/DragForce.uasset	DragForce	—	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/ENiagaraMassByVolume.uasset	ENiagaraMassByVolume	—	
+Modules/Update/Forces/ENiagaraMassCalculationForRendererTypes.uasset	ENiagaraMassCalculationForRendererTypes	—	
+Modules/Update/Forces/ENiagaraMinOrMax.uasset	ENiagaraMinOrMax	—	
+Modules/Update/Forces/FindKineticAndPotentialEnergy.uasset	FindKineticAndPotentialEnergy	—	Returns a particles kinetic energy based off of the particles velocity, it's potential energy which is a sum of the force modules that write to Physics.PotentialEnergy and a total which is the sum of those two values.
+Modules/Update/Forces/GravityForce.uasset	GravityForce	i|J	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/LimitForce.uasset	LimitForce	—	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/LineAttractionForce.uasset	LineAttractionForce	—	When used in particle update add a Solve Forces and Velocity module to the bottom of the stack. 
+Modules/Update/Forces/PointAttractionForce.uasset	PointAttractionForce	T|Fo	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/SpringForce.uasset	SpringForce	lS|H	Module.Desired Minimum Separation Distance
+Modules/Update/Forces/V2/CurlNoiseForce.uasset	CurlNoiseForce	Z|D	Module.Curl Noise Cone Mask Falloff Angle
+Modules/Update/Forces/V2/PointAttractionForce.uasset	PointAttractionForce	e|9	Module.Attractor Position Offset Coordinate Space
+Modules/Update/Forces/VectorNoiseForce.uasset	VectorNoiseForce	—	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Forces/VortexForce.uasset	VortexForce	/|0C	Module.Vortex Origin Offset Coordinate Space
+Modules/Update/Forces/WindForce.uasset	WindForce	w|s1\	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Lifetime/FirstFrame.uasset	FirstFrame	Y|v	Provides a transient "FirstFrame" bool for future script operations.
+Modules/Update/Lifetime/KillParticles.uasset	KillParticles	—	Kill Particles if the boolean input into the module is true. Allows for particles to be dynamically killed based on a boolean conditional at any point in the execution stack.
+Modules/Update/Lifetime/KillParticlesInVolume.uasset	KillParticlesInVolume	0 | Engine_WorldDeltaTime	Kill Particles if they are inside of a  series of analytical shapes. Can compare against a box, plane, slab (two planes facing inward), or sphere. The result can also be inverted. 
+Modules/Update/Lifetime/ParticleState.uasset	ParticleState	nh|d	Module.Let Infinitely Lived Particles Die When Emitter Deactivates
+Modules/Update/Lifetime/UpdateAge.uasset	UpdateAge	—	
+Modules/Update/Mass/CalculateMassAndRotationalInertiaByVolume.uasset	CalculateMassAndRotationalInertiaByVolume	p|s	Calculates the mass and rotational inertia based off of the particle's bounds and a density value. The density is measured in kilograms per cubic meters.
+Modules/Update/Mass/CalculateMassByVolume.uasset	CalculateMassByVolume	—	
+Modules/Update/Mass/CalculateSizeAndRotationalInertiaByMass.uasset	CalculateSizeAndRotationalInertiaByMass	p|s	Calculates the particle's Sprite Size and rotational inertia based off of user driven mass and density values. The density is measured in kilograms per cubic meters.
+Modules/Update/Mass/CalculateSizeByMass.uasset	CalculateSizeByMass	—	
+Modules/Update/Mass/UpdateVelocityOnMassChange.uasset	UpdateVelocityOnMassChange	—	Alters the particle's angular and linear velocity based on the mass delta. 
+Modules/Update/Material/DynamicMatParams.uasset	DynamicMatParams	—	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.
+Modules/Update/Material/DynamicMatParams1.uasset	DynamicMatParams1	—	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.
+Modules/Update/Material/DynamicMatParams2.uasset	DynamicMatParams2	—	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.
+Modules/Update/Material/DynamicMatParams3.uasset	DynamicMatParams3	—	Determines whether or not we write the first dynamic material parameter. If unchecked, we use the existing value.
+Modules/Update/Material/DynamicMaterialParameters.uasset	DynamicMaterialParameters	B|I	Write to the Dynamic Parameter vertex interpolator node in the material editor.
+Modules/Update/Material/ParticleColorParams.uasset	ParticleColorParams	n|O	Set individual particle color channels via bool parameters and scalar values.
+Modules/Update/MeshInterface/SampleSkeletalMesh.uasset	SampleSkeletalMesh	B|B	Module.Offset Position Along Sampled Normal
+Modules/Update/MeshInterface/Update_MeshReproductionSprite.uasset	Update_MeshReproductionSprite	D|N	If "Module.Overwrite Intrinsic Variables" is set to false make sure that this module's output variables are used to drive the particle's position, alignment, etc.
+Modules/Update/Neighbor/CalculateNeighbors.uasset	CalculateNeighbors	c|M	Returns a Position value from a particle by NiagaraID.  Note: When reading from self this will be the previous frames data.
+Modules/Update/Neighbor/NeighborBehaviours.uasset	NeighborBehaviours	H|K	The position of the particle. This is its own type for LWC support.
+Modules/Update/Neighbor/SampleNeighbors.uasset	SampleNeighbors	—	Returns a Position value from a particle by NiagaraID.  Note: When reading from self this will be the previous frames data.
+Modules/Update/Orientation/AlignSpriteToMeshOrientation.uasset	AlignSpriteToMeshOrientation	—	Module.Mesh Orientation Relative Sprite Alignment Vector
+Modules/Update/Orientation/GenerateMeshTorque.uasset	GenerateMeshTorque	—	
+Modules/Update/Orientation/GenerateTorque.uasset	GenerateTorque	—	
+Modules/Update/Orientation/InitialMeshRotationRate.uasset	InitialMeshRotationRate	 6|v	Default value for Module.Roll if no other module has set it previously in the stack.
+Modules/Update/Orientation/MeshLookAt.uasset	MeshLookAt	—	
+Modules/Update/Orientation/MeshRotationForce.uasset	MeshRotationForce	—	When used in particle update, add a "Solve Rotational Forces and Velocity" module to the bottom of the stack. 
+Modules/Update/Orientation/MeshRotationRate.uasset	MeshRotationRate	J|u	The axis-angle rotation to be applied to the mesh particle.
+Modules/Update/Orientation/OrientMeshToVector.uasset	OrientMeshToVector	T|D	Decide whether to accept whatever orientation has been calculated up to this point before the module and then accumulate that into the rotation value derived here, or simply override the incoming value and calculate a new orientation from that basis. 
+Modules/Update/Orientation/SpriteRotationRate.uasset	SpriteRotationRate	y|D	Rotate a sprite over time. Input is in Degrees, use the NormalizedAngleToDegrees dynamic input to remap the input range to 0-1 if desired.
+Modules/Update/Orientation/V2/MeshRotationForce.uasset	MeshRotationForce	—	When used within particle spawn, add an "Apply Initial Forces" module after this module in spawn,  and a Solve Forces and Velocity module in particle update.
+Modules/Update/Orientation/V2/OrientMeshToCamera.uasset	OrientMeshToCamera	L|g,	Module.Locked Axis Vector Coordinate Space
+Modules/Update/Orientation/V2/OrientMeshToVector.uasset	OrientMeshToVector	—	Output.Module.Raw Orientation From Vectors
+Modules/Update/Orientation/V2/UpdateMeshOrientation.uasset	UpdateMeshOrientation	y|D	This version had a subtle rotation bug when using mesh local space and non-axis aligned rotation vectors. Consider upgrading to the new version for future work.
+Modules/Update/Orientation/V3/UpdateMeshOrientation.uasset	UpdateMeshOrientation	v|f4	Module.Velocity Orientation Convergence Rate
+Modules/Update/Position/ConstrainPositionToPlane.uasset	ConstrainPositionToPlane	—	The position of the particle. This is its own type for LWC support.
+Modules/Update/Position/InheritSourceMovement.uasset	InheritSourceMovement	4xL|Q	Module.Applied Position Falloff Distance
+Modules/Update/Position/JitterPosition.uasset	JitterPosition	B|1:	Jitters a particle in a random direction, on a delay timer.
+Modules/Update/Position/OffsetPosition.uasset	OffsetPosition	B|1:	Local.Module.Position Offset Coordinate Space
+Modules/Update/Position/RecreateCameraProjection.uasset	RecreateCameraProjection	0 | Engine_WorldDeltaTime	Recreates the camera relative world position of a scene capture 2D's pixel. The projector transform fields allow one to reposition and rotate the projected positions.
+Modules/Update/Position/Update_MS_VertexAnimationTools_MorphTargets.uasset	Update_MS_VertexAnimationTools_MorphTargets	—	This module reads morph target texture data and outputs positions and normal vectors for a given pixel per particle index. Pipe the module's world space normal  output into the asset's material, with tangent space normals disabled within the material, to reproduce the mesh's surface.
+Modules/Update/Renderers/SetAlternateRendererBindings.uasset	SetAlternateRendererBindings	Q7|m`k?B	Depending on the selected value, the random value returned will be a different one every frame or will be different only once per spawn evaluation.
+Modules/Update/Renderers/Sprite/SpriteFacingAndAlignment.uasset	SpriteFacingAndAlignment	0 | Engine_WorldDeltaTime	On the sprite renderer, setting facing or alignment to 'custom' allows these vectors to control the orientation of sprites. By default the renderer attributes are bound to Particles.SpriteFacing and Particles.SpriteAlignment. If this module is used in an emitter script, it sets the emitter versions of these attributes instead for use when the sprite source mode is set to "Emitter".
+Modules/Update/Size/MeshSizeScale.uasset	MeshSizeScale	—	
+Modules/Update/Size/ScaleMeshSize.uasset	ScaleMeshSize	—	Takes the initial mesh scale as set in the spawn script, and scales it by a scale factor.
+Modules/Update/Size/ScaleMeshSizeBySpeed.uasset	ScaleMeshSizeBySpeed	s|A	Scales Mesh Scale by the magnitude of the velocity vector.
+Modules/Update/Size/ScaleSpriteSize.uasset	ScaleSpriteSize	—	Takes the initial particle scale as set in the spawn script, and scales it by a scale factor.
+Modules/Update/Size/ScaleSpriteSizeBySpeed.uasset	ScaleSpriteSizeBySpeed	s|A	Scales Sprite Size by the magnitude of the velocity vector.
+Modules/Update/Size/SpriteSizeScale.uasset	SpriteSizeScale	—	
+Modules/Update/Size/SpriteSizeScaleBySpeed.uasset	SpriteSizeScaleBySpeed	—	
+Modules/Update/Size/SpriteSizeScaleByVelocity.uasset	SpriteSizeScaleByVelocity	ewq|c@	The source of the velocity vector which scales the sprite size. Defaults to the Particles.Velocity
+Modules/Update/Splines/SampleBezierSpline.uasset	SampleBezierSpline	—	This module will sample a user defined bezier spline and then return the sampled position, Tangent, Normal, and Binormal.
+Modules/Update/Splines/SampleBezierSplineLocationAndTangent.uasset	SampleBezierSplineLocationAndTangent	—	
+Modules/Update/StateChange/TimeBasedStateMachine.uasset	TimeBasedStateMachine	0 | Engine_WorldDeltaTime	The particle state module creates and sets Output.ParticleState.FirstFrame which is used to drive this module's "Module.Is Initialization Frame" input by default. It's recommended that you either use the particle state module or override the "Module.Is Initialization Frame" with a bool of your choosing. 
+Modules/Update/SubUV/SubUVAnimation.uasset	SubUVAnimation	R|6r	This module has been "Soft Deprecated" which means it has been replaced with a new version but the existing version still works. In a future release, it will be fully deprecated. Adding a new version of "SubUVAnimation" to the stack will show the new features.
+Modules/Update/SubUV/V2/SubUVAnimation.uasset	SubUVAnimation	X|&	Module.Is SubUV Blending Enabled On Renderer
+Modules/Update/Textures/SamplePseudoVolumeTexture.uasset	SamplePseudoVolumeTexture	—	Sample a pseudo volume texture's color based on UVW coordinates. 
+Modules/Update/Textures/SampleTexture.uasset	SampleTexture	v|S@	Samples a texture at a specific uv location and returns the color. Currently only supported on GPU simuations.
+Modules/Update/Textures/SubUV_TextureSample.uasset	SubUV_TextureSample	—	This module samples a single texture pixel in a sub uv fashion.
+Modules/Update/Textures/WorldAlignedTextureSample.uasset	WorldAlignedTextureSample	T|z	Samples a texture's color based on particle position much like world aligned texture does within the material editor. 
+Modules/Update/Utility/ApplyOwnerScaleToAttributes.uasset	ApplyOwnerScaleToAttributes	8|pS	The XYZ scale of the non-sprite based particle.
+Modules/Update/Utility/AsyncGPUTrace.uasset	AsyncGPUTrace	D|U7	Use hardware raytracing to gather hit points from a line trace.
+Modules/Update/Utility/CurlNoise.uasset	CurlNoise	0|H	This is a utility module. It returns a noise vector as a module output for use further down the stack. 
+Modules/Update/Utility/DebugDraw.uasset	DebugDraw	R|YB	Draw lines, boxes or spheres on particles for debugging purposes.
+Modules/Update/Utility/DoOnce.uasset	DoOnce	—	The module keeps track of wheither it's trigger condition has ever been true in previous frames. If not, the Execute attribute from this module returns true. If it has returned true in a previous frame it will return false.
+Modules/Update/Utility/EmitterFrameCounter.uasset	EmitterFrameCounter	J|/"	Increments a counter each frame when Increment Counter is true.
+Modules/Update/Utility/FrameCounter.uasset	FrameCounter	0 | Engine_WorldDeltaTime	Increments a counter upward each frame when Increment Counter is true.
+Modules/Update/Utility/IncrementOverTime.uasset	IncrementOverTime	—	Increase a value each frame.The counter variable increases by tick delta multiplied by a user specified rate.
+Modules/Update/Utility/InterpolateOverTime.uasset	InterpolateOverTime	R|Y?	Lerps to a target value over time using a user defined rate.
+Modules/Update/Utility/LerpParticleAttributes.uasset	LerpParticleAttributes	XU|v	Module.Lerp Dynamic Material Parameter 1
+Modules/Update/Utility/PartitionParticles.uasset	PartitionParticles	y|K	Local.Module.Normalized Index In Partition
+Modules/Update/Utility/QueryGBuffer.uasset	QueryGBuffer	7K|C~	Niagara runs before translucency is rendered. As a result translucent materials will not be captured when using Niagara to query the GBuffer. This can be used to your advantage as using a translucent material on your system will not accumulate within the GBuffer sampling.
+Modules/Update/Utility/SampleGBuffer.uasset	SampleGBuffer	7K|C~	Niagara runs before translucency is rendered. As a result translucent materials will not be captured when using Niagara to query the GBuffer. This can be used to your advantage as using a translucent material on your system will not accumulate within the GBuffer sampling.
+Modules/Update/Utility/TemporalLerp_Float.uasset	TemporalLerp_Float	—	Interpolate over time handles floats, vectors of multiple types, colors and quats.
+Modules/Update/Utility/TemporalLerp_Vector.uasset	TemporalLerp_Vector	—	Interpolate over time handles floats, vectors of multiple types, colors and quats.
+Modules/Update/Utility/Timeline.uasset	Timeline	+C|uCF	Optionally rewinds automatically when Play is unchecked, or has a manual rewind behavior if desired.
+Modules/Update/Utility/VectorNoiseValue.uasset	VectorNoiseValue	0|H	Support remapping of output components individually.
+Modules/Update/Velocity/AlignVelocityToRandomAxis.uasset	AlignVelocityToRandomAxis	—	Default value for Particles.Velocity if no other module has set it previously in the stack.
+Modules/Update/Velocity/InheritVelocity.uasset	InheritVelocity	0 | Engine_WorldDeltaTime	Add inherit velocity from another source, defaults to the position of the particle system which owns the emitter.
+Modules/Update/Velocity/ScaleVelocity.uasset	ScaleVelocity	—	Default value for Module.Coordinate Space if no other module has set it previously in the stack.
+Modules/Update/Velocity/VortexVelocity.uasset	VortexVelocity	sv|6	This module works directly on velocity, which is not a recommended workflow. The "Vortex Force" module does not have these drawbacks.

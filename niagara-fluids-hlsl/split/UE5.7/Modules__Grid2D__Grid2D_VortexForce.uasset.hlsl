@@ -1,0 +1,22 @@
+Õ}i«AOæìQJª(¶·¾;
+VortexForce2D= float2(0.0,0.0);
+    float3 toVortex = Vlocation - CellPos;
+    float3 toVortexDirection = normalize(toVortex);
+    float vortexDistance = length(toVortex);
+    float attenuation = 1.0-pow(saturate(vortexDistance/MaxDistance),.001+MaxDistanceFalloff);    
+    float vortexDistanceSquared = (vortexDistance)*(vortexDistance);
+    float3 vortexDirection = cross(toVortexDirection,Vaxis);
+    float3 VortexForce = 400000*vortexDirection  * VorbitStrength / clamp(vortexDistanceSquared,.01,1000); 
+    VortexForce += toVortexDirection * VpullStrength *  clamp(vortexDistanceSquared,.01,1000) * .25;
+    VortexForce2D = VortexForce.xy * dx *attenuation.xx;
+àşFEŒ;²†p·–ú
+àşFEŒ;²†p·–úÃ
+„;Œ[óéÈJ:‡RjeãÒ
+„;Œ[óéÈJ:‡Rjeã
+;³¿jB…ørU\¸‡Û
+ú½²N­;ÈÔüL¯”z
+Nal–;s‹mI×ÇxL‚æØ
+óO¤;‰
+;³¿jB…ørU\¸‡Ûp
+2&,H¿÷å;
+

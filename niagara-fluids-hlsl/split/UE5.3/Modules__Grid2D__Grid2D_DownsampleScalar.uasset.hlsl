@@ -1,0 +1,21 @@
+int Ignore;
+int numCellsX;
+int numCellsY;
+LowResGrid.GetNumCells(numCellsX, numCellsY);
+float length = (1.0 / (float)numCellsX)*.85;
+UnitCoordinates.xy = clamp(UnitCoordinates.xy,0.0,1.0);
+float temperature = 0.0;
+float t1 = 0.0;
+float t2 = 0.0;
+float t3 = 0.0;
+float t4 = 0.0;
+HighResGrid.SampleGrid(UnitCoordinates.x+length,  UnitCoordinates.y,  HighResAttribute,  t1);
+HighResGrid.SampleGrid(UnitCoordinates.x-length,  UnitCoordinates.y,  HighResAttribute,  t2);
+HighResGrid.SampleGrid(UnitCoordinates.x,  UnitCoordinates.y+length,  HighResAttribute,  t3);
+HighResGrid.SampleGrid(UnitCoordinates.x,  UnitCoordinates.y-length,  HighResAttribute,  t4);
+temperature = (t1+t2+t3+t4)/4.0;
+int IndexX;
+int IndexY;
+LowResGrid.UnitToIndex(UnitCoordinates.xy, IndexX, IndexY);
+LowResGrid.SetGridValue(IndexX, IndexY, LowResAttribute, temperature, Ignore);
+

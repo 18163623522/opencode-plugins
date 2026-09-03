@@ -1,0 +1,74 @@
+@@@ GBuffer [NO-NAMES]
+@@@ NDISkeletalMesh_BoneSampling
+GetBoneCount GetFilteredBone GetFilteredBoneCount GetFilteredSocket GetFilteredSocketCount GetFilteredSocketOrBone GetFilteredSocketOrBoneCount GetFilteredSocketTransform GetSkinnedBoneData GetSkinnedBoneDataInterpolated GetSkinnedBoneDataWS GetSkinnedBoneDataWSInterpolated GetUnfilteredBone GetUnfilteredBoneCount IsValidBone RandomBone RandomFilteredBone RandomFilteredSocket RandomFilteredSocketOrBone RandomUnfilteredBone 
+@@@ NDISkeletalMesh_TriangleSampling
+GetFilteredTriangle GetFilteredTriangleCount GetSkinnedTriangleData GetSkinnedTriangleDataInterpolated GetSkinnedTriangleDataWS GetSkinnedTriangleDataWSInterpolated GetTriColor GetTriCoordVertices GetTriUV GetTriangleCount IsValidTriCoord RandomFilteredTriangle RandomTriCoord RandomTriangle 
+@@@ NDISkeletalMesh_VertexSampling
+GetFilteredVertex GetFilteredVertexCount GetSkinnedVertexData GetSkinnedVertexDataWS GetVertexColor GetVertexCount GetVertexUV IsValidFilteredVertex IsValidVertex RandomFilteredVertex RandomVertex 
+@@@  [NO-NAMES]
+@@@ 2DArrayTexture
+SampleTexture TextureDimensions 
+@@@ Array [NO-NAMES]
+@@@ ArrayFloat [NO-NAMES]
+@@@ ArrayInt [NO-NAMES]
+@@@ Audio [NO-NAMES]
+@@@ AudioOscilloscope
+GetAudioBufferNumChannels SampleAudioBuffer 
+@@@ AudioPlayer
+PlayAudioAtLocation PlayPersistentAudio SetBooleanParameter SetFloatParameter SetIntegerParameter SetPaused UpdateAudioLocation UpdateAudioPitch UpdateAudioRotation UpdateAudioVolume 
+@@@ AudioSpectrum
+AudioSpectrum GetNumChannels 
+@@@ Camera
+CalculateParticleDistancesCPU GetClipSpaceTransformsGPU GetFieldOfView GetViewPropertiesGPU GetViewSpaceTransformsGPU QueryClosestParticlesCPU 
+@@@ CollisionQuery
+PerformCollisionQueryAsyncCPU PerformCollisionQuerySyncCPU QueryMeshDistanceFieldGPU QuerySceneDepthGPU 
+@@@ ColorCurve
+SampleColorCurve 
+@@@ CurlNoise
+SampleNoiseField 
+@@@ Curve
+SampleCurve 
+@@@ Export [NO-NAMES]
+@@@ Grid2DCollection
+ClearCell CopyPreviousToCurrentForCell GetFloatAttributeIndex GetFloatValue GetGridValue GetVector2DAttributeIndex GetVector2Value GetVector3Value GetVector4AttributeIndex GetVector4Value GetVectorAttributeIndex SampleGrid SampleGridFloatValue SampleGridVector2Value SampleGridVector3Value SampleGridVector4Value SetFloatValue SetGridValue SetNumCells SetVector2Value SetVector3Value SetVector4Value 
+@@@ Grid2DCollectionReader
+GetGridValue SampleGrid 
+@@@ Grid3DCollection
+GetGridValue SampleGrid SetGridValue 
+@@@ Landscape
+GetHeight GetNumCells 
+@@@ NeighborGrid3D
+GetParticleNeighbor GetParticleNeighborCount MaxNeighborsPerCell NeighborGridIndexToLinear SetParticleNeighbor SetParticleNeighborCount 
+@@@ Occlusion
+QueryOcclusionFactorWithCircleGPU QueryOcclusionFactorWithRectangleGPU 
+@@@ ParticleRead
+ID 
+@@@ PlatformSet
+IsActive 
+@@@ RW
+ExecutionIndexToGridIndex ExecutionIndexToUnit GetCellSize GetNumCells GetWorldBBoxSize IndexToLinear IndexToUnit IndexToUnitStaggeredX IndexToUnitStaggeredY LinearToIndex SimulationToUnit UnitToFloatIndex UnitToIndex UnitToSimulation 
+@@@ RenderTarget2D
+GetRenderTargetSize LinearToIndex SetRenderTargetSize SetRenderTargetValue 
+@@@ RenderTarget2DArray
+GetRenderTargetSize LinearToIndex SetRenderTargetSize SetRenderTargetValue 
+@@@ RenderTargetVolume
+GetRenderTargetSize LinearToIndex SetRenderTargetSize SetRenderTargetValue 
+@@@ SimpleCounter [NO-NAMES]
+@@@ SkeletalMesh
+GetTriNormal GetTriNormalWS GetTriPosition GetTriPositionVelocityAndNormal GetTriPositionVelocityAndNormalBinormalTangent GetTriPositionVelocityAndNormalBinormalTangentWS GetTriPositionVelocityAndNormalWS GetTriPositionWS root 
+@@@ Spline
+FindClosestUnitDistanceFromPositionWS GetSplineLocalToWorld GetSplineLocalToWorldInverseTransposed SampleSplineDirectionByUnitDistance SampleSplineDirectionByUnitDistanceWS SampleSplinePositionByUnitDistance SampleSplinePositionByUnitDistanceWS SampleSplineRightVectorByUnitDistance SampleSplineRightVectorByUnitDistanceWS SampleSplineRotationByUnitDistance SampleSplineRotationByUnitDistanceWS SampleSplineTangentByUnitDistance SampleSplineTangentByUnitDistanceWS SampleSplineUpVectorByUnitDistance SampleSplineUpVectorByUnitDistanceWS 
+@@@ StaticMesh
+GetFilteredSocketCount GetFilteredSocketTransform GetFilteredSocketTransformWS GetLocalToWorld GetMeshLocalToWorldInverseTransposed GetSocketCount GetSocketTransform GetSocketTransformWS GetTriColor GetTriNormal GetTriNormalWS GetTriPosition GetTriPositionAndVelocityWS GetTriPositionWS GetTriTangents GetTriTangentsWS GetTriUV GetUnfilteredSocketCount GetUnfilteredSocketTransform GetUnfilteredSocketTransformWS GetVertexPosition GetVertexPositionWS GetWorldVelocity IsValid RandomSection RandomTriCoord RandomTriCoordOnSection RandomTriCoordUsingVertexColorFilter 
+@@@ Texture
+SamplePseudoVolumeTexture SampleTexture2D SampleVolumeTexture TextureDimensions2D 
+@@@ Vector2DCurve
+SampleVector2DCurve 
+@@@ Vector4Curve
+SampleColorCurve 
+@@@ VectorCurve
+SampleVectorCurve 
+@@@ VectorField
+FieldBounds FieldDimensions FieldTilingAxes SampleField 
+@@@ VolumeTexture
+SampleVolumeTexture TextureDimensions3D 

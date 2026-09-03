@@ -1,0 +1,41 @@
+ HÑúqŸmEªUJòähÉdÑ
+ÿ@¶¸‹¬fJ²Ô^Ë4âZ;À
+ÿ@¶¸‹¬fJ²Ô^Ë4âZ;ª
+ÿ@¶¸‹¬fJ²Ô^Ë4âZ;
+ÿ@¶¸‹¬fJ²Ô^Ë4âZ;Þ
+int Ignore;
+int numCellsX;
+int numCellsY;
+LightingGrid.GetNumCells(numCellsX, numCellsY);
+float length = (1.0 / (float)numCellsX)*6.0;
+UnitCoordinates.xy = clamp(UnitCoordinates.xy,0.0,1.0);
+float multipleScattering =  0.0;
+LightGridDownsample.SampleGrid(UnitCoordinates.x,  UnitCoordinates.y,  0,  multipleScattering);
+float ms1 = 0.0;
+float ms2 = 0.0;
+float ms3 = 0.0;
+float ms4 = 0.0;
+LightGridDownsample.SampleGrid(UnitCoordinates.x+length,  UnitCoordinates.y,  0,  ms1);
+LightGridDownsample.SampleGrid(UnitCoordinates.x-length,  UnitCoordinates.y,  0,  ms2);
+LightGridDownsample.SampleGrid(UnitCoordinates.x,  UnitCoordinates.y+length,  0,  ms3);
+LightGridDownsample.SampleGrid(UnitCoordinates.x,  UnitCoordinates.y-length,  0,  ms4);
+multipleScattering+=ms1+ms2+ms3+ms4;
+multipleScattering/= 5.0;
+Value = multipleScattering;
+float OutTransmission = 0.0;
+float samples = Samples;
+float length = RayLength / (float)numCellsX;
+float transmittance = 1.0;
+float neighborDensity = 0.0;
+   float d =  0.0;
+   DensityGrid.SampleGrid(UnitCoordinates.x,  UnitCoordinates.y,  DensityIndex,  d);
+   for (float i = 0.0; i < samples; i++){
+       float2 directionalOffset = Direction.xy * length * (.01+i/samples);
+       float2 coordinates = UnitCoordinates.xy + (directionalOffset) * i/samples;
+       DensityGrid.SampleGrid(coordinates.x,  coordinates.y,  DensityIndex,  neighborDensity);
+       transmittance *= exp(-neighborDensity *(length/samples)  *ShadowDensity *RayLength) ;
+   Value = clamp(transmittance ,0.0,100000.0);
+;nM£š@™ŒÏ?
+•š^;A>
+Áƒ*ž—ö¥€.;ÄÑ
+

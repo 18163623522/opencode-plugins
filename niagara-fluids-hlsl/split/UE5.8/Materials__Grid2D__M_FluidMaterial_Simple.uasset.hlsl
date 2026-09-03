@@ -1,0 +1,82 @@
+M;põ¡º
+/bO‡P;Z°"ãj¡
+float4x4 WorldToUnit = {WTU_A,WTU_B,WTU_C,WTU_D};
+float2 ScreenUV = MaterialFloat2(ScreenAlignedPosition(Parameters.ScreenPosition).xy);
+float2 ScenePixels=View.BufferSizeAndInvSize.xy*ScreenUV;
+ScenePixels+=View.TemporalAAParams.r;
+float2 RandomSamp = ((uint)(ScenePixels.x) + 2 * (uint)(ScenePixels.y)) % 5;
+RandomSamp+=Texture2DSample(RandomTex,RandomTexSampler,ScenePixels);
+RandomSamp/=5;
+float StepDistance = RayMarchingDistance/LOOPCOUNT*lerp(1.0,RandomSamp.x,0.5);
+float theta = 2.0 * 3.14159265 * saturate(RandomSamp.x);
+float r = sqrt(saturate(RandomSamp.x));
+float x = r * cos(theta);float y = r * sin(theta);
+float3 referenceVec = normalize(abs(LightDirection.x) > abs(LightDirection.y) ? float3(-LightDirection.z, 0, LightDirection.x) : float3(0, LightDirection.z, -LightDirection.y));
+float3 orthogonalVec = normalize(cross(LightDirection, referenceVec));
+float3 randomPoint = x * referenceVec + y * orthogonalVec;
+float z = lerp(1, cos(0.5), saturate(RandomSamp.x));
+float3 randomVec = normalize(z * LightDirection + sqrt(1 - z * z) * randomPoint);
+float InShadow = 0;
+for (int i = 1;i<LOOPCOUNT;i++){
+    float3 RayMarchingVector = StepDistance*i*randomVec;
+    float3 RayMarchingPosition = WorldPositionBehindTranslucent+RayMarchingVector;
+    float3 RayMarchingVector_P=(RayMarchingVector-dot(RayMarchingVector,CameraDirection)*CameraDirection)*(WorldPosition-CameraPosition)/(WorldPositionBehindTranslucent-CameraPosition);
+    float4 RayMarchingPosition_U = mul(float4(WorldPosition+RayMarchingVector_P,1.0),WorldToUnit);
+    float2 RayMarchingSampleUV = RayMarchingPosition_U.xy;
+    float LiquidDepth = Texture2DSampleLevel(LiquidDepthTexture,LiquidDepthTextureSampler,RayMarchingSampleUV,0.0).a;
+    float RayMarchingPositionDepth = dot(RayMarchingPosition-CameraPosition,CameraDirection);
+    float DepthDistance = RayMarchingPositionDepth - LiquidDepth;
+    InShadow = saturate(ceil(DepthDistance)) * saturate((MaxDistance-DepthDistance)) * (1-(float)i /LOOPCOUNT);
+    if(InShadow>0)
+        break; 
+return InShadow;
+float2 NewUV = UV;
+float StepSize = Distance / (int) DistanceSteps;
+float CurDistance=0;
+float2 CurOffset=0;
+float SubOffset = 0;
+float4 AccumNormalDepth=0;
+float AccumThickness=0;
+float Accumdist=0;
+RandomSamp/=5;RandomSamp-=0.5;RandomSamp*=0.5;
+float TempAARotation = 1;
+float TempAADistance = 1;
+TempAARotation*=RandomSamp.x;
+TempAADistance*=StepSize*RandomSamp.x;
+int i=0;
+ThicknessOutput =  Texture2DSample(ThicknessTex,ThicknessTexSampler,UV);
+return Texture2DSample(NormalDepthTex,NormalDepthTexSampler,UV);
+CurDistance += StepSize;
+for (int j = 0; j < (int) RadialSteps; j++)
+SubOffset +=1;
+CurOffset.x = cos(TWOPI*((TempAARotation+SubOffset) / RadialSteps));
+CurOffset.y = sin(TWOPI*((TempAARotation+SubOffset) / RadialSteps));
+NewUV.x = UV.x + CurOffset.x * (CurDistance+(RandomSamp*TempAADistance));
+NewUV.y = UV.y + CurOffset.y * (CurDistance+(RandomSamp*TempAADistance));
+float distpow = pow(CurDistance, 0.1);
+AccumNormalDepth += Texture2DSample(NormalDepthTex,NormalDepthTexSampler,NewUV)*distpow;
+        AccumThickness += clamp((Texture2DSample(ThicknessTex,ThicknessTexSampler,NewUV).r),0,100000)*distpow;
+Accumdist += distpow;
+SubOffset +=RadialOffset;
+AccumNormalDepth /= Accumdist;
+AccumThickness /= Accumdist;
+ThicknessOutput = AccumThickness;
+return AccumNormalDepth;
+float mask = 0;
+clip(-1);
+return mask;
+—¼ztÁí€L•A;^(íq!¡
+€Ý;*ó¾
+£HgD;Z7DŒ 
+ÉY;Øè$åA¬^ž=
+UŸ;w@K•
+òV;/5¡
+;ÆUÔèU
+‡…yGª;À€i3
+)DÍâ®QJ±Ø@I;øL•ƒ
+/¬Éwêk;F›C‚È)¢
+;`F«PUˆ75Z¦ƒ
+–þ•.õÎE¥û;;­LŒnƒ
+E°gTZLŒLÿ;
+Áƒ*ž—ö¥€.;ÄÑ
+

@@ -1,0 +1,93 @@
+Materials/Debug.uasset	Debug	—	—
+Materials/DebugDisplayGas2D.uasset	DebugDisplayGas2D	—	—
+Materials/DebugDisplayGrid2DGizmo.uasset	DebugDisplayGrid2DGizmo	—	—
+Materials/Functions/Grid2D_DebugGizmos/ComputeBoxBorder.uasset	ComputeBoxBorder	—	—
+Materials/Functions/Grid2D_DebugGizmos/ComputeDataIconInt.uasset	ComputeDataIconInt	—	—
+Materials/Functions/Grid2D_DebugGizmos/ComputeIcon.uasset	ComputeIcon	—	—
+Materials/Functions/Grid2D_DebugGizmos/ComputeIconUV.uasset	ComputeIconUV	—	—
+Materials/Functions/MF_DebugGradient.uasset	MF_DebugGradient	—	—
+Materials/Functions/Niagara_Grid3D_BoxIntersection.uasset	Niagara_Grid3D_BoxIntersection	WorldToLocal0.x, WorldToLocal0.y, WorldToLocal0.z, WorldToLocal0.w, 	—
+Materials/Functions/Niagara_Liquid_Generate_WPO.uasset	Niagara_Liquid_Generate_WPO	WorldToLocal0.x, WorldToLocal0.y, WorldToLocal0.z, WorldToLocal0.w, 	—
+Materials/Grid2D/Instances/MI_FluidMaterial_Water.uasset	MI_FluidMaterial_Water	—	—
+Materials/Grid2D/Instances/M_2D_ColoredSmoke_Inst.uasset	M_2D_ColoredSmoke_Inst	—	—
+Materials/Grid2D/Instances/M_2D_GasBase_Inst.uasset	M_2D_GasBase_Inst	—	—
+Materials/Grid2D/Instances/M_2D_SmokeFire_Inst.uasset	M_2D_SmokeFire_Inst	—	—
+Materials/Grid2D/M_2D_ColoredSmoke.uasset	M_2D_ColoredSmoke	—	—
+Materials/Grid2D/M_2D_GasBase.uasset	M_2D_GasBase	-N|Z	—
+Materials/Grid2D/M_2D_SmokeFire.uasset	M_2D_SmokeFire	—	—
+Materials/Grid2D/M_FluidMaterial_Simple.uasset	M_FluidMaterial_Simple	NewUV.x = UV.x + CurOffset.x * (CurDistance+(RandomSamp*TempAADistance));	—
+Materials/Grid2D/M_Fluids_SimpleFire.uasset	M_Fluids_SimpleFire	—	—
+Materials/Grid2D/M_Fluids_SimpleSmoke.uasset	M_Fluids_SimpleSmoke	—	—
+Materials/Grid3D/Instances/MI_3DGas_Base.uasset	MI_3DGas_Base	—	—
+Materials/Grid3D/Instances/MI_DebugVolumeSlice.uasset	MI_DebugVolumeSlice	—	—
+Materials/Grid3D/Instances/MI_HeterogeneousVolumes_Basic.uasset	MI_HeterogeneousVolumes_Basic	—	—
+Materials/Grid3D/Instances/MI_HeterogeneousVolumes_DustExplosion.uasset	MI_HeterogeneousVolumes_DustExplosion	—	—
+Materials/Grid3D/Instances/MI_HeterogeneousVolumes_GasExplosionCine.uasset	MI_HeterogeneousVolumes_GasExplosionCine	—	—
+Materials/Grid3D/Instances/MI_RayMarch_Basic.uasset	MI_RayMarch_Basic	—	—
+Materials/Grid3D/Instances/MI_RayMarch_Fire_Ramps.uasset	MI_RayMarch_Fire_Ramps	—	—
+Materials/Grid3D/Instances/MI_RayMarch_Fire_Ramps_Color.uasset	MI_RayMarch_Fire_Ramps_Color	—	—
+Materials/Grid3D/Instances/MI_RayMarch_Fire_Ramps_Tex.uasset	MI_RayMarch_Fire_Ramps_Tex	—	—
+Materials/Grid3D/Instances/M_DebugSDF_Inst.uasset	M_DebugSDF_Inst	—	—
+Materials/Grid3D/Instances/M_RayMarch_Fire_Inst.uasset	M_RayMarch_Fire_Inst	—	—
+Materials/Grid3D/Instances/M_RayMarch_Smoke_Inst.uasset	M_RayMarch_Smoke_Inst	GG|5k	—
+Materials/Grid3D/Instances/M_RemapVolumeNoise_Inst.uasset	M_RemapVolumeNoise_Inst	—	—
+Materials/Grid3D/Instances/M_WaterMeshFromSDF_Inst.uasset	M_WaterMeshFromSDF_Inst	—	—
+Materials/Grid3D/Instances/M_WaterSDF_Inst.uasset	M_WaterSDF_Inst	—	—
+Materials/Grid3D/M_3DGas_Base.uasset	M_3DGas_Base	—	—
+Materials/Grid3D/M_DebugDepth.uasset	M_DebugDepth	—	—
+Materials/Grid3D/M_DebugSDF.uasset	M_DebugSDF	WorldToLocal0.x, WorldToLocal0.y, WorldToLocal0.z, WorldToLocal0.w, 	—
+Materials/Grid3D/M_DebugVolumeSlice.uasset	M_DebugVolumeSlice	WorldToLocal0.x, WorldToLocal0.y, WorldToLocal0.z, WorldToLocal0.w, 	—
+Materials/Grid3D/M_HeterogeneousVolumes_Base.uasset	M_HeterogeneousVolumes_Base	—	—
+Materials/Grid3D/M_RayMarch_Color.uasset	M_RayMarch_Color	OutLuminance += FillColor * VolumeSample.a;	—
+Materials/Grid3D/M_RayMarch_Fire.uasset	M_RayMarch_Fire	OutExtinction = VolumeSample.r * DensityMult;	—
+Materials/Grid3D/M_RayMarch_Fire_AlbedoRamp.uasset	M_RayMarch_Fire_AlbedoRamp	OutLuminance += FillColor * VolumeSample.a;	—
+Materials/Grid3D/M_RayMarch_Fire_Ramps.uasset	M_RayMarch_Fire_Ramps	Volume.VolumeTextureSampler = VolumeTextureSampler;	—
+Materials/Grid3D/M_RayMarch_Smoke.uasset	M_RayMarch_Smoke	OutExtinction = VolumeSample.r * DensityMult;	—
+Materials/Grid3D/M_RemapVolumeNoise.uasset	M_RemapVolumeNoise	—	—
+Materials/Grid3D/M_WaterMeshFromSDF.uasset	M_WaterMeshFromSDF	—	—
+Materials/Grid3D/M_WaterSDF.uasset	M_WaterSDF	VolumeTexture.GetDimensions(0, sx, sy, sz, l);	—
+Materials/Particles/2DFlipMaterial.uasset	2DFlipMaterial	—	—
+Materials/Particles/2DFlipMaterial_Inst.uasset	2DFlipMaterial_Inst	—	—
+Materials/Particles/Debug3DFlip.uasset	Debug3DFlip	—	—
+Materials/Particles/MistMaterial.uasset	MistMaterial	—	—
+Materials/Particles/TestParticleMaterial.uasset	TestParticleMaterial	—	—
+Materials/Particles/WhitewaterMaterial.uasset	WhitewaterMaterial	—	—
+Materials/ShallowWater/ApplyProfileBuffer.uasset	ApplyProfileBuffer	—	—
+Materials/ShallowWater/DebugWaterMaterial.uasset	DebugWaterMaterial	—	—
+Materials/ShallowWater/Instances/WaterMaterialSimple_Inst.uasset	WaterMaterialSimple_Inst	—	—
+Materials/ShallowWater/Instances/WaterMaterial_Inst.uasset	WaterMaterial_Inst	—	—
+Materials/ShallowWater/Instances/WaterMaterial_ProfileBuffer_Inst.uasset	WaterMaterial_ProfileBuffer_Inst	—	—
+Materials/ShallowWater/NiagaraGrid2DUnitToUV.uasset	NiagaraGrid2DUnitToUV	C|1	—
+Materials/ShallowWater/WaterMaterial.uasset	WaterMaterial	—	—
+Materials/ShallowWater/WaterMaterialSimple.uasset	WaterMaterialSimple	—	—
+Materials/ShallowWater/WaterTestParticle.uasset	WaterTestParticle	—	—
+Materials/ShallowWater/WhitewaterMaterial.uasset	WhitewaterMaterial	V|O	—
+Materials/Staging/Instances/MI_DebugVolumeSlice.uasset	MI_DebugVolumeSlice	—	—
+Materials/Staging/Instances/MI_RayMarch_Fire_Ramps.uasset	MI_RayMarch_Fire_Ramps	—	—
+Materials/Staging/Instances/MI_RayMarch_Fire_Ramps_Tex.uasset	MI_RayMarch_Fire_Ramps_Tex	—	—
+Materials/Staging/Instances/M_2D_SmokeFire_Inst.uasset	M_2D_SmokeFire_Inst	—	—
+Materials/Staging/Instances/M_DebugSDF_Inst.uasset	M_DebugSDF_Inst	—	—
+Materials/Staging/Instances/M_RayMarch_Fire_Inst.uasset	M_RayMarch_Fire_Inst	—	—
+Materials/Staging/Instances/M_RayMarch_Smoke_Inst.uasset	M_RayMarch_Smoke_Inst	—	—
+Materials/Staging/Instances/M_WaterSDF_Inst.uasset	M_WaterSDF_Inst	—	—
+Materials/Staging/Instances/VolumeRenderMat_Inst.uasset	VolumeRenderMat_Inst	—	—
+Materials/Staging/M_2D_SmokeFire.uasset	M_2D_SmokeFire	—	—
+Materials/Staging/M_DebugSDF.uasset	M_DebugSDF	—	—
+Materials/Staging/M_DebugVolumeSlice.uasset	M_DebugVolumeSlice	—	—
+Materials/Staging/M_Fluids_SimpleFire.uasset	M_Fluids_SimpleFire	—	—
+Materials/Staging/M_Fluids_SimpleSmoke.uasset	M_Fluids_SimpleSmoke	—	—
+Materials/Staging/M_RayMarch_Color.uasset	M_RayMarch_Color	—	—
+Materials/Staging/M_RayMarch_Fire.uasset	M_RayMarch_Fire	—	—
+Materials/Staging/M_RayMarch_Fire_AlbedoRamp.uasset	M_RayMarch_Fire_AlbedoRamp	—	—
+Materials/Staging/M_RayMarch_Fire_Ramps.uasset	M_RayMarch_Fire_Ramps	—	—
+Materials/Staging/M_RayMarch_Smoke.uasset	M_RayMarch_Smoke	—	—
+Materials/Staging/M_WaterSDF.uasset	M_WaterSDF	—	—
+Materials/Utility/Debug.uasset	Debug	i |p	—
+Materials/Utility/DebugDisplayGas2D.uasset	DebugDisplayGas2D	—	—
+Materials/Utility/DebugDisplayGrid2DGizmo.uasset	DebugDisplayGrid2DGizmo	—	—
+Materials/Utility/MI_SolidParticle_ForMesh.uasset	MI_SolidParticle_ForMesh	—	—
+Materials/Utility/MI_SolidParticle_Masked.uasset	MI_SolidParticle_Masked	—	—
+Materials/Utility/MI_SolidParticle_Opaque.uasset	MI_SolidParticle_Opaque	—	—
+Materials/Utility/MRQ_TranslucencyAlpha.uasset	MRQ_TranslucencyAlpha	—	—
+Materials/Utility/MRQ_TranslucencyRGB.uasset	MRQ_TranslucencyRGB	—	—
+Materials/Utility/M_SolidParticle.uasset	M_SolidParticle	—	—

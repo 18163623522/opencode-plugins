@@ -36,3 +36,4 @@ UE4_Source_Guide/*
 
 !vision-bridge-mcp/
 !vision-bridge-mcp/**
+!niagara-fluids-hlsl/

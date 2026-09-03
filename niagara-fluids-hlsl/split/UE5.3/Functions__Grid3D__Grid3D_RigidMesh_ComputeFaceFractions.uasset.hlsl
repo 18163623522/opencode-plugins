@@ -1,0 +1,20 @@
+float3 Tmp0;
+float3 Tmp1;
+float3 WorldTmp;
+float MaxDist = 100000;
+GridCollection.IndexToUnit(IndexX + .5, IndexY + .5, IndexZ + .5, WorldTmp);
+WorldTmp = mul(float4(WorldTmp, 1), UnitToWorld);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_ppp, Tmp0, Tmp1);
+GridCollection.IndexToUnit(IndexX + .5, IndexY + .5, IndexZ - .5, WorldTmp);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_ppn, Tmp0, Tmp1);
+GridCollection.IndexToUnit(IndexX + .5, IndexY - .5, IndexZ - .5, WorldTmp);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_pnn, Tmp0, Tmp1);
+GridCollection.IndexToUnit(IndexX + .5, IndexY - .5, IndexZ + .5, WorldTmp);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_pnp, Tmp0, Tmp1);
+GridCollection.IndexToUnit(IndexX - .5, IndexY - .5, IndexZ + .5, WorldTmp);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_nnp, Tmp0, Tmp1);
+GridCollection.IndexToUnit(IndexX - .5, IndexY + .5, IndexZ + .5, WorldTmp);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_npp, Tmp0, Tmp1);
+GridCollection.IndexToUnit(IndexX - .5, IndexY + .5, IndexZ - .5, WorldTmp);
+RigidMeshColliders.GetClosestPointMeshDistanceFieldNoNormal(WorldTmp, dt, TimeStepFraction, MaxDist, theta_npn, Tmp0, Tmp1);
+

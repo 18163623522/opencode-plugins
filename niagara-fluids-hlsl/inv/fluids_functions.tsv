@@ -1,0 +1,49 @@
+Functions/General/ComputeAreaFraction.uasset	ComputeAreaFraction	SortedTheta.x = min(min(theta.x, theta.y), theta.z);	—
+Functions/General/ComputeFaceFractions.uasset	ComputeFaceFractions	Context.Map.Particles.FaceFractions = Output1;	—
+Functions/General/ComputeOwnerMotion.uasset	ComputeOwnerMotion	Added module namespace modifier. Convert vector positions to position type.	—
+Functions/General/DissipateFloat.uasset	DissipateFloat	624 | 1	Default value for Module.dt if no other module has set it previously in the stack.
+Functions/General/DissipateFloat_Fn.uasset	DissipateFloat_Fn	640 | 1	Context.Map.Particles.DissipatedFloat = Result5;
+Functions/General/DissipateVector.uasset	DissipateVector	624 | 1	Default value for Module.dt if no other module has set it previously in the stack.
+Functions/General/DissipateVector2D.uasset	DissipateVector2D	624 | 1	Default value for Module.dt if no other module has set it previously in the stack.
+Functions/General/DissipateVector2D_Fn.uasset	DissipateVector2D_Fn	640 | 1	Context.Map.Particles.DissipatedVector2D = Result2;
+Functions/General/DissipateVector4_Fn.uasset	DissipateVector4_Fn	648 | 1	Context.Map.Particles.DissipatedVector4 = Result2;
+Functions/General/DissipateVector_Fn.uasset	DissipateVector_Fn	644 | 1	Context.Map.Particles.DissipatedVector = Result2;
+Functions/General/Fluids_Gas_Manager.uasset	Fluids_Gas_Manager	Default value for Module.SunDirection if no other module has set it previously in the stack.	—
+Functions/General/Gas_Buoyancy.uasset	Gas_Buoyancy	—	—
+Functions/General/MaxVectorByLength.uasset	MaxVectorByLength	648 | 1	OutputDataFloat(0, 0, TmpWriteIndex, Context.Map.Particles.Value.x);
+Functions/General/MinVectorByLength.uasset	MinVectorByLength	648 | 1	OutputDataFloat(0, 0, TmpWriteIndex, Context.Map.Particles.Value.x);
+Functions/General/OwnerMotionForce.uasset	OwnerMotionForce	Link the output from the ComputeOwnerModule to this input.	—
+Functions/General/RayBoxIntersection.uasset	RayBoxIntersection	—	—
+Functions/General/SceneDepthQuery_CheckOccluded.uasset	SceneDepthQuery_CheckOccluded	Projects a given world position to view space and then queries the depth buffer with that position.	—
+Functions/General/SceneDepthQuery_IntersectMask.uasset	SceneDepthQuery_IntersectMask	644 | 1	Projects a given world position to view space and then queries the depth buffer with that position.
+Functions/General/ViewRayToEmitterPlane.uasset	ViewRayToEmitterPlane	This function returns the position of the currently active camera.	—
+Functions/General/WorldToTangent.uasset	WorldToTangent	This function returns the relevant transforms for the current view. Only valid for gpu particles.	—
+Functions/Grid2D/GetGridUV.uasset	GetGridUV	—	—
+Functions/Grid2D/Grid2D_ComputeLighting.uasset	Grid2D_ComputeLighting	—	—
+Functions/Grid2D/Grid2D_SW_ComputeSecondaryEmission.uasset	Grid2D_SW_ComputeSecondaryEmission	WaterReader.GetNumCells(NumCellsX, NumCellsY);	—
+Functions/Grid2D/Grid2D_SW_EmissionCriteria.uasset	Grid2D_SW_EmissionCriteria	—	—
+Functions/Grid2D/Grid2D_SW_SampleSecondaryEmission.uasset	Grid2D_SW_SampleSecondaryEmission	UnitXY = clamp(UnitXY, UnitDX, 1.-UnitDX);	—
+Functions/Grid3D/Grid3D_AdvectScalarSemiLagranian.uasset	Grid3D_AdvectScalarSemiLagranian	AdvectedGrid.IndexToUnit(SampleIndex.x, SampleIndex.y, SampleIndex.z, SampleUnit);	—
+Functions/Grid3D/Grid3D_AdvectVector2DSemiLagranian.uasset	Grid3D_AdvectVector2DSemiLagranian	AdvectedGrid.IndexToUnit(SampleIndex.x, SampleIndex.y, SampleIndex.z, SampleUnit);	—
+Functions/Grid3D/Grid3D_AdvectVector4SemiLagranian.uasset	Grid3D_AdvectVector4SemiLagranian	AdvectedGrid.IndexToUnit(SampleIndex.x, SampleIndex.y, SampleIndex.z, SampleUnit);	—
+Functions/Grid3D/Grid3D_AdvectVectorSemiLagranian.uasset	Grid3D_AdvectVectorSemiLagranian	AdvectedGrid.IndexToUnit(SampleIndex.x, SampleIndex.y, SampleIndex.z, SampleUnit);	—
+Functions/Grid3D/Grid3D_CombineSDF.uasset	Grid3D_CombineSDF	—	—
+Functions/Grid3D/Grid3D_ComputeFaceFractions.uasset	Grid3D_ComputeFaceFractions	OutputDataBool(0, 0, TmpWriteIndex, Context.Map.Particles.IsFullyInsideBoundary);	—
+Functions/Grid3D/Grid3D_EvaluateImplicitSDF.uasset	Grid3D_EvaluateImplicitSDF	SignedDistance = length(p - pS) - Scale.x;	—
+Functions/Grid3D/Grid3D_IndexFromNamedAttribute.uasset	Grid3D_IndexFromNamedAttribute	628 | 1	Gets a attribute starting index value for float on the Grid by Attribute name. Returns -1 if not found.
+Functions/Grid3D/Grid3D_ModifySDF.uasset	Grid3D_ModifySDF	—	—
+Functions/Grid3D/Grid3D_RasterizationSplatScalar.uasset	Grid3D_RasterizationSplatScalar	N4|L	OutputDataInt(0, 0, TmpWriteIndex, Context.Map.Module.CompositeMode);
+Functions/Grid3D/Grid3D_RasterizationSplatVector.uasset	Grid3D_RasterizationSplatVector	OutputDataInt(0, 0, TmpWriteIndex, Context.Map.Module.GridAttributeIndex);	—
+Functions/Grid3D/Grid3D_RasterizationSplatVector4.uasset	Grid3D_RasterizationSplatVector4	OutputDataInt(0, 0, TmpWriteIndex, Context.Map.Module.GridAttributeIndex);	—
+Functions/Grid3D/Grid3D_RigidMesh_ComputeFaceFractions.uasset	Grid3D_RigidMesh_ComputeFaceFractions	GridCollection.IndexToUnit(IndexX + .5, IndexY + .5, IndexZ + .5, WorldTmp);	—
+Functions/Grid3D/Grid3D_SetResolutionBasic.uasset	Grid3D_SetResolutionBasic	—	—
+Functions/Grid3D/Grid3D_Splat_Scalar.uasset	Grid3D_Splat_Scalar	OutputDataInt(0, 0, TmpWriteIndex, Context.Map.Module.AttributeIndex);	—
+Functions/Grid3D/Grid3D_Splat_Vector.uasset	Grid3D_Splat_Vector	—	—
+Functions/Grid3D/Grid3D_Splat_Vector2.uasset	Grid3D_Splat_Vector2	—	—
+Functions/Grid3D/Grid3D_Splat_Vector4.uasset	Grid3D_Splat_Vector4	—	—
+Functions/Grid3D/Grid3D_WorldPosition.uasset	Grid3D_WorldPosition	Default value for Module.Grid if no other module has set it previously in the stack.	—
+Functions/Grid3D/RasterizationGrid3D_SetResolutionBasic.uasset	RasterizationGrid3D_SetResolutionBasic	—	—
+Functions/Staging/Compute2DLighting.uasset	Compute2DLighting	—	—
+Functions/Staging/SceneDepthQuery_CheckOccluded.uasset	SceneDepthQuery_CheckOccluded	—	—
+Functions/Staging/SceneDepthQuery_IntersectMask.uasset	SceneDepthQuery_IntersectMask	—	—
+Functions/Staging/WorldToTangent.uasset	WorldToTangent	—	—

@@ -1,0 +1,21 @@
+IsAlive = true;
+World = float3(0,0,0);
+Velocity = float3(0,0,0);
+  float3 Unit = float3(0,0,0);
+  EmissionPositions.GetGridValue(Index, 0, 0, Unit.x);
+  EmissionPositions.GetGridValue(Index, 0, 1, Unit.y);
+  float2 TmpVelocity;
+  GridCollection.SamplePreviousGridVector2DValue<Attribute = "Velocity">(Unit, TmpVelocity);
+  Velocity.xy = TmpVelocity;
+  float Height;
+  GridCollection.SamplePreviousGridFloatValue<Attribute = "WaterHeight">(Unit, Height);
+  float OldHeight;
+  GridCollection.SamplePreviousGridFloatValue<Attribute = "PrevWaterHeight">(Unit, OldHeight);
+  Velocity.z = VerticalVelocityMult * (Height - OldHeight) / SimDt;
+  GridCollection.UnitToSimulation(Unit, UnitToSimulation, World);  
+  World.z = Height + LocalToSimulationTranslation.z;
+  IsAlive = true;
+  IsAlive = false;
+  Color = float4(1,0,0,1);
+  Color = float4(0,1,0,1);
+

@@ -1,0 +1,250 @@
+Functions/AreaOfA_TruncatedCircle.uasset	AreaOfA_TruncatedCircle	Find the area of a circle that's been truncated.	—
+Functions/Blending/HeightLerp.uasset	HeightLerp	Replicates the material editor's height lerp functionality by using an input alpha value to transition between 0 to 1 with a transition phase offset.	—
+Functions/Blending/SmoothGradientThreshold.uasset	SmoothGradientThreshold	Mimic's a material editor function by the same name. Performs a well controlled threshold operation. The output should produce visible results as soon as the alpha is above 0.	—
+Functions/CalculateMeshRadius.uasset	CalculateMeshRadius	Returns a particle mesh radius based on it's shortest, longest side or it's bounds based on the Method enum setting. 	—
+Functions/CalculateRadiusFromSpriteSize.uasset	CalculateRadiusFromSpriteSize	Returns a particle radius based on the sprite's shortest, longest side or the sprites bounds based on the Method enum setting. 	—
+Functions/CalculateTheGlobalDistanceFieldSurfaceNormal_GPU.uasset	CalculateTheGlobalDistanceFieldSurfaceNormal_GPU	Derive the global distance field's surface normal.	—
+Functions/CalculateTheVolumeOfA_Box.uasset	CalculateTheVolumeOfA_Box	Calculates the volume of a box given it's dimensions.	—
+Functions/CalculateTriangleArea.uasset	CalculateTriangleArea	Calculates the area of a triangle using Heron's formula.	—
+Functions/Camera/CalculateCameraTransforms.uasset	CalculateCameraTransforms	—	—
+Functions/Camera/CalculateFOV.uasset	CalculateFOV	—	—
+Functions/Camera/GetCameraPropertiesGPU.uasset	GetCameraPropertiesGPU	FLWCVector3 CameraPos = PrimaryView.TileOffset.WorldCameraOrigin;	—
+Functions/Camera/GetClipSpaceTransformsGPU.uasset	GetClipSpaceTransformsGPU	TranslatedWorldToClipTransform = View.TranslatedWorldToClip;	—
+Functions/Camera/GetFieldOfViewGPU.uasset	GetFieldOfViewGPU	—	—
+Functions/Camera/GetViewPropertiesGPU.uasset	GetViewPropertiesGPU	FLWCVector3 ViewPos = PrimaryView.TileOffset.WorldViewOrigin;	—
+Functions/Camera/GetViewSpaceTransformsGPU.uasset	GetViewSpaceTransformsGPU	TranslatedWorldToCameraViewTransform = 0.0;	—
+Functions/Camera/ProjectionMatrix.uasset	ProjectionMatrix	—	—
+Functions/Camera/ViewRotationMatrix.uasset	ViewRotationMatrix	—	—
+Functions/CascadeConversion/CascadeConversion_CalculateOrbitOffset.uasset	CascadeConversion_CalculateOrbitOffset	—	—
+Functions/ChannelMasks/SelectV2Channel.uasset	SelectV2Channel	Returns a single channel from a vector2D.	—
+Functions/ChannelMasks/SelectV3Channel.uasset	SelectV3Channel	—	—
+Functions/ChannelMasks/SelectV4Channel.uasset	SelectV4Channel	—	—
+Functions/Collision/PlaneSphereCollisionDetection.uasset	PlaneSphereCollisionDetection	Finds the point at which an animated sphere would impact an analytical plane and how much time it would take.	—
+Functions/Collision/RandomizeCollisionNormals.uasset	RandomizeCollisionNormals	An optimized hemispherical distribution algorithm with a linear spread variable that was made for randomizing collision normals. Artifacts have been accepted in exchange for efficiency. 	—
+Functions/ConeConstraint.uasset	ConeConstraint	Redirect a direction vector toward it the nearest available direction within a cone. 	—
+Functions/DataPacking/CompressQuaternionGPU.uasset	CompressQuaternionGPU	EncodedQuat |= uint( (largest3.x) * float(CompressionMask) ) << (CompressionBits * 2);	—
+Functions/DataPacking/DecompressQuaternionGPU.uasset	DecompressQuaternionGPU	Quat.x = float( (EncodedQuat >> (CompressionBits * 2) ) & CompressionMask );	—
+Functions/DataPacking/Niagara_DecompressQuaternion.uasset	Niagara_DecompressQuaternion	Quat.x = float( (EncodedQuat >> (CompressionBits * 2) ) & CompressionMask );	—
+Functions/DataPacking/Niagara_RotateMeshParticleWithQuaternion.uasset	Niagara_RotateMeshParticleWithQuaternion	—	—
+Functions/DataPacking/OctahedronToUnitVectorGPU.uasset	OctahedronToUnitVectorGPU	UnitVector = float3( Octahedron, 1.0f - abs(Octahedron.x) - abs(Octahedron.y) );	—
+Functions/DataPacking/UnitVectorToOctahedronGPU.uasset	UnitVectorToOctahedronGPU	UnitVector.xy = ( 1 - abs(UnitVector.yx) ) * ( UnitVector.xy >= 0 ? float2(1,1) : float2(-1,-1) );	—
+Functions/Debug/DrawDebugArrow.uasset	DrawDebugArrow	Draw a line with an arrow at the end to indicate direction given two locations.	—
+Functions/DeriveThirdOrthogonalVector.uasset	DeriveThirdOrthogonalVector	—	—
+Functions/DirectionAndLength.uasset	DirectionAndLength	Returns the length of a vector, as well as the normalized direction of that vector. TheDirection operation is "unsafe", in that division by zero is unaccounted for in the case of a 0 length vector as input.	—
+Functions/DirectionAndLengthSafe.uasset	DirectionAndLengthSafe	Returns the length of a vector, as well as the normalized direction of that vector. TheDirection operation is "safe", in that division by zero is accounted for in the case of a 0 length vector as input, in which case a fallback vector is provided and the returned length is dependent on that vector length.	—
+Functions/DistanceBasedFalloff.uasset	DistanceBasedFalloff	Apply a distance based falloff to a value, by comparing input positions and dividing their distance by a distance factor.	—
+Functions/Drag/DragVelocity.uasset	DragVelocity	—	—
+Functions/Emitter/EmitterChangeState.uasset	EmitterChangeState	652 | 1	Changes the Execution State of an emitter and checks for invalid state changes.
+Functions/FindAngleBetweenVectors.uasset	FindAngleBetweenVectors	Find the angle between two normalized vectors in both degrees and radians.	—
+Functions/FindNearestDistanceFieldSurface_GPU.uasset	FindNearestDistanceFieldSurface_GPU	This function samples a distance field and returns the nearest surface position.	—
+Functions/FindPerpendicular2dVector.uasset	FindPerpendicular2dVector	Rotates a 2d vector 90 degrees counter clockwise.  	—
+Functions/FindPlaneNormal.uasset	FindPlaneNormal	This node has been replaced with a newer version that better aligns to skeletal meshes winding order.	—
+Functions/Forces/SpringForce.uasset	SpringForce	When used in particle update, add a "Solve Forces and Velocity" module to the bottom of the stack. 	—
+Functions/Forces/SpringForceFloat.uasset	SpringForceFloat	668 | 1	Module.Desired Minimum Separation Distance
+Functions/GBuffer/ScreenUVToWorldPosition.uasset	ScreenUVToWorldPosition	FLWCVector3 LwcWorldPosition = LWCSubtract(LWCPromote(TranslatedWorldPosition), PrimaryView.TileOffset.PreViewTranslation);	—
+Functions/GBuffer/WorldPositionToScreenUV.uasset	WorldPositionToScreenUV	Change input to Position and support LWC conversion to screen space.	—
+Functions/GaussianRandomFloat.uasset	GaussianRandomFloat	Produces values in the entire floating point range centered around 0.0: 	—
+Functions/GaussianRandomVector.uasset	GaussianRandomVector	Generates random numbers on the unit sphere and unit circle (radius 1), i.e. random unit vectors.	—
+Functions/GetRandomInfo.uasset	GetRandomInfo	Specialized seeding based on where the function is called from.	—
+Functions/Helpers/AdvancePosition.uasset	AdvancePosition	—	—
+Functions/Helpers/AdvancePositionWithAcceleration.uasset	AdvancePositionWithAcceleration	—	—
+Functions/Helpers/DoOnce_fn.uasset	DoOnce_fn	Execute Returns True for the first frame that the Trigger Condition input is true. Every frame after being set to true triggered returns true.	—
+Functions/Helpers/FN_FirstFrame_Numeric.uasset	FN_FirstFrame_Numeric	636 | 1	Returns one value on a particle's first frame and another on subsequent frames.
+Functions/Helpers/HoudiniQuatToUnrealQuat.uasset	HoudiniQuatToUnrealQuat	—	—
+Functions/Helpers/HoudiniVectorToUnrealVector.uasset	HoudiniVectorToUnrealVector	—	—
+Functions/Helpers/IsPointAbovePlane.uasset	IsPointAbovePlane	Provide a Point in space as well as a plane position and normal, and return either a bool or the dot product result of whether the point lies above or below the plane. The sign of the dot product indicates whether the point is above or below the plane.	—
+Functions/Helpers/IsPointBetweenSlabs.uasset	IsPointBetweenSlabs	Provide a Point in space as well as the center point and width of a slab (Two planes facing each other). Returns a bool and a signed result of whether the point is inside the slab formed by those two planes and their normals, or not.	—
+Functions/Helpers/IsPointInsideBox.uasset	IsPointInsideBox	Provide a Point in space as well as the center point and XYZ size and axes of a box. Returns a boolean and signed result depending on whether the point is inside of or outside of the box.	—
+Functions/Helpers/IsPointInsideCone.uasset	IsPointInsideCone	Provide a point in space and a cone and return whether than point is inside or outside of that cone.	—
+Functions/Helpers/IsPointInsideSphere.uasset	IsPointInsideSphere	Provide a point in space and a sphere origin and radius, and return a boolean whether the point is inside of the sphere.	—
+Functions/Helpers/PointPlaneDistance.uasset	PointPlaneDistance	—	—
+Functions/Helpers/PointPlaneProject.uasset	PointPlaneProject	—	—
+Functions/Helpers/ProjectPositionOnPlane.uasset	ProjectPositionOnPlane	—	—
+Functions/Helpers/ScaleUVsByCenter.uasset	ScaleUVsByCenter	—	—
+Functions/Helpers/SetBoolByTimer.uasset	SetBoolByTimer	Returns a bool which says whether a timer is active or not. Takes a timer attribute (Particles.MyDelayTimer, for example) as input and expects that attribute to be written back to the parameter map for subsequent reads as the timer ticks down. The timer is triggered by a "Timer Trigger" Which sets the state of the timer upon the toggling of the bool.	—
+Functions/IncrementOverTime.uasset	IncrementOverTime	Default value for Particles.Module.Counter if no other module has set it previously in the stack.	—
+Functions/IndexToGridLocation.uasset	IndexToGridLocation	640 | 1	Convert an index and grid cell count into a 3d grid location.
+Functions/Intersections/CalculateCylinderPlaneIntersectionArea.uasset	CalculateCylinderPlaneIntersectionArea	Transient.OutputIntersection Centroid Position	—
+Functions/Intersections/SphereCast_GlobalDistanceField.uasset	SphereCast_GlobalDistanceField	This function sphere traces a distance field to find the nearest isosurface in between the starting position and the starting position + ray.	—
+Functions/Intersections/v2/CalculateCylinderPlaneIntersection.uasset	CalculateCylinderPlaneIntersection	Output.Module.Intersection Centroid Position	—
+Functions/IsolateLongestVectorComponent.uasset	IsolateLongestVectorComponent	—	—
+Functions/LineSegmentPlaneIntersection.uasset	LineSegmentPlaneIntersection	Find the intersection of a line segment and a plane.	—
+Functions/LinearColor/HSVToRGB.uasset	HSVToRGB	Converts a HSV color to a RGB color (hue is assumed to be normalized to 0-1).	—
+Functions/LinearColor/HueShiftLinearColor.uasset	HueShiftLinearColor	Rotates linear color around the hue circle via normalized angle (0-1). Also supports Saturation and Value Adjustments	—
+Functions/LinearColor/RGBToHSV.uasset	RGBToHSV	Converts a RGB color to a HSV color (hue is normalized to 0-1).	—
+Functions/Localspace/ENiagaraCoordinateSpace.uasset	ENiagaraCoordinateSpace	—	—
+Functions/Localspace/ENiagaraOrientationAxis.uasset	ENiagaraOrientationAxis	—	—
+Functions/Localspace/LWCSimulationToWorld.uasset	LWCSimulationToWorld	—	—
+Functions/Localspace/LWCWorldToSimulation.uasset	LWCWorldToSimulation	—	—
+Functions/Localspace/NF_InitialParticlePosition.uasset	NF_InitialParticlePosition	—	—
+Functions/Localspace/NF_OwnerAxes.uasset	NF_OwnerAxes	—	—
+Functions/Localspace/NF_TransformBase.uasset	NF_TransformBase	—	—
+Functions/Localspace/NF_TransformOffset.uasset	NF_TransformOffset	—	—
+Functions/Localspace/NF_TransformPosition.uasset	NF_TransformPosition	—	—
+Functions/Localspace/NF_TransformVector.uasset	NF_TransformVector	—	—
+Functions/Localspace/OwnerAxes.uasset	OwnerAxes	Returns The world space Engine Owner X Y and Z axes, or returns their localspace equivalent if the localspace flag on the emitter is checked.	—
+Functions/Localspace/ParticleOwnerPosition.uasset	ParticleOwnerPosition	—	—
+Functions/Localspace/PositionToVector.uasset	PositionToVector	WARNING: Conversions between Positions and Vectors is a potentially unsafe or at least lossy operation if working in Large World Coordinate space. Most operations to Positions can be accomplished by adding or removing offset vectors to them, and conversion between the types can lead to unintended side effects.	—
+Functions/Localspace/SimulationPosition.uasset	SimulationPosition	Returns either the Engine.Owner.Position (the emitter's position in the world) or, if the localspace flag is checked, returns 0,0,0	—
+Functions/Localspace/TransformBase.uasset	TransformBase	Transforms a position from one coordinate space into another.	—
+Functions/Localspace/TransformOffset.uasset	TransformOffset	Transforms a offset from a Source coordinate space into the Destination coordinate space.	—
+Functions/Localspace/TransformPosition.uasset	TransformPosition	Transforms a Position from a Source coordinate space into the Destination coordinate space.	—
+Functions/Localspace/TransformQuaternion.uasset	TransformQuaternion	Transforms a Quaternion from a Source coordinate space into the Destination coordinate space.	—
+Functions/Localspace/TransformVector.uasset	TransformVector	Transforms a Vector from a Source coordinate space into the Destination coordinate space. Use this when transforming vectors such as surface normals.	—
+Functions/Localspace/V2/TransformBase.uasset	TransformBase	Transforms a position from one coordinate space into another.	—
+Functions/Localspace/V2/TransformPosition.uasset	TransformPosition	Transforms a Position from a Source coordinate space into the Destination coordinate space.	—
+Functions/Localspace/V2/TransformVector.uasset	TransformVector	Transforms a Vector from a Source coordinate space into the Destination coordinate space. Use this when transforming vectors such as surface normals.	—
+Functions/Localspace/VectorToPosition.uasset	VectorToPosition	652 | 1	WARNING: Conversions between Positions and Vectors is a potentially unsafe or at least lossy operation if working in Large World Coordinate space. Most operations to Positions can be accomplished by adding or removing offset vectors to them, and conversion between the types can lead to unintended side effects.
+Functions/MakeScaleMatrix.uasset	MakeScaleMatrix	—	—
+Functions/MakeTransformMatrix.uasset	MakeTransformMatrix	OutMatrix[0][0] = InMatrix[0][0] * Scale.x;	—
+Functions/MakeTranslationMatrix.uasset	MakeTranslationMatrix	—	—
+Functions/MakeVectorsOrthogonal.uasset	MakeVectorsOrthogonal	Make 3 vectors orthogonal to each other.	—
+Functions/Masks/ConeMask.uasset	ConeMask	680 | 1	Returns a black and white value. If the particle position lies within a cone defined by the parameters.
+Functions/Masks/RegionMaskBox.uasset	RegionMaskBox	—	—
+Functions/Masks/RegionMaskPlane.uasset	RegionMaskPlane	—	—
+Functions/Masks/RegionMaskSlab.uasset	RegionMaskSlab	—	—
+Functions/Masks/RegionMaskSphere.uasset	RegionMaskSphere	—	—
+Functions/Math/BarycentricCoordinates/FindBarycentricCoordinate.uasset	FindBarycentricCoordinate	Derives the barycentric coordinate for a given triangle using it's verts. If the point is not on the triangle the output is invalid.	—
+Functions/Math/BarycentricCoordinates/FindNearestBarycentricCoordinateEdge.uasset	FindNearestBarycentricCoordinateEdge	Given a valid barycentric coordinate, this function will return the closest edge. If all 3 edges are equally close the edge index will be invalid. The first edge will be returned in that case and the Equidistant bool will return true. 	—
+Functions/Math/BarycentricCoordinates/TranslateBarycentricEdgeCoordinates.uasset	TranslateBarycentricEdgeCoordinates	Given a valid barycentric coordinate on the edge of a triangle, the first triangle's edge index and the neighbor's triangle edge index we can translate the barycentric coordinates from one triangle to another's.	—
+Functions/Math/BarycentricCoordinates/ValidateBarycentricCoordinates.uasset	ValidateBarycentricCoordinates	This ensures that the barycentric coordinates for a tricoordinate are within a valid range. It also provides an option to offset samples so that exact vertices aren't sampled directly. This can be helpful in a number of algorithms.	—
+Functions/Math/CalculateLinePlaneIntersection.uasset	CalculateLinePlaneIntersection	672 | 1	Finds the distance to a plane given a trace origin, vector and plane description. If the line and the plane are aligned the line intersection vector produces NANs. To avoid referencing this value reference the output bool called "Line Intersects" approriately. 
+Functions/Math/CalculateRandomPointInConeSphereIntersection.uasset	CalculateRandomPointInConeSphereIntersection	Find a random position in the intersection between a cone and a sphere.	—
+Functions/Math/CalculateVolumeOfA_Sphere.uasset	CalculateVolumeOfA_Sphere	Returns the volume of a sphere defined by it's radius.	—
+Functions/Math/CentimeterMeterConversion.uasset	CentimeterMeterConversion	This function converts meters to centimeters and centimeters to meters.	—
+Functions/Math/ConeSphereIntersection.uasset	ConeSphereIntersection	—	—
+Functions/Math/ConstrainToPlane.uasset	ConstrainToPlane	This experimental node aligns sprites to the surface of an analytical plane.	—
+Functions/Math/DeriveTriangleInformation.uasset	DeriveTriangleInformation	628 | 1	Derive a triangles normal, edge normals, centers and retrieve its vertex positions.  
+Functions/Math/DeriveZ.uasset	DeriveZ	—	—
+Functions/Math/FindMidPointBetweenPositions.uasset	FindMidPointBetweenPositions	Finds the middle point between two positions. A weight value of 0.5 is the exact midpoint between the two.	—
+Functions/Math/FindMidPointBetweenVectors.uasset	FindMidPointBetweenVectors	—	—
+Functions/Math/FindPixelCenter_1D.uasset	FindPixelCenter_1D	Use this function to find the center of a pixel given an index and the number of items in the array (the number of pixels for the given axis).	—
+Functions/Math/FindPixelCenter_2D.uasset	FindPixelCenter_2D	Finds the uv location of the center of a pixel.	—
+Functions/Math/FindPlaneRayIntersection.uasset	FindPlaneRayIntersection	—	—
+Functions/Math/FindTangentialVelocityOnSphere.uasset	FindTangentialVelocityOnSphere	Finds the tangential surface speed on a rotating sphere. 	—
+Functions/Math/FloatAsInt.uasset	FloatAsInt	This node only works in GPU systems for the time being.	—
+Functions/Math/GetMatrixScale.uasset	GetMatrixScale	Returns a given transformation matrix's scale.	—
+Functions/Math/GetMatrixTranslation.uasset	GetMatrixTranslation	Retrieve a transformation matrix's translation.	—
+Functions/Math/IntAsFloat.uasset	IntAsFloat	This node only works in GPU systems for the time being.	—
+Functions/Math/InterpolateOverTime_Float.uasset	InterpolateOverTime_Float	660 | 1	Converges to a target float value over time.
+Functions/Math/InterpolateOverTime_LinearColor.uasset	InterpolateOverTime_LinearColor	Converges to a target linear color over time.	—
+Functions/Math/InterpolateOverTime_Position.uasset	InterpolateOverTime_Position	Converges to a target vector value over time.	—
+Functions/Math/InterpolateOverTime_Quaternion.uasset	InterpolateOverTime_Quaternion	Converges to a target orientation over time.	—
+Functions/Math/InterpolateOverTime_V2.uasset	InterpolateOverTime_V2	Converges to a target vector 2d value over time.	—
+Functions/Math/InterpolateOverTime_V3_.uasset	InterpolateOverTime_V3_	Converges to a target vector value over time.	—
+Functions/Math/InterpolateOverTime_V4.uasset	InterpolateOverTime_V4	Converges to a target float4 value over time.	—
+Functions/Math/IsValueWithinRange.uasset	IsValueWithinRange	Returns true if X is between the min and max range.	—
+Functions/Math/IsVectorParallel.uasset	IsVectorParallel	668 | 1	Returns true if VectorA and VectorB are parallel.
+Functions/Math/LerpMultipleNumeric_Fn.uasset	LerpMultipleNumeric_Fn	Lerp between 2-5 input vectors via a single float value.	—
+Functions/Math/MaintainInCameraParticleScale.uasset	MaintainInCameraParticleScale	In-camera particle size can be retained by taking into account the camera's fov, the particle's camera relative depth and the render target's size.	—
+Functions/Math/MaintainInCameraParticleScale_fn.uasset	MaintainInCameraParticleScale_fn	—	—
+Functions/Math/MatchVelocityViaForce.uasset	MatchVelocityViaForce	Calculate the amount of force that would be needed to align the current particle's velocity to a target velocity.	—
+Functions/Math/MinMaxOpWithValidChecks.uasset	MinMaxOpWithValidChecks	—	—
+Functions/Math/MultiplyTransforms.uasset	MultiplyTransforms	—	—
+Functions/Math/NearlyEqual.uasset	NearlyEqual	Checks if two numeric inputs are nearly equal.	—
+Functions/Math/Nlerp_Function.uasset	Nlerp_Function	Normalizes and then scales the result of linearly interpolated vectors. 	—
+Functions/Math/PlaceParticlesOnA_Rectangle_fn.uasset	PlaceParticlesOnA_Rectangle_fn	—	—
+Functions/Math/RemapValueRange.uasset	RemapValueRange	Take an input float within the expected input range, and remaps it to the target range.	—
+Functions/Math/SaturateFloat.uasset	SaturateFloat	—	—
+Functions/Math/ScaleAndOffsetVector.uasset	ScaleAndOffsetVector	Scales a vector and then offsets its value. This can be used to pan 3D texture coordinates or to constant scale bias a vector.	—
+Functions/Math/ScreenSpaceBoundingBox_SupportFunction.uasset	ScreenSpaceBoundingBox_SupportFunction	Designed for a specific usage case and not widely applicable. 	—
+Functions/Math/Slerp_Vectors.uasset	Slerp_Vectors	Performs a spherical lerp operation from point A to B via "Alpha" and then scales the resulting vector.	—
+Functions/Math/SmoothLerpOverTime.uasset	SmoothLerpOverTime	Smoothly converge on a, potentially, moving target value over time.	—
+Functions/Math/SpherePlaneIntersection.uasset	SpherePlaneIntersection	Find any position in which a plane intersects a sphere. 	—
+Functions/Math/SpotLightOverlapTest.uasset	SpotLightOverlapTest	If the particle position lies within a cone, defined by the parameters, a value of 1 will be returned. Various level's of overlap will be returned via a unit space float.	—
+Functions/Math/SubUV_TextureCoordinates.uasset	SubUV_TextureCoordinates	To produce a flipbook animation with this function multiply your uvs within the material by this function's UV Scale output then add the UV Offset output to the result.	—
+Functions/Math/Transform2DLocalPositionToWorldSpace.uasset	Transform2DLocalPositionToWorldSpace	Transform a 2d local space position to 3d world space using a 2d local space position, an x and y basis vector and a pivot position in world space.	—
+Functions/Math/TransformZ_DepthToCameraRelativePosition.uasset	TransformZ_DepthToCameraRelativePosition	652 | 1	Converts camera space z depth values to camera relative world positions. 
+Functions/Math/V2/SmoothLerpOverTime.uasset	SmoothLerpOverTime	Smoothly converge on a, potentially, moving target value over time.	—
+Functions/Math/Waveforms/CalculateWaveform.uasset	CalculateWaveform	Value in which a complete rotation has occurred.	—
+Functions/NormalizeDistanceRange.uasset	NormalizeDistanceRange	Compares the length between two vectors to a distance value, and normalizes within that range. If the distance between the two points is under a tiny value in length (near zero), then pass the fallback vector through as the Normalized Vector Between Points	—
+Functions/NormalizedExecutionIndex.uasset	NormalizedExecutionIndex	By default, the range is Inclusive, meaning the normalized range includes 1. In some cases, making the range exclusive of 1 can be desirable, for instance when feeding a periodic function.	—
+Functions/ParametricTorus.uasset	ParametricTorus	Value in which a complete rotation has occurred.	—
+Functions/ParametricTorusKnot.uasset	ParametricTorusKnot	Value in which a complete rotation has occurred.	—
+Functions/PivotPainter/ConvertIndexTo2DLookup.uasset	ConvertIndexTo2DLookup	Converts an Index into an XY coordinate.	—
+Functions/PivotPainter/FindPixelCount.uasset	FindPixelCount	Retrieves the number of pixels within a texture.	—
+Functions/PivotPainter/PivotPainter16bitTextureAlphaDataTypes.uasset	PivotPainter16bitTextureAlphaDataTypes	—	—
+Functions/PivotPainter/PivotPainter8BitTextureAlphaDataTypes.uasset	PivotPainter8BitTextureAlphaDataTypes	—	—
+Functions/PivotPainter/PivotPainterTextureRGBDataTypes.uasset	PivotPainterTextureRGBDataTypes	—	—
+Functions/PivotPainter/ms_PivotPainter2_CalculateMeshElementIndex_NF.uasset	ms_PivotPainter2_CalculateMeshElementIndex_NF	Finds the index of a pivot painter 2 element based off of it's uv coordinate and the data texture's dimensions. 	—
+Functions/PivotPainter/ms_PivotPainter2_Decode8BitAlphaAxisExtent_NF.uasset	ms_PivotPainter2_Decode8BitAlphaAxisExtent_NF	Converts a pivot painter 2 8 bit alpha extent value from it's stored 0-1 value to the correct world space 8-2048 unit value.	—
+Functions/PivotPainter/ms_PivotPainter2_DecodeAxisVector_NF.uasset	ms_PivotPainter2_DecodeAxisVector_NF	Converts a Pivot Painter data texture vector to world space. 	—
+Functions/PivotPainter/ms_PivotPainter2_DecodePostion_NF.uasset	ms_PivotPainter2_DecodePostion_NF	Converts a pivot painter 2 position texture value to world positions.	—
+Functions/PivotPainter/ms_PivotPainter2_PackIntegerAsFloat_NF.uasset	ms_PivotPainter2_PackIntegerAsFloat_NF	Converts an input Int into the Half Float format. Supports values up to 61439. Values up to 30719 can be passed without negative values.	—
+Functions/PivotPainter/ms_PivotPainter2_ReturnParentTextureInfo_NF.uasset	ms_PivotPainter2_ReturnParentTextureInfo_NF	Finds the UV coordinates for a Pivot Painter 2 element's parent data in a Pivot Painter 2 data texture. 	—
+Functions/PivotPainter/ms_PivotPainter2_UnpackIntegerAsFloat_NF.uasset	ms_PivotPainter2_UnpackIntegerAsFloat_NF	Takes in Pivot Painter 2 data texture's alpha channel and unpacks it to an int. Note that the alpha channel has to be an index exported as a float.	—
+Functions/PointToLineSegmentDistance.uasset	PointToLineSegmentDistance	Finds the closest point on a line segment.	—
+Functions/PolarToCartesianCoordinates.uasset	PolarToCartesianCoordinates	Converts Polar Space coordinates to cartesian. Also provides the derivatives(tangents).	—
+Functions/Position/RecreateCameraProjection.uasset	RecreateCameraProjection	712 | 1	Recreate world position from a z depth capture.
+Functions/ProjectVectorOnPlane.uasset	ProjectVectorOnPlane	668 | 1	OutputDataFloat(0, 0, TmpWriteIndex, Context.Map.Particles.Ouput.x);
+Functions/RandomBool.uasset	RandomBool	Return either true or false with 50% probability.	—
+Functions/RandomPointInBox.uasset	RandomPointInBox	Depending on the selected value, the random value returned will be a different one every frame or will be different only once per spawn evaluation.	—
+Functions/RandomPointInSphere.uasset	RandomPointInSphere	A|o	Generates vectors to uniform random points inside a sphere between an inner and an outer radius. 
+Functions/RandomRange.uasset	RandomRange	Generates uniform random numbers in an interval.	—
+Functions/RandomRangeFloat.uasset	RandomRangeFloat	Generates uniform random numbers in an interval for floating point types.	—
+Functions/RandomRangeInteger.uasset	RandomRangeInteger	Generates uniform random numbers in an interval for integer types, including booleans and enums.	—
+Functions/RandomUnitVector.uasset	RandomUnitVector	Generates random numbers on the unit sphere and unit circle (radius 1), i.e. random unit vectors.	—
+Functions/RandomVector.uasset	RandomVector	—	—
+Functions/RandomVectorInCone.uasset	RandomVectorInCone	x|W	Randomly distribute inside the circle. Defaults to distance squared
+Functions/ReflectVector.uasset	ReflectVector	—	—
+Functions/RemapRange.uasset	RemapRange	Remaps an input value from the input range to the output range.	—
+Functions/Ribbons/FindGridLocationRibbonID.uasset	FindGridLocationRibbonID	This function can be used to set a grid aligned particles Ribbon ID to form axis aligned ribbons. 	—
+Functions/Rotation/AlignQuaternions.uasset	AlignQuaternions	If the quaternions are pointing in two different directions, negate the new rotation to better align with the old.	—
+Functions/Rotation/AngleBetweenQuaternions.uasset	AngleBetweenQuaternions	—	—
+Functions/Rotation/AngleUnitConverter.uasset	AngleUnitConverter	-b| f	Convert Degrees to Radians or vice versa.
+Functions/Rotation/AxisAngleToEuler.uasset	AxisAngleToEuler	AxisAngle.xyz= normalize(AxisAngle).xyz;	—
+Functions/Rotation/AxisAngleToQuaternion.uasset	AxisAngleToQuaternion	—	—
+Functions/Rotation/AxisAngleToRotationMatrix.uasset	AxisAngleToRotationMatrix	—	—
+Functions/Rotation/ConvertRotationsToRadians.uasset	ConvertRotationsToRadians	Convert Radians to the number of rotations and vice versa.	—
+Functions/Rotation/EulerRadiansToQuaternion.uasset	EulerRadiansToQuaternion	—	—
+Functions/Rotation/EulerToAxisAngle.uasset	EulerToAxisAngle	X|WD	—
+Functions/Rotation/EulerToQuaternion.uasset	EulerToQuaternion	—	—
+Functions/Rotation/EulerToRotationMatrix.uasset	EulerToRotationMatrix	—	—
+Functions/Rotation/ExtractBasisVectorsFromQuaternion.uasset	ExtractBasisVectorsFromQuaternion	—	—
+Functions/Rotation/FindQuatBetween.uasset	FindQuatBetween	These blocks are here strictly for backwards compatibility.  They provide hidden default values which should be discouraged.	—
+Functions/Rotation/InverseQuaternion.uasset	InverseQuaternion	—	—
+Functions/Rotation/InvertQuaternion.uasset	InvertQuaternion	Reverses the rotation that a quat performs.	—
+Functions/Rotation/LerpQuaternion.uasset	LerpQuaternion	—	—
+Functions/Rotation/MakeQuaternionFrom3BasisVectors.uasset	MakeQuaternionFrom3BasisVectors	—	—
+Functions/Rotation/MakeQuaternionFromXAndYVectors.uasset	MakeQuaternionFromXAndYVectors	Safely generates a quat from an X and Y Vector.	—
+Functions/Rotation/MakeQuaternionFromXAndZVectors.uasset	MakeQuaternionFromXAndZVectors	Safely generates a quat from an X and Z Vector.	—
+Functions/Rotation/MakeQuaternion_Fn.uasset	MakeQuaternion_Fn	Default value for Engine.Owner.SystemXAxis. Disabled for Engine Parameters.	—
+Functions/Rotation/MatrixToQuaternion.uasset	MatrixToQuaternion	—	—
+Functions/Rotation/MultiplyBy2PI.uasset	MultiplyBy2PI	—	—
+Functions/Rotation/MultiplyQuaternion.uasset	MultiplyQuaternion	—	—
+Functions/Rotation/MultiplyVectorWithQuaternion.uasset	MultiplyVectorWithQuaternion	—	—
+Functions/Rotation/QuaternionToAxisAngle.uasset	QuaternionToAxisAngle	—	—
+Functions/Rotation/QuaternionToRotationMatrix.uasset	QuaternionToRotationMatrix	—	—
+Functions/Rotation/RandomQuaternion.uasset	RandomQuaternion	Normally, the random number generator uses The unique particle ID, a system level tick counter, and the supplied user random seed from the "Override Seed" value. 	—
+Functions/Rotation/RotateAngleOnAxis.uasset	RotateAngleOnAxis	Value in which a complete rotation has occurred.	—
+Functions/Rotation/RotateVector2D.uasset	RotateVector2D	Value in which a complete rotation has occurred.	—
+Functions/Rotation/SlerpQuaternion.uasset	SlerpQuaternion	—	—
+Functions/Rotation/TransformStack/TransformStack_Rotation.uasset	TransformStack_Rotation	Default value for Local.Module.LocalTransformVector if no other module has set it previously in the stack.	—
+Functions/Rotation/TransformVectorToMeshSpace.uasset	TransformVectorToMeshSpace	This will convert a world space vector into the mesh particle's local space. 	—
+Functions/Rotation/TwoVectorsToQuaternion.uasset	TwoVectorsToQuaternion	—	—
+Functions/Rotation/XYZRotationToQuaternion.uasset	XYZRotationToQuaternion	—	—
+Functions/SimulationStageIterationInfo.uasset	SimulationStageIterationInfo	640 | 1	Returns information about the current simulation stage iteration.
+Functions/SkeletalMesh/FindSkeletalMeshTriangleNormal.uasset	FindSkeletalMeshTriangleNormal	Takes the TriangleIndex from a MeshTriCoord and returns the vertices for that triangle.	—
+Functions/Spawn/ScaleBurstSpawnCount.uasset	ScaleBurstSpawnCount	Default value for Engine.Emitter.SpawnCountScale. Disabled for Engine Parameters.	—
+Functions/SphereTraceDistanceField_GPU.uasset	SphereTraceDistanceField_GPU	Finds the nearest iso surface along a vector.	—
+Functions/SphericalToCartesianCoordinates.uasset	SphericalToCartesianCoordinates	Generates Cartesian Coordinates from a spherical coordinate using normalized 0-1 angles, or radians.	—
+Functions/Spline/FindPositionAndTangentOnBezierSpline.uasset	FindPositionAndTangentOnBezierSpline	—	—
+Functions/Spline/FindPositionOnBezierSpline.uasset	FindPositionOnBezierSpline	—	—
+Functions/Spline/FindPositionOnCatmullRomSpline.uasset	FindPositionOnCatmullRomSpline	—	—
+Functions/System/SystemChangeState.uasset	SystemChangeState	Changes the Execution State of a system and checks for invalid state changes.	—
+Functions/Textures/CalculateA_VolumeTexturesDistanceFieldGradient.uasset	CalculateA_VolumeTexturesDistanceFieldGradient	664 | 1	Samples a distance field texture several times to calculate an accurate surface normal.
+Functions/Transform/TransformPoints_Fn.uasset	TransformPoints_Fn	Store off the offset and apply it to position.	—
+Functions/Trig/SinXoverXinRadians.uasset	SinXoverXinRadians	Returns the Sin of X divided by X, in Radians.	—
+Functions/UniqueRandomInRange.uasset	UniqueRandomInRange	656 | 1	Randomly maps the seed to the given range so that each seed value maps to exactly one value in the range.
+Functions/V2/CalculateRandomBool.uasset	CalculateRandomBool	Return either true or false with 50% probability.	—
+Functions/V2/CalculateRandomPointInSphere.uasset	CalculateRandomPointInSphere	Generates vectors to uniform random points inside a sphere between an inner and an outer radius. 	—
+Functions/V2/CalculateRandomRange.uasset	CalculateRandomRange	Depending on the selected value, the random value returned will be a different one every frame or will be different only once per spawn evaluation.	—
+Functions/V2/CalculateRandomRangeFloat.uasset	CalculateRandomRangeFloat	Calculates a random float between Float Min and Float Max, not including Float Max.	—
+Functions/V2/CalculateRandomRangeInteger.uasset	CalculateRandomRangeInteger	Depending on the selected value, the random value returned will be a different one every frame or will be different only once per spawn evaluation.	—
+Functions/V2/CalculateRandomUnitVector.uasset	CalculateRandomUnitVector	Generates random numbers on the unit sphere and unit circle (radius 1), i.e. random unit vectors.	—
+Functions/V2/ConeMask.uasset	ConeMask	668 | 1	Smoothly transitions from 1.0 if the sample position lies within a spherical cone to 0.0 if it falls outside of it. 
+Functions/V2/DistanceBasedFalloff.uasset	DistanceBasedFalloff	Apply a distance based falloff to a value, by comparing input positions and dividing their distance by a distance factor.	—
+Functions/V2/FindClosestPointOnLine.uasset	FindClosestPointOnLine	Local.Module.Line Segment Start Position	—
+Functions/V2/FindPlaneNormal.uasset	FindPlaneNormal	+|-4	Calculates the normal of a plane from 3 points along the surface.
+Functions/V2/RemapRange.uasset	RemapRange	Remaps an input value from the input range to the output range.	—
+Functions/WedgeLocation.uasset	WedgeLocation	Place a particle within a 3 dimensional wedge.	—
